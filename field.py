@@ -18,7 +18,7 @@ class Field:
             return False
         self._cards.append(card)
         self.event_manager.queue_event(Event("CardPlayedToField", {'card': card}))
-        print(f"{card.card_data.name}이(가) 전장에 소환되었습니다.")
+        print(f"{card.data.name}이(가) 전장에 소환되었습니다.")
         return True
 
     def remove_card(self, card: Card) -> bool:

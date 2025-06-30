@@ -5,24 +5,26 @@ class CardType(Enum):
     FOLLOWER = "추종자"
     SPELL = "주문"
     AMULET = "마법진"
+    LEADER = "리더"
 
 class EventType(Enum):
     """게임 내에서 발생하는 이벤트 타입 정의"""
-    CARD_PLAYED = "카드_플레이됨"
-    FOLLOWER_DESTROYED = "추종자_파괴됨"
-    TURN_START = "턴_시작"
-    COMBAT_INITIATED = "교전_시작됨"
-    ATTACK_DECLARED = "공격_선언됨"
-    SPELL_CAST = "주문_사용됨"
-    FOLLOWER_EVOLVED = "추종자_진화됨"
-    DAMAGE_DEALT = "데미지_입힘"
-    PP_GAINED = "PP_획득됨" # 각성 조건 확인용
-    # 추가적인 이벤트 타입
-    GAME_START = "게임_시작"
-    TURN_END = "턴_종료"
-    EXTRA_PP_USED = "엑스트라_PP_사용됨"
-    CARD_DRAWN = "카드_드로우됨"
-    CARD_MOVED_TO_GRAVEYARD = "카드_묘지로_이동됨" # 사령술, 유언 등
+    CARD_PLAYED = "카드_플레이됨" # 출격 능력 발동
+    FOLLOWER_DESTROYED = "추종자_파괴됨" # 유언 능력 발동
+    TURN_START = "턴_시작" # 카운트다운 처리
+    COMBAT_INITIATED = "교전_시작됨" # 쌍방 교전시 능력 발동
+    ATTACK_DECLARED = "공격_선언됨" # 공격자 공격시 능력 발동
+    SPELL_CAST = "주문_사용됨" # 주문 능력 발동
+    FOLLOWER_EVOLVED = "추종자_진화됨" # 진화하면 능력 발동
+    DAMAGE_DEALT = "데미지_입힘" # 흡혈 능력 발동
+    TURN_END = "턴_종료" # 턴 종료시 발동
+#    PP_GAINED = "PP_획득됨"
+#    HEALED = "회복됨"
+#    PP_SPENT = "PP_소모됨"
+#    GAME_START = "게임_시작"
+#    EXTRA_PP_USED = "엑스트라_PP_사용됨"
+#    CARD_DRAWN = "카드_드로우됨"
+#    CARD_MOVED_TO_GRAVEYARD = "카드_묘지로_이동됨"
 
 class Zone(Enum):
     """게임 영역 정의"""
@@ -37,3 +39,34 @@ class GamePhase(Enum):
     START_PHASE = "시작_단계"
     MAIN_PHASE = "메인_단계"
     END_PHASE = "종료_단계"
+
+class EffectType(Enum):
+    """카드의 효과 종류를 정의"""
+    FANFARE = "출격"
+    LAST_WORDS = "유언"
+    ON_EVOLVE = "진화시"
+    ON_SUPER_EVOLVE = "초진화시"
+    ACTIVATE = "활성화"
+    WARD = "수호"
+    STORM = "질주"
+    ENHANCE = "증강"
+    SPELL = "주문효과"
+    COUNTDOWN = "카운트다운"
+    BARRIER = "배리어"
+    DRAIN = "흡혈"
+
+class TargetType(Enum):
+    """효과가 적용되는 대상을 정의"""
+    SELF = "자기 자신"
+    OWN_LEADER = "자기 리더"
+    OPPONENT_LEADER = "상대 리더"
+    ALLY_FOLLOWER_CHOICE = "아군 추종자 단일 선택"
+    OPPONENT_FOLLOWER_CHOICE = "상대 추종자 단일 선택"
+    OPPONENT_FOLLOWER_CHOICE2 = "상대 추종자 중 둘 선택"
+    ALL_ALLY_FOLLOWERS = "아군 추종자 전체"
+    ALL_OPPONENT_FOLLOWERS = "상대 추종자 전체"
+    ALLY_FIELD = "아군 전장"
+    OPPONENT_FIELD = "상대 전장"
+    OWN_HAND_CHOICE = "자기 패 단일 선택"
+    OPPONENT_FOLLOWER_MAX_ATTACK_RANDOM = "상대 추종자 중 가장 공격력이 높은 추종자 중 랜덤"
+    ALLY_FOLLOWER_UNEVOLVED = "진화하지 않은 아군 추종자 단일 선택"

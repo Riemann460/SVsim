@@ -31,7 +31,9 @@ class GameStateManager:
         self.leader_max_hp: Dict[str, int] = {} # 플레이어별 리더 체력
         self.current_pp: Dict[str, int] = {} # 플레이어별 현재 PP
         self.max_pp: Dict[str, int] = {} # 플레이어별 최대 PP
-        self.evolution_points: Dict[str, int] = {} # 플레이어별 진화 포인트
+        self.current_ep: Dict[str, int] = {} # 플레이어별 현재 EP
+        self.max_ep: Dict[str, int] = {} # 플레이어별 최대 EP
+        self.spend_ep_in_turn: Dict[str, bool] = {} # 플레이어별 EP 소모 여부
         self.extra_pp_uses: Dict[str, Dict[str, int]] = {} # 후공 엑스트라 PP 사용 횟수 {player_id: {phase: count}}
         self.earth_sigil_stacks: Dict[str, int] = {} # 플레이어별 대지의 인장 스택
 
@@ -46,7 +48,9 @@ class GameStateManager:
             self.cards_in_zones[target_player_id][from_zone.value].remove(card)
         self.cards_in_zones[target_player_id][to_zone.value].append(card)
         card.current_zone = to_zone.value
-        print(f"DEBUG: 카드 {card.card_data['name']}이(가) {from_zone.value}에서 {to_zone.value}로 이동됨.")
+        print(f"DEBUG: 카드 {card.data['name']}이(가) {from_zone.value}에서 {to_zone.value}로 이동됨.")
+
+
 
     def get_player_pp(self, player_id: str) -> int:
         """플레이어의 현재 PP 반환"""
@@ -101,10 +105,10 @@ class GameStateManager:
         graveyard = self.get_cards_in_zone(player_id, Zone.GRAVEYARD)
         eligible_followers = [
             card for card in graveyard
-            if card.card_data['type'] == CardType.FOLLOWER.value and card.card_data['cost'] <= max_cost
+            if card.data['type'] == CardType.FOLLOWER.value and card.data['cost'] <= max_cost
         ]
         if not eligible_followers:
             return None
         # 코스트가 높은 순, 그 다음은 임의로 선택 (실제 게임은 특정 규칙 따름)
-        eligible_followers.sort(key=lambda c: c.card_data['cost'], reverse=True)
+        eligible_followers.sort(key=lambda c: c.data['cost'], reverse=True)
         return eligible_followers[0]

@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Optional
 
-from enums import GamePhase, CardType, EventType, Zone  # 상대 경로 임포트
+from enums import GamePhase, CardType, EventType, Zone, EffectType  # 상대 경로 임포트
 from event_manager import EventManager # 상대 경로 임포트
 from card import Card # 상대 경로 임포트
 from game_state_manager import GameStateManager
@@ -31,6 +31,12 @@ class Game:
         self.game_state_manager.current_pp[player2_id] = 0
         self.game_state_manager.max_pp[player1_id] = 0
         self.game_state_manager.max_pp[player2_id] = 0
+        self.game_state_manager.current_ep[player1_id] = 0
+        self.game_state_manager.current_ep[player2_id] = 0
+        self.game_state_manager.max_ep[player1_id] = 2
+        self.game_state_manager.max_ep[player2_id] = 2
+        self.game_state_manager.spend_ep_in_turn[player1_id] = False
+        self.game_state_manager.spend_ep_in_turn[player2_id] = False
         self.game_state_manager.extra_pp_uses[player2_id] = {"1-5": 1, "6+": 1}  # 후공만 엑스트라 PP 사용 가능
         self.game_state_manager.earth_sigil_stacks[player1_id] = 0
         self.game_state_manager.earth_sigil_stacks[player2_id] = 0
@@ -102,12 +108,12 @@ class Game:
         player2_deck = []
         for _ in range(3):
             for data in card_data_list[:12]:
-                player1_deck.append(data)
-                player2_deck.append(data)
+                player1_deck.append(Card(data, player1_id))
+                player2_deck.append(Card(data, player2_id))
         for _ in range(2):
             for data in card_data_list[12:]:
-                player1_deck.append(data)
-                player2_deck.append(data)
+                player1_deck.append(Card(data, player1_id))
+                player2_deck.append(Card(data, player2_id))
 
         import random
         random.shuffle(player1_deck)
@@ -125,16 +131,79 @@ class Game:
         print("\nDEBUG: 초기 드로우 단계 시작")
         for _ in range(4):
             self._draw_card(player1_id)
+        self.event_manager.process_events(self.game_state_manager, self.effect_processor)  # 드로우 이벤트 처리
+
         for _ in range(4):
             self._draw_card(player2_id)
+        self.event_manager.process_events(self.game_state_manager, self.effect_processor)  # 드로우 이벤트 처리
 
-        print("DEBUG: 멀리건 단계 시작 (구현 필요)")
-        # TODO: 멀리건 로직 추가
-        # 멀리건: 각 플레이어가 원하는 카드를 덱으로 돌려보내고 같은 수만큼 다시 드로우
-        # 멀리건된 카드는 덱 맨 아래로 임의의 순서로 들어가야 함.
-        # 예시:
-        # self._perform_mulligan(player1_id)
-        # self._perform_mulligan(player2_id)
+        print("DEBUG: 멀리건 단계 시작")
+        self._perform_mulligan(player1_id)
+        self._perform_mulligan(player2_id)
+
+    def _perform_mulligan(self, player_id):
+        print(f"DEBUG: {player_id}멀리건 시작")
+        hand = self.game_state_manager.get_cards_in_zone(player_id,Zone.HAND)
+        if not hand:
+            print("손에 카드가 없어 멀리건을 진행할 수 없습니다.")
+            return
+
+        # 1. 현재 패 보여주기
+        print(f"현재 {player_id}의 패: {[c.data['name'] for c in hand]}")
+
+        num_cards_in_hand = len(hand)
+
+        # 2. 사용자 입력 및 유효성 검사
+        while True:
+            prompt = f"총 {num_cards_in_hand}자리의 이진수(예: 1010)를 입력하세요: "
+            mulligan_input = input(prompt)
+
+            # 유효성 검사 1: 입력 길이 확인
+            if len(mulligan_input) != num_cards_in_hand:
+                print(f"오류: 입력 길이는 반드시 {num_cards_in_hand}자리여야 합니다.")
+                continue
+
+            # 유효성 검사 2: 0과 1로만 구성되었는지 확인
+            if not all(c in '01' for c in mulligan_input):
+                print("오류: 입력은 '0'과 '1'로만 구성되어야 합니다.")
+                continue
+
+            break # 유효한 입력이 들어오면 루프 탈출
+
+        # 3. 멀리건할 카드 식별 및 덱으로 이동
+        cards_to_mulligan = []
+
+        for i in range(num_cards_in_hand - 1, -1, -1):
+            if mulligan_input[i] == '1':
+                card_to_move = hand[i]
+                cards_to_mulligan.append(card_to_move)
+                self.game_state_manager.move_card(card_to_move, Zone.HAND, Zone.DECK, player_id)
+
+        if not cards_to_mulligan:
+            print("교체할 카드를 선택하지 않았습니다. 멀리건을 종료합니다.")
+            print(f"최종 손패: {[c.data['name'] for c in hand]}")
+            return
+
+        print(f"\n선택한 {len(cards_to_mulligan)}장의 카드를 덱으로 돌려보냅니다.")
+
+        # 4. 덱 셔플
+        deck = self.game_state_manager.get_cards_in_zone(player_id, Zone.DECK)
+
+        import random
+        random.shuffle(deck)
+
+        self.game_state_manager.cards_in_zones[player_id][Zone.DECK.value] = deck
+
+        # 5. 교체한 카드 수만큼 새로 드로우
+        num_to_draw = len(cards_to_mulligan)
+        for _ in range(num_to_draw):
+            self._draw_card(player_id)
+        self.event_manager.process_events(self.game_state_manager, self.effect_processor)  # 드로우 이벤트 처리
+
+        print(f"\n===== {player_id}님의 멀리건이 종료되었습니다. =====")
+        print(f"최종 손패: {[c.data['name'] for c in self.game_state_manager.get_cards_in_zone(player_id, Zone.HAND)]}")
+
+        print(f"DEBUG: {player_id}멀리건 종료")
 
     def _draw_card(self, player_id: str):
         """카드 드로우 로직"""
@@ -148,12 +217,12 @@ class Game:
         drawn_card = deck.pop(0)
         if len(hand) >= 9:  # 패 제한 9장
             self.game_state_manager.move_card(drawn_card, Zone.DECK, Zone.GRAVEYARD, player_id)  # 10장째는 묘지로
-            self.event_manager.publish(EventType.CARD_MOVED_TO_GRAVEYARD, {"card": drawn_card, "reason": "패_제한_초과"})
-            print(f"DEBUG: {drawn_card.card_data['name']}이(가) 패 제한 초과로 묘지로 보내짐.")
+            # self.event_manager.publish(EventType.CARD_MOVED_TO_GRAVEYARD, {"card": drawn_card, "reason": "패_제한_초과"})
+            print(f"DEBUG: {drawn_card.data['name']}이(가) 패 제한 초과로 묘지로 보내짐.")
         else:
             self.game_state_manager.move_card(drawn_card, Zone.DECK, Zone.HAND, player_id)
-            self.event_manager.publish(EventType.CARD_DRAWN, {"player_id": player_id, "card": drawn_card})
-            print(f"DEBUG: {player_id}가 {drawn_card.card_data['name']}을(를) 드로우함.")
+            # self.event_manager.publish(EventType.CARD_DRAWN, {"player_id": player_id, "card": drawn_card})
+            print(f"DEBUG: {player_id}가 {drawn_card.data['name']}을(를) 드로우함.")
 
     def start_turn(self, player_id: str):
         """턴 시작 단계 처리"""
@@ -166,17 +235,20 @@ class Game:
         if current_max_pp < 10:
             self.game_state_manager.max_pp[player_id] += 1
         self.game_state_manager.set_player_pp(player_id, self.game_state_manager.get_player_max_pp(player_id))
-        self.event_manager.publish(EventType.PP_GAINED, {"player_id": player_id})  # 각성 조건 확인용으로 사용될 수 있음
+        # self.event_manager.publish(EventType.PP_GAINED, {"player_id": player_id})  # 각성 조건 확인용으로 사용될 수 있음
 
-        # 턴 시작 시 카드 1장 드로우 (선공의 첫 턴 제외)
-        if not (self.game_state_manager.turn_number == 1 and player_id == "player1"):
-            self._draw_card(player_id)
+        # 진화 가능 턴 처리
+        if self.game_state_manager.turn_number in [8,9]:
+            self.game_state_manager.current_ep[player_id] += 2
+
+        # 턴 시작 시 카드 1장 드로우
+        self._draw_card(player_id)
 
         # 필드 추종자 engaged 상태 리셋 (새로 공격 가능하게)
         for card in self.game_state_manager.get_cards_in_zone(player_id, Zone.FIELD):
-            if card.card_data['type'] == CardType.FOLLOWER.value:
+            if card.data['card_type'] == CardType.FOLLOWER:
                 card.is_engaged = False
-                card.has_storm_this_turn = False  # 질주/돌진 상태 리셋 (공격 안했으면 계속 유지)
+                card.is_summoned = False
 
         self.event_manager.publish(EventType.TURN_START,
                                    {"player_id": player_id, "turn_number": self.game_state_manager.turn_number})
@@ -195,25 +267,23 @@ class Game:
             return False
 
         if not self.rule_engine.validate_play_card(card_to_play, player_id):
-            print(f"ERROR: {card_to_play.card_data['name']} 카드 플레이 유효성 검사 실패.")
+            print(f"ERROR: {card_to_play.data['name']} 카드 플레이 유효성 검사 실패.")
             return False
 
         self.game_state_manager.set_player_pp(player_id, self.game_state_manager.get_player_pp(
             player_id) - card_to_play.current_cost)
         print(
-            f"DEBUG: {player_id}가 {card_to_play.card_data['name']}을(를) PP {card_to_play.current_cost} 소모하여 플레이함. 남은 PP: {self.game_state_manager.get_player_pp(player_id)}")
+            f"DEBUG: {player_id}가 {card_to_play.data['name']}을(를) PP {card_to_play.current_cost} 소모하여 플레이함. 남은 PP: {self.game_state_manager.get_player_pp(player_id)}")
 
         # 카드 타입에 따른 처리
-        if card_to_play.card_data['type'] == CardType.FOLLOWER.value or card_to_play.card_data[
-            'type'] == CardType.AMULET.value:
+        if card_to_play.get_type() in [CardType.FOLLOWER, CardType.AMULET]:
             self.game_state_manager.move_card(card_to_play, Zone.HAND, Zone.FIELD, player_id)
             # 마법진인 경우 카운트다운 초기화
-            if card_to_play.card_data['type'] == CardType.AMULET.value and '카운트다운' in [k['name'] for k in
-                                                                                       card_to_play.keywords]:
-                card_to_play.countdown_value = card_to_play.card_data.get("countdown_initial",
-                                                                          card_to_play.countdown_value)
+            if card_to_play.get_type() == CardType.AMULET and card_to_play.has_keyword(EffectType.COUNTDOWN):
+                card_to_play.countdown_value = card_to_play.data.get("countdown_initial",
+                                                                     card_to_play.countdown_value)
 
-        elif card_to_play.card_data['type'] == CardType.SPELL.value:
+        elif card_to_play.get_type() == CardType.SPELL:
             self.game_state_manager.move_card(card_to_play, Zone.HAND, Zone.GRAVEYARD, player_id)  # 주문은 사용 즉시 묘지로
 
         # 타겟 결정 (추후 정교화 필요)
@@ -237,23 +307,67 @@ class Game:
                     print(f"WARNING: 타겟 카드 {tid}를 찾을 수 없음.")
 
         # 카드에 정의된 즉발 효과 해결
-        if "effect" in card_to_play.card_data:
-            self.effect_processor.resolve_effect(
-                card_to_play.card_data["effect"],
-                card_to_play, targets, self.game_state_manager, player_id
-            )
-
-        # 엑스트라 PP 사용 로직 (Player 클래스의 메서드로 캡슐화될 수 있음)
-        if card_to_play.has_keyword("엑스트라 PP 사용"):  # 가정: 엑스트라 PP도 카드로 모델링
-            # 실제 엑스트라 PP는 카드 플레이가 아닌 플레이어 능력임.
-            # 이 부분은 PlayerManager 또는 GameStateManger에서 별도로 처리해야 함.
-            print("DEBUG: 엑스트라 PP 사용 로직 (추후 구현)")
+        if card_to_play.has_keyword(EffectType.FANFARE):
+            for effect in card_to_play.data.effects:
+                self.effect_processor.resolve_effect(
+                    effect, card_to_play, targets, self.game_state_manager, player_id
+                )
 
         self.event_manager.publish(EventType.CARD_PLAYED, {"player_id": player_id, "card": card_to_play})
-        self.event_manager.publish(EventType.SPELL_CAST, {"player_id": player_id, "card": card_to_play,
-                                                          "caster_id": card_to_play.card_id})  # 주문 증폭용
+        if card_to_play.get_type()==CardType.SPELL:
+            self.event_manager.publish(EventType.SPELL_CAST, {"player_id": player_id, "card": card_to_play,
+                                                              "caster_id": card_to_play.card_id})  # 주문 증폭용
         self.event_manager.process_events(self.game_state_manager, self.effect_processor)
 
+        return True
+
+    def attack_leader(self, attacker_id: str, player_id: str):
+        """추종자로 리더 공격"""
+        ally_field_cards = self.game_state_manager.get_cards_in_zone(player_id, Zone.FIELD)
+
+        attacker = next((c for c in ally_field_cards if c.card_id == attacker_id), None)
+        target = self.game_state_manager.players[self._get_opponent_id(player_id)]
+
+        if not attacker or not target:
+            print("ERROR: 공격자 또는 대상 리더를 찾을 수 없음.")
+            return False
+
+        if not self.rule_engine.validate_attack(attacker, target, player_id):
+            print("ERROR: 공격 유효성 검사 실패.")
+            return False
+
+        print(f"DEBUG: {attacker.data['name']}이(가) {target.player_id}을(를) 공격!")
+
+        # 공격시 효과
+        self.event_manager.publish(EventType.ATTACK_DECLARED,
+                                   {"attacker": attacker, "target": target, "player_id": player_id})
+        self.event_manager.process_events(self.game_state_manager, self.effect_processor)
+
+        # 교전시 효과
+        self.event_manager.publish(EventType.COMBAT_INITIATED,
+                                   {"attacker": attacker, "defender": target, "player_id": player_id})
+        self.event_manager.process_events(self.game_state_manager, self.effect_processor)
+
+        # 실제 전투 데미지 처리
+        # 배리어 처리
+        target_damage_taken = attacker.current_attack
+
+        if target.has_keyword(EffectType.BARRIER):
+            print(f"DEBUG: {target.data['name']} 배리어로 데미지 0 받음.")
+            target_damage_taken = 0
+
+        target.take_damage(target_damage_taken)
+
+        # 흡혈 효과
+        if attacker.has_keyword(EffectType.DRAIN):
+            self.effect_processor.resolve_effect(
+                {"effect_type": "HEAL_LEADER", "value": attacker.current_attack},  # 흡혈은 공격력만큼 회복
+                attacker, [], self.game_state_manager, player_id
+            )
+
+        attacker.is_engaged = True  # 공격 완료 표시
+
+        self.event_manager.process_events(self.game_state_manager, self.effect_processor)
         return True
 
     def attack_follower(self, attacker_id: str, target_id: str, player_id: str):
@@ -272,7 +386,7 @@ class Game:
             print("ERROR: 공격 유효성 검사 실패.")
             return False
 
-        print(f"DEBUG: {attacker.card_data['name']}이(가) {target.card_data['name']}을(를) 공격!")
+        print(f"DEBUG: {attacker.data['name']}이(가) {target.data['name']}을(를) 공격!")
 
         # 공격시 효과
         self.event_manager.publish(EventType.ATTACK_DECLARED,
@@ -289,19 +403,19 @@ class Game:
         attacker_damage_taken = target.current_attack
         target_damage_taken = attacker.current_attack
 
-        if attacker.has_keyword("배리어"):  # 배리어: 다음에 받는 데미지를 0으로 만든다.
+        if attacker.has_keyword(EffectType.BARRIER):  # 배리어: 다음에 받는 데미지를 0으로 만든다.
             # 실제 구현에서는 배리어 상태를 추적하고, 데미지 적용 전에 소비해야 함.
-            print(f"DEBUG: {attacker.card_data['name']} 배리어로 데미지 0 받음.")
+            print(f"DEBUG: {attacker.data['name']} 배리어로 데미지 0 받음.")
             attacker_damage_taken = 0
-        if target.has_keyword("배리어"):
-            print(f"DEBUG: {target.card_data['name']} 배리어로 데미지 0 받음.")
+        if target.has_keyword(EffectType.BARRIER):
+            print(f"DEBUG: {target.data['name']} 배리어로 데미지 0 받음.")
             target_damage_taken = 0
 
         attacker_destroyed = attacker.take_damage(attacker_damage_taken)
         target_destroyed = target.take_damage(target_damage_taken)
 
         # 흡혈 효과
-        if attacker.has_keyword("흡혈"):
+        if attacker.has_keyword(EffectType.DRAIN):
             self.effect_processor.resolve_effect(
                 {"effect_type": "HEAL_LEADER", "value": attacker.current_attack},  # 흡혈은 공격력만큼 회복
                 attacker, [], self.game_state_manager, player_id
@@ -328,18 +442,6 @@ class Game:
                                    {"player_id": player_id, "turn_number": self.game_state_manager.turn_number})
         self.event_manager.process_events(self.game_state_manager, self.effect_processor)
 
-        # 패 제한 처리 (9장 초과 시 9장으로 버림)
-        hand = self.game_state_manager.get_cards_in_zone(player_id, Zone.HAND)
-        while len(hand) > 9:
-            # 가장 최근에 들어온 카드부터 버리는 로직 (또는 임의 선택)
-            card_to_discard = hand.pop()
-            self.game_state_manager.move_card(card_to_discard, Zone.HAND, Zone.GRAVEYARD)
-            self.event_manager.publish(EventType.CARD_MOVED_TO_GRAVEYARD,
-                                       {"card": card_to_discard, "reason": "패_제한_버림"})
-            print(f"DEBUG: {card_to_discard.card_data['name']}이(가) 패 제한 초과로 버려짐.")
-
-        self.event_manager.process_events(self.game_state_manager, self.effect_processor)
-
         # 다음 턴 플레이어 설정
         opponent_id = self._get_opponent_id(player_id)
         self.game_state_manager.current_turn_player_id = opponent_id
@@ -348,3 +450,6 @@ class Game:
     def _get_opponent_id(self, player_id: str) -> str:
         """상대 플레이어 ID 반환"""
         return "player2" if player_id == "player1" else "player1"
+
+    def can_evolve(self, player_id: str) -> bool:
+        return self.game_state_manager.current_ep[player_id] > 0 and not self.game_state_manager.spend_ep_in_turn[player_id]

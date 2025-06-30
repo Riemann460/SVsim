@@ -16,7 +16,7 @@ class RuleEngine:
 
         # 위압: 이 추종자는 공격의 대상이 될 수 없다.
         if target_card.has_keyword("위압"):
-            print(f"DEBUG: {target_card.card_data['name']}은(는) '위압'으로 공격 대상이 될 수 없음.")
+            print(f"DEBUG: {target_card.data['name']}은(는) '위압'으로 공격 대상이 될 수 없음.")
             return False
 
         # 수호: 상대는 수호가 없는 추종자를 공격할 수 없다.
@@ -24,7 +24,7 @@ class RuleEngine:
         opponent_field = self.game_state_manager.get_cards_in_zone(player_id, Zone.FIELD)
         has_ward_on_field = any(f.has_keyword("수호") for f in opponent_field)
         if has_ward_on_field and not target_card.has_keyword("수호"):
-            print(f"DEBUG: '수호' 추종자가 필드에 있으므로 {target_card.card_data['name']}을(를) 공격할 수 없음.")
+            print(f"DEBUG: '수호' 추종자가 필드에 있으므로 {target_card.data['name']}을(를) 공격할 수 없음.")
             return False
 
         return True # 기본적으로 공격 가능
@@ -33,12 +33,12 @@ class RuleEngine:
         """능력의 대상으로 추종자를 선택할 수 있는지 확인 (오라, 잠복)"""
         # 오라: 이 추종자는 상대방 능력의 대상으로 선택될 수 없다.
         if target_card.has_keyword("오라"):
-            print(f"DEBUG: {target_card.card_data['name']}은(는) '오라'로 능력 대상이 될 수 없음.")
+            print(f"DEBUG: {target_card.data['name']}은(는) '오라'로 능력 대상이 될 수 없음.")
             return False
 
         # 잠복: 상대방의 능력 대상으로 선택되지 않는다.
         if target_card.has_keyword("잠복") and target_card.has_stealth: # 잠복 상태일 때만
-            print(f"DEBUG: {target_card.card_data['name']}은(는) '잠복'으로 능력 대상이 될 수 없음.")
+            print(f"DEBUG: {target_card.data['name']}은(는) '잠복'으로 능력 대상이 될 수 없음.")
             return False
         return True
 
@@ -53,29 +53,29 @@ class RuleEngine:
             return False
 
         # 필드 제한 (추종자/마법진)
-        if (card.card_data['type'] == CardType.FOLLOWER.value or card.card_data['type'] == CardType.AMULET.value) and field_count >= 5:
+        if (card.data['card_type'] == CardType.FOLLOWER.value or card.data['card_type'] == CardType.AMULET.value) and field_count >= 5:
             print(f"DEBUG: 전장 가득 참. 현재 전장: {field_count}, 최대: 5")
             return False
 
         return True
 
-    def validate_attack(self, attacker: Card, target: Card, player_id: str) -> bool:
+    def validate_attack(self, attacker: Card, target, player_id: str) -> bool:
         """공격 유효성 검사"""
         if attacker.owner_id != player_id: # 자신의 카드가 아니면 공격 불가
             return False
         if attacker.is_engaged: # 이미 공격했으면 공격 불가
             return False
-        if attacker.card_data['type'] != CardType.FOLLOWER.value: # 추종자만 공격 가능
+        if attacker.get_type() != CardType.FOLLOWER: # 추종자만 공격 가능
             return False
 
         # 질주/돌진 추종자가 소환된 턴에 공격할 수 없는 경우 (잠복 해제)
         if attacker.has_keyword("잠복") and attacker.has_stealth:
-            print(f"DEBUG: 잠복 추종자 {attacker.card_data['name']}이(가) 공격하여 잠복 해제됨.")
+            print(f"DEBUG: 잠복 추종자 {attacker.data['name']}이(가) 공격하여 잠복 해제됨.")
             attacker.has_stealth = False # 공격 시 잠복 해제
 
         # 타겟팅 규칙 검증
-        if target.card_data['type'] == CardType.FOLLOWER.value:
+        if target.get_type() == CardType.FOLLOWER:
             return self.can_target_follower(attacker, target, player_id)
-        elif target.card_data['type'] == "리더": # 리더 공격
+        elif target.get_type() == CardType.LEADER: # 리더 공격
             return True # 리더 공격은 보통 항상 가능하지만, 수호에 의해 제한될 수 있음
         return False # 알 수 없는 타겟 타입

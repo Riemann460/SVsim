@@ -1,18 +1,21 @@
 import uuid
 from typing import List, Dict, Any
 
+from enums import TargetType, EffectType
+
 
 class Card:
     """게임 내 개별 카드 인스턴스"""
     def __init__(self, card_data: Dict[str, Any], owner_id: str):
         self.card_id = str(uuid.uuid4()) # 고유 ID
-        self.card_data = card_data # CardData에서 로드된 정적 데이터
+        self.data = card_data # CardData에서 로드된 정적 데이터
         self.owner_id = owner_id
         self.current_cost = card_data.get("cost", 0) # 현재 코스트 (주문 증폭 등에 의해 변경될 수 있음)
         self.current_attack = card_data.get("attack", 0) # 현재 공격력
         self.current_defense = card_data.get("defense", 0) # 현재 체력
         self.is_evolved = False # 진화 여부
-        self.is_engaged = False # 참여 여부 (공격 완료 또는 수호 능력 사용)
+        self.is_engaged = False # 공격 완료 여부
+        self.is_summoned = True # 현재 턴 소환 여부
         self.current_zone = None # 현재 카드 위치 (Zone Enum)
         self.keywords = self._parse_keywords(card_data.get("keywords", [])) # 키워드 능력 인스턴스
 
@@ -30,12 +33,12 @@ class Card:
     def take_damage(self, amount: int):
         """추종자가 피해를 입음"""
         self.current_defense -= amount
-        print(f"DEBUG: {self.card_data['name']}이(가) {amount} 피해를 입음. 남은 체력: {self.current_defense}")
+        print(f"DEBUG: {self.data['name']}이(가) {amount} 피해를 입음. 남은 체력: {self.current_defense}")
         if self.current_defense <= 0:
             return True # 파괴됨
         return False
 
-    def can_attack(self, target_type: str = "follower"):
+    def can_attack(self, target_type: TargetType):
         """추종자가 공격할 수 있는지 확인"""
         # 진화한 턴, 질주, 돌진이 아닌 이상 소환된 턴에 공격 불가
         if self.is_evolved or '질주' in [k['name'] for k in self.keywords] or '돌진' in [k['name'] for k in self.keywords]:
@@ -44,6 +47,9 @@ class Card:
         # 이 로직은 턴 시작 시 engaged 상태를 리셋하는 것과 연관됨
         return not self.is_engaged and not self.has_storm_this_turn
 
-    def has_keyword(self, keyword_name: str) -> bool:
+    def has_keyword(self, keyword_name: EffectType) -> bool:
         """특정 키워드 능력을 가지고 있는지 확인"""
-        return any(k['name'] == keyword_name for k in self.keywords)
+        return any(effect.get('type') == keyword_name for effect in self.data.effects)
+
+    def get_type(self):
+        return self.data['card_type']

@@ -18,11 +18,11 @@ class Hand:
             # 패 제한 초과 시 묘지로 보냄 [사용자 질의]
             self.graveyard.add_card(card)
             self.event_manager.queue_event(Event("CardDiscardedFromHandLimit", {'card': card}))
-            print(f"패 제한 초과: {card.card_data.name}이(가) 묘지로 이동했습니다.")
+            print(f"패 제한 초과: {card.data.name}이(가) 묘지로 이동했습니다.")
         else:
             self._cards.append(card)
             self.event_manager.queue_event(Event("CardAddedToHand", {'card': card}))
-            print(f"{card.card_data.name}이(가) 패에 추가되었습니다.")
+            print(f"{card.data.name}이(가) 패에 추가되었습니다.")
 
     def remove_card(self, card: Card) -> bool:
         if card in self._cards:

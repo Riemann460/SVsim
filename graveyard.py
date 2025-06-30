@@ -12,7 +12,7 @@ class Graveyard:
     def add_card(self, card: Card):
         self._cards.append(card)
         self.event_manager.queue_event(Event("CardSentToGraveyard", {'card': card}))
-        print(f"{card.card_data.name}이(가) 묘지로 이동했습니다.")
+        print(f"{card.data.name}이(가) 묘지로 이동했습니다.")
 
     def get_cards(self) -> List[Card]:
         return list(self._cards)

@@ -66,7 +66,7 @@ class EffectProcessor:
             for target_card in target_cards:
                 target_card.current_attack += attack_buff
                 target_card.current_defense += defense_buff
-                print(f"DEBUG: {target_card.card_data['name']}이(가) 공격력 {attack_buff}, 체력 {defense_buff}만큼 버프됨.")
+                print(f"DEBUG: {target_card.data['name']}이(가) 공격력 {attack_buff}, 체력 {defense_buff}만큼 버프됨.")
 
         elif effect_type == "REANIMATE_FOLLOWER":  # 소생
             reanimate_cost = effect_data.get("cost", 0)  # 소생시킬 추종자의 최대 코스트
@@ -74,17 +74,17 @@ class EffectProcessor:
             if reanimated_card:
                 game_state_manager.move_card(reanimated_card, Zone.GRAVEYARD, Zone.FIELD, player_id)
                 # 소생된 추종자의 상태 초기화 등 추가 로직 필요
-                print(f"DEBUG: {player_id}의 묘지에서 {reanimated_card.card_data['name']}이(가) 소생됨.")
+                print(f"DEBUG: {player_id}의 묘지에서 {reanimated_card.data['name']}이(가) 소생됨.")
             else:
                 print(f"DEBUG: 묘지에서 소생시킬 추종자를 찾을 수 없음 (최대 코스트 {reanimate_cost} 이하).")
 
         elif effect_type == "DESTROY_AMULET":  # 카운트다운 0이 되었을 때 마법진 파괴
             for target_card in target_cards:
-                if target_card.card_data['type'] == CardType.AMULET.value:
+                if target_card.data['type'] == CardType.AMULET.value:
                     game_state_manager.move_card(target_card, Zone.FIELD, Zone.GRAVEYARD)
                     self.event_manager.publish(EventType.FOLLOWER_DESTROYED,
                                                {"card": target_card, "destroyer_id": None})  # 마법진 파괴 이벤트
-                    print(f"DEBUG: 마법진 {target_card.card_data['name']}이(가) 파괴됨 (카운트다운 0).")
+                    print(f"DEBUG: 마법진 {target_card.data['name']}이(가) 파괴됨 (카운트다운 0).")
 
         elif effect_type == "APPLY_CREST_EFFECT":  # 크레스트 효과
             crest_effect_data = effect_data.get("crest_effect", {})
@@ -121,7 +121,7 @@ class EffectProcessor:
                             print(f"DEBUG: 콤보 조건 불충족 (현재 {combo_count}, 필요 {required_combo}).")
 
                     if condition_met:
-                        print(f"DEBUG: 카드 {card.card_data['name']}의 키워드 {keyword['name']} 트리거 발동.")
+                        print(f"DEBUG: 카드 {card.data['name']}의 키워드 {keyword['name']} 트리거 발동.")
                         # 특정 키워드에 대한 특별 처리
                         if keyword['name'] == "유언":  # 유언: 파괴되어 묘지에 보내질 때 발동
                             if event_type == EventType.FOLLOWER_DESTROYED and event_data['card'] == card:
@@ -140,22 +140,22 @@ class EffectProcessor:
                             if event_type == EventType.SPELL_CAST and card.current_zone == Zone.HAND.value and \
                                     event_data['caster_id'] != card.card_id:  # 다른 주문 사용 시
                                 card.spellboost_stacks += 1
-                                print(f"DEBUG: 카드 {card.card_data['name']}의 주문 증폭 스택 증가 ({card.spellboost_stacks}).")
+                                print(f"DEBUG: 카드 {card.data['name']}의 주문 증폭 스택 증가 ({card.spellboost_stacks}).")
                                 # 주문 증폭에 따라 코스트 감소 효과가 있다면 여기서 처리
                                 if "cost_reduction_per_stack" in keyword['effect']:
                                     cost_reduction = keyword['effect']['cost_reduction_per_stack']
-                                    card.current_cost = max(0, card.card_data.get("cost", 0) - (
+                                    card.current_cost = max(0, card.data.get("cost", 0) - (
                                                 card.spellboost_stacks * cost_reduction))
-                                    print(f"DEBUG: {card.card_data['name']} 코스트가 주문 증폭으로 {card.current_cost}로 감소.")
+                                    print(f"DEBUG: {card.data['name']} 코스트가 주문 증폭으로 {card.current_cost}로 감소.")
                         elif keyword['name'] == "진화시":  # 진화시: EP를 사용해서 진화했을 때 발동
                             if event_type == EventType.FOLLOWER_EVOLVED and event_data['card'] == card:
                                 self.resolve_effect(keyword['effect'], card, [], game_state_manager, card.owner_id)
                         elif keyword['name'] == "카운트다운":  # 카운트다운: (마법진 대상) 자신의 턴 시작 시 카운트가 1감소하고 0이되면 파괴되는 능력
                             if event_type == EventType.TURN_START and event_data['player_id'] == card.owner_id and \
-                                    card.card_data['type'] == CardType.AMULET.value:
+                                    card.data['type'] == CardType.AMULET.value:
                                 if card.countdown_value is not None:
                                     card.countdown_value -= 1
-                                    print(f"DEBUG: 마법진 {card.card_data['name']}의 카운트다운: {card.countdown_value}")
+                                    print(f"DEBUG: 마법진 {card.data['name']}의 카운트다운: {card.countdown_value}")
                                     if card.countdown_value <= 0:
                                         self.resolve_effect(
                                             {"effect_type": "DESTROY_AMULET", "target_type": "self"},
