@@ -1,0 +1,2 @@
+# SVsim
+Shadowverse WB Simulator
