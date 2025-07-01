@@ -29,5 +29,3 @@ class EventManager:
             print(f"DEBUG: {event_type.value} 이벤트 처리 시작.")
             for listener in self.listeners[event_type]:
                 listener(event)
-            # 이벤트 처리 후, 발생할 수 있는 추가 효과 처리 (예: 유언 효과)
-            effect_processor.resolve_triggered_effects(event_type, event, game_state_manager)

@@ -11,13 +11,17 @@ class Deck:
     def shuffle(self):
         random.shuffle(self._cards)
 
-    def draw_card(self) -> Optional[Card]:
-        if self._cards:
-            return self._cards.pop(0)
-        return None
+    def remove_card(self, card: Card) -> bool:
+        if card in self._cards:
+            self._cards.remove(card)
+            return True
+        return False
 
-    def add_card_to_bottom(self, card: Card):
+    def add_card(self, card: Card):
         self._cards.append(card)
+
+    def get_cards(self) -> List[Card]:
+        return list(self._cards)
 
     def size(self) -> int:
         return len(self._cards)
