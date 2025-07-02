@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING, List, Dict, Any, Optional
 
-from enums import GamePhase, CardType, Zone, EffectType  # 상대 경로 임포트
-from card import Card  # 상대 경로 임포트
-from player import Player  # 상대 경로 임포트
+from enums import GamePhase, CardType, Zone, EffectType, EventType
+from card import Card
+from player import Player
 
 
 class GameStateManager:
-    """모든 게임 상태를 관리하는 중앙 권한 객체"""
+    """게임 보드 상태를 관리하는 객체"""
 
     def __init__(self):
         self.players: Dict[str, Player] = {}
@@ -14,17 +14,23 @@ class GameStateManager:
         self.current_turn_player_id: Optional[str] = None
         self.turn_number: int = 0
         self.game_phase: Optional[GamePhase] = None
+        self._next_card_instance_id = 0
+
+    def create_card_instance(self, card_data, owner_id):
+        new_card_id = str(self._next_card_instance_id)
+        self._next_card_instance_id += 1
+        return Card(card_data, owner_id, new_card_id)
 
     def get_cards_in_zone(self, player_id: str, zone: Zone) -> List[Card]:
         """특정 플레이어의 특정 영역에 있는 카드 조회"""
         player = self.players[player_id]
         return player.get_cards_in_zone(zone)
 
-    def move_card(self, card: Card, from_zone: Zone, to_zone: Zone):
+    def move_card(self, card_id: str, from_zone: Zone, to_zone: Zone):
         """카드를 한 영역에서 다른 영역으로 이동"""
+        card = self.get_entity_by_id(card_id, from_zone)
         player = self.players[card.owner_id]
-        if card in player.get_cards_in_zone(from_zone):
-            player.zone_dict[from_zone].remove_card(card)
+        player.zone_dict[from_zone].remove_card(card_id)
 
         if not player.zone_dict[to_zone].add_card(card):
             if to_zone == Zone.HAND:
@@ -76,8 +82,13 @@ class GameStateManager:
                 card.is_engaged = False
                 card.is_summoned = False
 
-    def play_card(self, player_id, card):
+    def play_card(self, player_id, card_id):
         """지정 카드를 사용"""
+        card = self.get_entity_by_id(card_id)
+        if not card:
+            print(f"ERROR: play_card - card with id {card_id} not found.")
+            return
+
         player = self.players[player_id]
         player.spend_pp(card.current_cost)
         print(
@@ -85,7 +96,7 @@ class GameStateManager:
 
         # 카드 타입에 따른 처리
         if card.get_type() in [CardType.FOLLOWER, CardType.AMULET]:
-            self.move_card(card, Zone.HAND, Zone.FIELD)
+            self.move_card(card_id, Zone.HAND, Zone.FIELD)
             # 마법진인 경우 카운트다운 초기화
             if card.get_type() == CardType.AMULET and card.has_keyword(EffectType.COUNTDOWN):
                 for effect in card.effects:
@@ -93,4 +104,27 @@ class GameStateManager:
                         card.countdown_value = effect['value']
 
         elif card.get_type() == CardType.SPELL:
-            self.move_card(card, Zone.HAND, Zone.GRAVEYARD)  # 주문은 사용 즉시 묘지로
+            self.move_card(card_id, Zone.HAND, Zone.GRAVEYARD)  # 주문은 사용 즉시 묘지로
+
+    def get_entity_by_id(self, entity_id: str, zone: Zone = None) -> Optional[Any]:
+        """Player나 Card의 ID로 인스턴스 조회"""
+        if entity_id in self.players:
+            return self.players[entity_id]
+
+        for player in self.players.values():
+            if zone:
+                for card in player.zone_dict[zone].get_cards():
+                    if card.card_id == entity_id:
+                        return card
+
+            for zone_obj in player.zone_dict.values():
+                for card in zone_obj.get_cards():
+                    if card.card_id == entity_id:
+                        return card
+        return None
+
+    def get_card_name(self, entity_id: str) -> str:
+        entity = self.get_entity_by_id(entity_id)
+        if entity:
+            return entity.card_data['name']
+        return "Unknown Entity"

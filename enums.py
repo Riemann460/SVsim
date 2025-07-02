@@ -42,6 +42,7 @@ class GamePhase(Enum):
 
 class EffectType(Enum):
     """카드의 키워드 종류를 정의"""
+    AURA = "오라"
     CLASH = "교전시"
     STRIKE = "공격시"
     FANFARE = "출격"

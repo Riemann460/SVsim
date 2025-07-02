@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, List
 
+import card_data
 from card import Card
 from enums import CardType, EffectType, EventType, Zone
 from event import Event # 상대 경로 임포트
@@ -26,6 +27,7 @@ class Player:
         self.event_manager = event_manager
         self.spent_ep_in_turn = False
         self.effects = []  # 크레스트 효과 인스턴스
+        self.card_data = card_data.CardData('Leader', 'player_id', 0, CardType.LEADER, 0, self.max_defense, self.effects)
 
         # 영역 초기화
         self.hand = Hand()
@@ -37,7 +39,6 @@ class Player:
     def take_damage(self, amount: int):
         """리더가 피해를 입음"""
         self.current_defense -= amount
-        self.event_manager.publish(EventType.DAMAGE_DEALT, {'player_id': self.player_id, 'amount': amount, 'current_hp': self.current_defense})
         print(f"{self.player_id} 리더가 {amount} 피해를 입었습니다. 현재 체력: {self.current_defense}")
         if self.current_defense <= 0:
             return True  # 게임 종료
@@ -98,6 +99,9 @@ class Player:
 
     def get_type(self):
         return CardType.LEADER
+
+    def get_display_name(self):
+        return self.player_id
 
     def get_cards_in_zone(self, zone: Zone) -> List[Card]:
         return self.zone_dict[zone].get_cards()

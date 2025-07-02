@@ -11,10 +11,11 @@ class Deck:
     def shuffle(self):
         random.shuffle(self._cards)
 
-    def remove_card(self, card: Card) -> bool:
-        if card in self._cards:
-            self._cards.remove(card)
-            return True
+    def remove_card(self, card_id: str) -> bool:
+        for card in self._cards:
+            if card.card_id == card_id:
+                self._cards.remove(card)
+                return True
         return False
 
     def add_card(self, card: Card):

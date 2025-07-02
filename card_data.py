@@ -37,7 +37,6 @@ CARD_DATABASE = {
         {'type': EffectType.LAST_WORDS, 'target': TargetType.OWN_LEADER, 'process': ProcessType.DRAW, 'value': 1},
         {'type': EffectType.ON_EVOLVE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.DRAW, 'value': 1}
     ]),
-    # 이하 변환된 카드들
     "Quake Goliath": CardData("Quake Goliath", "격진의 골리앗", 4, CardType.FOLLOWER, 4, 5, effects=[
         {'type': EffectType.WARD}
     ]),
@@ -52,7 +51,7 @@ CARD_DATABASE = {
     "Caravan Mammoth": CardData("Caravan Mammoth", "캐러밴 맘모스", 7, CardType.FOLLOWER, 10, 10, effects=[]),
     "Adventurers' Guild": CardData("Adventurers' Guild", "모험가 길드", 2, CardType.AMULET, effects=[
         {'type': EffectType.FANFARE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.DRAW, 'value': 1, 'codition': lambda x: x.card_type == CardType.FOLLOWER},
-        {'type': EffectType.ACTIVATE, 'target': TargetType.ALLY_FOLLOWER_CHOICE, 'process': ProcessType.ADD_KEYWORD, 'value': EffectType.RUSH}
+        {'type': EffectType.ACTIVATE, 'target': TargetType.ALLY_FOLLOWER_CHOICE, 'process': ProcessType.ADD_KEYWORD, 'value': {'type': EffectType.RUSH}}
     ]),
     "Ruby, Greedy Cherub": CardData("Ruby, Greedy Cherub", "욕심쟁이 지천사 루비", 2, CardType.FOLLOWER, 2, 2, effects=[
         {'type': EffectType.FANFARE, 'target': TargetType.OWN_HAND_CHOICE, 'process': ProcessType.RETURN_TO_DECK},

@@ -1,15 +1,12 @@
-from enums import Zone, CardType, EffectType
+from enums import Zone, CardType, EffectType, TargetType
 from main_game_logic import Game  # 상대 경로 임포트
+from player import Player
 
 # --- 게임 실행 예시 ---
 if __name__ == "__main__":
     game = Game("player1", "player2")
-
-    # 몇 턴 진행 예시
     current_player = "player1"
-    for turn_num in range(1, 10):  # 4턴까지 진행 예시
-        game.start_turn(current_player)
-
+    for turn_num in range(1, 21):  # 20턴까지 진행 예시
         while True:
             print("\n--- 현재 게임 상태 ---")
             print(
@@ -23,7 +20,7 @@ if __name__ == "__main__":
             if opponent_field_cards:
                 for i, card in enumerate(opponent_field_cards):
                     print(
-                        f"  {i + 1}. [{card.card_id[-4:]}] {card.card_data['name']} (공: {card.current_attack}, 체: {card.current_defense}, 타입: {card.get_type()})" +
+                        f"  {i + 1}. [{card.card_id}] {card.card_data['name']} (공: {card.current_attack}, 체: {card.current_defense}, 타입: {card.get_type().value})" +
                         (
                             f", 남은 카운트다운: {card.countdown_value}" if card.get_type() == CardType.AMULET and card.has_keyword(
                                 '카운트다운') else "") +
@@ -37,7 +34,7 @@ if __name__ == "__main__":
             if player_field_cards:
                 for i, card in enumerate(player_field_cards):
                     print(
-                        f"  {i + 1}. [{card.card_id[-4:]}] {card.card_data['name']} (공: {card.current_attack}, 체: {card.current_defense}, 타입: {card.get_type()})" +
+                        f"  {i + 1}. [{card.card_id}] {card.card_data['name']} (공: {card.current_attack}, 체: {card.current_defense}, 타입: {card.get_type().value})" +
                         (
                             f", 남은 카운트다운: {card.countdown_value}" if card.get_type() == CardType.AMULET and card.has_keyword(
                                 '카운트다운') else "") +
@@ -56,14 +53,14 @@ if __name__ == "__main__":
 
             if choice == '1':  # 패에서 카드 내기
                 player_hand = game.game_state_manager.get_cards_in_zone(current_player, Zone.HAND)
-                playable_cards = [card for card in player_hand if game.rule_engine.validate_play_card(card, current_player)]
+                playable_cards = [card for card in player_hand if game.rule_engine.validate_play_card(card.card_id, current_player)]
                 if not playable_cards:
                     print("패에 카드가 없습니다.")
                     continue
 
                 print("\n--- 현재 사용 가능 패 ---")
                 for i, card in enumerate(playable_cards):
-                    print(f"{i + 1}. [{card.card_id[-4:]}] {card.card_data['name']} (코스트: {card.current_cost}, 타입: {card.get_type()})")
+                    print(f"{i + 1}. [{card.card_id}] {card.card_data['name']} (코스트: {card.current_cost}, 타입: {card.get_type()})")
                 print(f"{len(playable_cards) + 1}. 뒤로 가기")
 
                 card_choice = input("낼 카드 번호를 선택하세요: ")
@@ -76,7 +73,7 @@ if __name__ == "__main__":
                     continue
                 elif 0 <= card_idx < len(playable_cards):
                     selected_card = playable_cards[card_idx]
-                    game.play_card(current_player, selected_card)
+                    game.play_card(current_player, selected_card.card_id)
                 else:
                     print("유효하지 않은 카드 번호입니다.")
 
@@ -90,12 +87,12 @@ if __name__ == "__main__":
                 for i, card in enumerate(player_field_cards):
                     status = []
                     if card.card_data.get('card_type') == CardType.FOLLOWER:
-                        if card.is_summoned: status.append("소환됨")
-                        if card.is_engaged: status.append("공격완료")
-                        if card.is_evolved: status.append("진화")
-                        # 질주, 돌진 등 다른 상태도 추가 가능
+                        if not card.can_attack(TargetType.OPPONENT_LEADER):
+                            if not card.can_attack(TargetType.OPPONENT_FOLLOWER_CHOICE):
+                                status.append("공격 불가")
+                            else: status.append("리더 공격 불가")
                     status_str = f" ({', '.join(status)})" if status else ""
-                    print(f"{i + 1}. [{card.card_id[-4:]}] {card.card_data.get('name')} " +
+                    print(f"{i + 1}. [{card.card_id}] {card.card_data.get('name')} " +
                           f"(공: {card.current_attack}, 체: {card.current_defense})" +
                           status_str)
                 print(f"{len(player_field_cards) + 1}. 뒤로 가기")
@@ -121,8 +118,7 @@ if __name__ == "__main__":
                 card_type = selected_card.get_type()
 
                 # 행동 1: 공격 가능 여부 확인
-                if card_type == CardType.FOLLOWER and not selected_card.is_engaged and (
-                        not selected_card.is_summoned or selected_card.is_evolved):
+                if card_type == CardType.FOLLOWER and selected_card.can_attack(TargetType.OPPONENT_FOLLOWER_CHOICE):
                     available_actions.append("추종자 공격")
 
                 # 행동 2: 진화 가능 여부 확인
@@ -139,7 +135,7 @@ if __name__ == "__main__":
                     continue
 
                 # --- 3. 가능한 행동 목록 표시 및 선택 ---
-                print(f"\n--- [{selected_card.card_data.get('name')}]으로 할 행동 선택 ---")
+                print(f"[{game.game_state_manager.get_card_name(selected_card.card_id)}]으로 할 행동 선택 ---")
                 for i, action in enumerate(available_actions):
                     print(f"{i + 1}. {action}")
                 print(f"{len(available_actions) + 1}. 취소")
@@ -165,33 +161,22 @@ if __name__ == "__main__":
                 if chosen_action == "추종자 공격":
                     # 기존의 '공격 대상 선택' 로직 재사용
                     print("\n--- 공격 대상 선택 ---")
-                    opponent_field_followers = [c for c in opponent_field_cards if c.get_type() == CardType.FOLLOWER]
-                    ward_followers = [c for c in opponent_field_followers if c.has_keyword(EffectType.WARD)]
-                    possible_targets = []
-
-                    if ward_followers:
-                        print("상대방 필드에 '수호'를 가진 추종자가 있어, 해당 추종자만 공격할 수 있습니다.")
-                        possible_targets.extend(ward_followers)
-
-                    else:
-                        possible_targets.extend(opponent_field_followers)
-                        if not selected_card.is_summoned:
-                            possible_targets.append("상대 리더")
-                        if selected_card.has_keyword("질주"):
-                            possible_targets.append("상대 리더")
+                    opponent_targets_id = [c.card_id for c in opponent_field_cards if c.get_type() == CardType.FOLLOWER] + [opponent_id]
+                    possible_targets_id = [target_id for target_id in opponent_targets_id if game.rule_engine.validate_attack(selected_card.card_id, target_id)]
 
                     # 공격 대상 목록 표시
-                    if not possible_targets:
+                    if not possible_targets_id:
                         print("공격할 수 있는 대상이 없습니다.")
                         continue
 
-                    for i, target in enumerate(possible_targets):
-                        if isinstance(target, str):  # '상대 리더'인 경우
-                            print(f"{i + 1}. {target} (체력: {game.game_state_manager.current_defense[opponent_id]})")
+                    for i, target_id in enumerate(possible_targets_id):
+                        target = game.game_state_manager.get_entity_by_id(target_id)
+                        if isinstance(target, Player):  # '상대 리더'인 경우
+                            print(f"{i + 1}. {target_id} (체력: {target.current_defense})")
                         else:  # 추종자인 경우
                             print(
-                                f"{i + 1}. [{target.card_id[-4:]}] {target.data.get('name')} (공: {target.current_attack}, 체: {target.current_defense})")
-                    print(f"{len(possible_targets) + 1}. 취소")
+                                f"{i + 1}. [{target_id}] {target.get_display_name()} (공: {target.current_attack}, 체: {target.current_defense})")
+                    print(f"{len(possible_targets_id) + 1}. 취소")
 
                     target_choice = input("대상 번호를 선택하세요: ")
 
@@ -199,12 +184,13 @@ if __name__ == "__main__":
 
                     target_idx = int(target_choice) - 1
 
-                    if 0 <= target_idx < len(possible_targets):
-                        selected_target = possible_targets[target_idx]
-                        if isinstance(selected_target, str):
-                            game.attack_leader(selected_card.card_id, current_player)
+                    if 0 <= target_idx < len(possible_targets_id):
+                        selected_target_id = possible_targets_id[target_idx]
+                        selected_target = game.game_state_manager.get_entity_by_id(selected_target_id)
+                        if isinstance(selected_target, Player):
+                            game.attack_leader(selected_card.card_id)
                         else:
-                            game.attack_follower(selected_card.card_id, selected_target.card_id, current_player)
+                            game.attack_follower(selected_card.card_id, selected_target.card_id)
                     else:
                         print("공격을 취소합니다.")
 
@@ -218,6 +204,7 @@ if __name__ == "__main__":
 
             elif choice == '3':  # 턴 종료
                 print(f"{current_player} 턴 종료.")
+                game.end_turn(current_player)
                 break  # 턴 종료, 다음 플레이어로 넘어감
             else:
                 print("유효하지 않은 선택입니다. 다시 선택해주세요.")

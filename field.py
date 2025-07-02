@@ -17,10 +17,11 @@ class Field:
         print(f"{card.card_data.name}이(가) 전장에 소환되었습니다.")
         return True
 
-    def remove_card(self, card: Card) -> bool:
-        if card in self._cards:
-            self._cards.remove(card)
-            return True
+    def remove_card(self, card_id: str) -> bool:
+        for card in self._cards:
+            if card.card_id == card_id:
+                self._cards.remove(card)
+                return True
         return False
 
     def get_cards(self) -> List[Card]:

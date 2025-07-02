@@ -6,8 +6,8 @@ from enums import TargetType, EffectType
 
 class Card:
     """게임 내 개별 카드 인스턴스"""
-    def __init__(self, card_data: Dict[str, Any], owner_id: str):
-        self.card_id = str(uuid.uuid4()) # 고유 ID
+    def __init__(self, card_data: Dict[str, Any], owner_id: str, card_id: str):
+        self.card_id = card_id # 고유 ID
         self.card_data = card_data  # CardData에서 로드된 정적 데이터
         self.owner_id = owner_id
         self.current_cost = card_data.get("cost", 0)  # 현재 코스트 (주문 증폭 등에 의해 변경될 수 있음)
@@ -41,7 +41,7 @@ class Card:
     def can_attack(self, target_type: TargetType):
         """추종자가 공격할 수 있는지 확인"""
         # 공격한 턴에는 공격 불가
-        if self.engaged:
+        if self.is_engaged:
             return False
 
         # 소환된 다음 턴 부터는 같은 턴에 공격하지 않았다면 제한없이 가능
@@ -62,3 +62,7 @@ class Card:
     def get_type(self):
         """카드 타입을 반환"""
         return self.card_data['card_type']
+
+    def get_display_name(self):
+        """카드 이름을 반환"""
+        return self.card_data['name']
