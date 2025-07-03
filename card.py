@@ -1,3 +1,4 @@
+import copy
 import uuid
 from typing import List, Dict, Any
 
@@ -15,10 +16,12 @@ class Card:
         self.current_defense = card_data.get("defense", 0)  # 현재 체력
         self.max_defense = card_data.get("defense", 0)  # 최대 체력
         self.is_evolved = False  # 진화 여부
+        self.is_super_evolved = False  # 초진화 여부
+        self.is_super_evolved_turn = False  # 이번 턴 초진화 여부
         self.is_engaged = False  # 공격 완료 여부
         self.is_summoned = True  # 현재 턴 소환 여부
         self.current_zone = None  # 현재 카드 위치 (Zone Enum)
-        self.effects = card_data.get("effects", [])  # 카드 효과 인스턴스
+        self.effects = copy.deepcopy(card_data.get("effects", []))  # 카드 효과 인스턴스
 
         # 키워드별 추가 상태
         self.countdown_value = card_data.get("countdown", None)  # 카운트다운 마법진용

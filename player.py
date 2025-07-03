@@ -23,6 +23,8 @@ class Player:
         self.max_pp = 0
         self.current_ep = 0
         self.max_ep = 2
+        self.current_sep = 0
+        self.max_sep = 2
         self.extra_pp_uses = {'1-5': 1, '6+': 1}  # 후공 플레이어 전용
         self.event_manager = event_manager
         self.spent_ep_in_turn = False
@@ -89,11 +91,24 @@ class Player:
         self.current_ep = min(self.current_ep+amount, self.max_ep)
         print(f"{self.player_id} 진화 포인트 {amount} 획득. 현재 EP: {self.current_ep}")
 
-    def spent_ep(self, amount: int):
+    def spend_ep(self, amount: int):
         """ep가 소모됨"""
-        if self.current_pp >= amount:
-            self.current_pp -= amount
-            print(f"{self.player_id} PP {amount} 소모. 남은 PP: {self.current_pp}")
+        if self.current_ep >= amount:
+            self.current_ep -= amount
+            print(f"{self.player_id} EP {amount} 소모. 남은 EP: {self.current_ep}")
+            return True
+        return False
+
+    def gain_sep(self, amount: int):
+        """sep가 회복됨"""
+        self.current_sep = min(self.current_sep+amount, self.max_sep)
+        print(f"{self.player_id} 초진화 포인트 {amount} 획득. 현재 SEP: {self.current_sep}")
+
+    def spend_sep(self, amount: int):
+        """sep가 소모됨"""
+        if self.current_sep >= amount:
+            self.current_sep -= amount
+            print(f"{self.player_id} SEP {amount} 소모. 남은 SEP: {self.current_sep}")
             return True
         return False
 

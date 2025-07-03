@@ -48,17 +48,7 @@ class EffectProcessor:
     def _can_target_with_ability(self, target_card_id: str, game_state_manager: 'GameStateManager') -> bool:
         """능력의 대상으로 추종자를 선택할 수 있는지 확인 (오라, 잠복)"""
         target_card = game_state_manager.get_entity_by_id(target_card_id)
-
-        # 오라: 이 추종자는 상대방 능력의 대상으로 선택될 수 없다.
-        if target_card.has_keyword(EffectType.AURA):
-            print(f"DEBUG: {target_card.card_data['name']}은(는) '오라'로 능력 대상이 될 수 없음.")
-            return False
-
-        # 잠복: 상대방의 능력 대상으로 선택되지 않는다.
-        if target_card.has_keyword(EffectType.AMBUSH):
-            print(f"DEBUG: {target_card.card_data['name']}은(는) '잠복'으로 능력 대상이 될 수 없음.")
-            return False
-        return True
+        return not target_card.has_keyword(EffectType.AURA) and not target_card.has_keyword(EffectType.AMBUSH)
 
     def _get_target_self(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
         return [caster_card]
@@ -71,6 +61,7 @@ class EffectProcessor:
         return [game_state_manager.players[opponent_id]]
 
     def _get_target_ally_follower_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        # 일단 랜덤으로 구현
         ally_cards = game_state_manager.get_cards_in_zone(caster_card.owner_id, Zone.FIELD)
         ally_followers = [card for card in ally_cards if card.get_type() == CardType.FOLLOWER]
         if not ally_followers: return []
@@ -78,6 +69,7 @@ class EffectProcessor:
         return [ally_followers.pop()]
 
     def _get_target_opponent_follower_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        # 일단 랜덤으로 구현
         opponent_id = game_state_manager.opponent_id[caster_card.owner_id]
         opponent_cards = game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
         opponent_followers = [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER and self._can_target_with_ability(card.card_id, game_state_manager)]
@@ -86,6 +78,7 @@ class EffectProcessor:
         return [opponent_followers.pop()]
 
     def _get_target_opponent_follower_choice2(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        # 일단 랜덤으로 구현
         opponent_id = game_state_manager.opponent_id[caster_card.owner_id]
         opponent_cards = game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
         opponent_followers = [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER and self._can_target_with_ability(card.card_id, game_state_manager)]
@@ -103,6 +96,7 @@ class EffectProcessor:
         return [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER]
 
     def _get_target_own_hand_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        # 일단 랜덤으로 구현
         hand_cards = game_state_manager.get_cards_in_zone(caster_card.owner_id, Zone.HAND)
         if not hand_cards: return []
         random.shuffle(hand_cards)
@@ -120,6 +114,7 @@ class EffectProcessor:
         return [max_attack_followers.pop()]
 
     def _get_target_ally_follower_choice_unevolved(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        # 일단 랜덤으로 구현
         ally_cards = game_state_manager.get_cards_in_zone(caster_card.owner_id, Zone.FIELD)
         unevolved_ally_followers = [card for card in ally_cards if card.get_type() == CardType.FOLLOWER and not card.is_evolved]
         if not unevolved_ally_followers: return []
@@ -186,17 +181,27 @@ class EffectProcessor:
 
     def _process_deal_damage(self, effect_data: Dict[str, Any], target: Any, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
-        if target.has_keyword(EffectType.BARRIER):
-            print(f"DEBUG: {target.get_display_name()} 배리어로 데미지 0 받음.")
+        if target.has_keyword(EffectType.BARRIER) or target.is_super_evolved_turn:
+            print(f"DEBUG: {target.get_display_name()} 초진화 효과 혹은 배리어로 데미지 0 받음.")
             value = 0
             target.effects = [effect for effect in target.effects if effect['type'] != EffectType.BARRIER]
-        target.take_damage(value)
+        if target.take_damage(value):
+            if target.get_type() == CardType.LEADER:
+                # 게임 종료 처리
+                pass
+            else:
+                target_id = target.card_id
+                game_state_manager.move_card(target_id, Zone.FIELD, Zone.GRAVEYARD)
+                self.event_manager.publish(EventType.DESTROYED_ON_FIELD, {"card_id": target_id})
         print(f"DEBUG: 처리 내용: 피해 입히기, 타겟: {target.card_data['name']}, 피해량: {value}")
 
     def _process_destroy(self, effect_data: Dict[str, Any], target: Any, game_state_manager: 'GameStateManager'):
+        if target.is_super_evolved_turn:
+            print(f"DEBUG: 처리 내용: 파괴, 타겟: {target.get_display_name()}")
+            print(f"DEBUG: {target.get_display_name()} 초진화 효과로 파괴되지 않음.")
+            return
         game_state_manager.move_card(target.card_id, Zone.FIELD, Zone.GRAVEYARD)
         self.event_manager.publish(EventType.DESTROYED_ON_FIELD, {"card_id": target.card_id})
-        self.event_manager.process_events(game_state_manager, self)
         print(f"DEBUG: 처리 내용: 파괴, 타겟: {target.get_display_name()}")
 
     def _process_recover_pp(self, effect_data: Dict[str, Any], target: Player, game_state_manager: 'GameStateManager'):

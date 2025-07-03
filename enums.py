@@ -16,6 +16,7 @@ class EventType(Enum):
     ATTACK_DECLARED = "공격_선언됨"  # 공격자 공격시 능력 발동
     SPELL_CAST = "주문_사용됨"  # 주문 능력 발동
     FOLLOWER_EVOLVED = "추종자_진화됨"  # 진화하면 능력 발동
+    FOLLOWER_SUPER_EVOLVED = "추종자_초진화됨"  # 초진화하면 능력 발동
     DAMAGE_DEALT = "데미지_입힘"  # 흡혈 능력 발동
     TURN_END = "턴_종료"  # 턴 종료시 발동
 #    PP_GAINED = "PP_획득됨"
@@ -42,6 +43,7 @@ class GamePhase(Enum):
 
 class EffectType(Enum):
     """카드의 키워드 종류를 정의"""
+    SPELLBOOST = "주문 증폭"
     AURA = "오라"
     CLASH = "교전시"
     STRIKE = "공격시"
@@ -54,12 +56,13 @@ class EffectType(Enum):
     RUSH = "돌진"
     STORM = "질주"
     ENHANCE = "증강"
-    SPELL = "주문효과"
+    SPELL = "주문 효과"
     COUNTDOWN = "카운트다운"
     BARRIER = "배리어"
     DRAIN = "흡혈"
     INTIMIDATE = "위압"
     AMBUSH = "잠복"
+    BANE = "필살"
 
 class ProcessType(Enum):
     """효과의 처리 방식을 정의"""

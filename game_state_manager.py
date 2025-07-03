@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, List, Dict, Any, Optional
 
-from enums import GamePhase, CardType, Zone, EffectType, EventType
+from enums import GamePhase, CardType, Zone, EffectType, EventType, TargetType
 from card import Card
 from player import Player
 
@@ -21,10 +21,15 @@ class GameStateManager:
         self._next_card_instance_id += 1
         return Card(card_data, owner_id, new_card_id)
 
-    def get_cards_in_zone(self, player_id: str, zone: Zone) -> List[Card]:
-        """특정 플레이어의 특정 영역에 있는 카드 조회"""
+    def get_card_ids_in_zone(self, player_id: str, zone: Zone) -> List[Card]:
+        """특정 플레이어의 특정 영역에 있는 카드 ID 조회"""
         player = self.players[player_id]
-        return player.get_cards_in_zone(zone)
+        return [card.card_id for card in player.get_cards_in_zone(zone)]
+
+    def get_cards_in_zone(self, player_id: str, zone: Zone) -> List[Card]:
+        """특정 플레이어의 특정 영역에 있는 카드 직접 반환"""
+        player = self.players[player_id]
+        return [card for card in player.get_cards_in_zone(zone)]
 
     def move_card(self, card_id: str, from_zone: Zone, to_zone: Zone):
         """카드를 한 영역에서 다른 영역으로 이동"""
@@ -74,7 +79,14 @@ class GameStateManager:
 
         # 진화 가능 턴 처리
         if self.turn_number in [8, 9]:
-            player.current_ep = 2
+            player.gain_ep(2)
+
+        # 초진화 가능 턴 처리
+        if self.turn_number in [12, 13]:
+            player.gain_sep(2)
+
+        # 플레이어 EP 소모 상태 리셋
+        player.spent_ep_in_turn = False
 
         # 필드 추종자 engaged 상태 리셋 (새로 공격 가능하게)
         for card in self.get_cards_in_zone(player_id, Zone.FIELD):
@@ -82,17 +94,22 @@ class GameStateManager:
                 card.is_engaged = False
                 card.is_summoned = False
 
-    def play_card(self, player_id, card_id):
+    def play_card(self, player_id, card_id, enhanced_cost=0):
         """지정 카드를 사용"""
-        card = self.get_entity_by_id(card_id)
+        player = self.players[player_id]
+        card = self.get_entity_by_id(card_id, Zone.HAND)
         if not card:
             print(f"ERROR: play_card - card with id {card_id} not found.")
             return
 
-        player = self.players[player_id]
-        player.spend_pp(card.current_cost)
-        print(
-            f"DEBUG: {player_id}가 {card.card_data['name']}을(를) PP {card.current_cost} 소모하여 플레이함. 남은 PP: {player.current_pp}")
+        if enhanced_cost:
+            player.spend_pp(enhanced_cost)
+            print(
+                f"DEBUG: {player_id}가 {card.card_data['name']}을(를) PP {enhanced_cost} 소모하여 플레이함. 남은 PP: {player.current_pp}")
+        else:
+            player.spend_pp(card.current_cost)
+            print(
+                f"DEBUG: {player_id}가 {card.card_data['name']}을(를) PP {card.current_cost} 소모하여 플레이함. 남은 PP: {player.current_pp}")
 
         # 카드 타입에 따른 처리
         if card.get_type() in [CardType.FOLLOWER, CardType.AMULET]:
@@ -121,10 +138,160 @@ class GameStateManager:
                 for card in zone_obj.get_cards():
                     if card.card_id == entity_id:
                         return card
-        return None
+        print("DEBUG: 잘못된 ID 전달(get_entity_by_id)")
 
     def get_card_name(self, entity_id: str) -> str:
+        """Player나 Card의 ID로 이름 조회"""
         entity = self.get_entity_by_id(entity_id)
         if entity:
-            return entity.card_data['name']
-        return "Unknown Entity"
+            return entity.get_display_name()
+        print("DEBUG: 잘못된 ID 전달(get_card_name)")
+
+    def get_type(self, entity_id: str) -> str:
+        """Player나 Card의 ID로 타입 조회"""
+        entity = self.get_entity_by_id(entity_id)
+        if entity:
+            return entity.get_type()
+        print("DEBUG: 잘못된 ID 전달(get_type)")
+
+    def get_card_effects(self, entity_id: str, effect_type: EffectType):
+        """Player나 Card의 ID로 키워드 효과 조회"""
+        entity = self.get_entity_by_id(entity_id)
+        if entity:
+            return [effect for effect in entity.effects if effect['type'] == effect_type]
+        print("DEBUG: 잘못된 ID 전달(get_card_effects)")
+
+    def get_owner(self, card_id: str):
+        """Card의 ID로 owner ID 조회"""
+        entity = self.get_entity_by_id(card_id)
+        if entity:
+            return entity.owner_id
+        print("DEBUG: 잘못된 ID 전달(get_owner)")
+
+
+    def evolve_card(self, card_id: str):
+        """지정 카드 진화"""
+        card: Card
+        card = self.get_entity_by_id(card_id, Zone.FIELD)
+        card.is_evolved = True
+        card.current_attack += 2
+        card.current_defense += 2
+        card.max_defense += 2
+
+    def super_evolve_card(self, card_id: str):
+        """지정 카드 초진화"""
+        card: Card
+        card = self.get_entity_by_id(card_id, Zone.FIELD)
+        card.is_evolved = True
+        card.is_super_evolved = True
+        card.is_super_evolved_turn = True
+        card.current_attack += 3
+        card.current_defense += 3
+        card.max_defense += 3
+
+    def get_cards_with_spellboost(self, player_id: str):
+        """지정 플레이어의 손패에서 주문 증폭 카드 리스트 반환"""
+        return [card.card_id for card in self.players[player_id].hand.get_cards() if card.has_keyword(EffectType.SPELLBOOST)]
+
+    def get_cards_with_countdown(self, player_id: str):
+        """지정 플레이어의 필드에서 카운트다운 카드 리스트 반환"""
+        return [card.card_id for card in self.players[player_id].field.get_cards() if card.has_keyword(EffectType.COUNTDOWN)]
+
+    def countdown(self, card_id: str):
+        """지정 카드의 카운트다운 처리"""
+        entity = self.get_entity_by_id(card_id, Zone.FIELD)
+        if entity:
+            entity.countdown_value -= 1
+            if entity.countdown_value == 0:
+                return True
+            return False
+        print("DEBUG: 잘못된 카드 ID 전달(countdown)")
+
+    def get_card_info_hand(self, card_id: str):
+        """지정 카드의 정보 전달(name, type, cost)"""
+        entity: Card
+        entity = self.get_entity_by_id(card_id, Zone.HAND)
+        if entity:
+            return entity.get_display_name(), entity.get_type(), entity.current_cost
+        print("DEBUG: 잘못된 카드 ID 전달(get_card_info_hand)")
+
+
+    def get_card_info_field(self, card_id: str):
+        """지정 카드의 정보 전달(name, type, attack, defense, countdown_value, effect_types)"""
+        entity: Card
+        entity = self.get_entity_by_id(card_id, Zone.FIELD)
+        if entity:
+            return entity.get_display_name(), entity.get_type(), entity.current_attack, entity.current_defense, entity.countdown_value, [effect['type'] for effect in entity.effects]
+        print("DEBUG: 잘못된 카드 ID 전달(get_card_info_field)")
+
+    def get_pp_info(self, player_id: str):
+        """지정 플레이어의 pp 정보 전달(current_pp, max_pp)"""
+        player = self.players[player_id]
+        if player:
+            return player.current_pp, player.max_pp
+        print("DEBUG: 잘못된 플레이어 ID 전달(get_pp_info)")
+
+    def get_card_attack_info_field(self, card_id: str):
+        """지정 카드의 정보 전달(name, type, can_attack_leader, can_attack_follower, attack, defense, is_evolved, is_super_evolved)"""
+        card: Card
+        card = self.get_entity_by_id(card_id, Zone.FIELD)
+        if card:
+            return card.get_display_name(), card.get_type(), card.can_attack(TargetType.OPPONENT_LEADER), card.can_attack(TargetType.OPPONENT_FOLLOWER_CHOICE), card.current_attack, card.current_defense, card.is_evolved, card.is_super_evolved
+        print("DEBUG: 잘못된 카드 ID 전달(get_card_attack_info_field)")
+
+    def can_evolve(self, player_id: str) -> bool:
+        """플레이어의 진화 가능 여부 전달"""
+        player = self.players[player_id]
+        if player:
+            return self.players[player_id].current_ep > 0 and not self.players[player_id].spent_ep_in_turn
+        print("DEBUG: 잘못된 플레이어 ID 전달(can_evolve)")
+
+    def can_super_evolve(self, player_id: str) -> bool:
+        """플레이어의 초진화 가능 여부 전달"""
+        player = self.players[player_id]
+        if player:
+            return self.players[player_id].current_sep > 0 and not self.players[player_id].spent_ep_in_turn
+        print("DEBUG: 잘못된 플레이어 ID 전달(can_super_evolve)")
+
+    def has_keyword(self, card_id: str, effect_type: EffectType):
+        """지정 카드의 특정 키워드 보유 여부 전달"""
+        card: Card
+        card = self.get_entity_by_id(card_id)
+        if card:
+            return card.has_keyword(effect_type)
+        print("DEBUG: 잘못된 카드 ID 전달(has_keyword)")
+
+    def evolve_card_with_ep(self, card_id: str, player_id:str):
+        """EP를 사용한 지정 카드 진화"""
+        card: Card
+        card = self.get_entity_by_id(card_id, Zone.FIELD)
+        if card:
+            if self.can_evolve(player_id) and not card.is_evolved:
+                self.players[player_id].spend_ep(1)
+                self.evolve_card(card_id)
+            else:
+                print(f"DEBUG: 규칙상 처리 불가능한 진화 요청")
+        else:
+            print("DEBUG: 잘못된 카드 ID 전달(evolve_card_with_ep)")
+
+    def turn_off_super_evolve(self, player_id):
+        """턴 종료로 초진화턴 면역 버프 무력화"""
+        player = self.players[player_id]
+        if player:
+            for card in self.players[player_id].field.get_cards():
+                card.is_super_evolved_turn = False
+        else:
+            print("DEBUG: 잘못된 플레이어 ID 전달(turn_off_super_evolve)")
+
+    def super_evolve_card_with_sep(self, card_id, player_id):
+        """SEP를 사용한 지정 카드 초진화"""
+        card = self.get_entity_by_id(card_id, Zone.FIELD)
+        if card:
+            if self.can_super_evolve(player_id) and not card.is_evolved:
+                self.players[player_id].spend_sep(1)
+                self.super_evolve_card(card_id)
+            else:
+                print(f"DEBUG: 규칙상 처리 불가능한 초진화 요청")
+        else:
+            print("DEBUG: 잘못된 카드 ID 전달(super_evolve_card_with_sep)")
+
