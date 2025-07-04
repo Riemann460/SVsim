@@ -351,16 +351,28 @@ class Game:
             print(f"DEBUG: {attacker.get_display_name()} 배리어로 데미지 0 받음.")
             attacker_damage_taken = 0
             attacker.effects = [effect for effect in target.effects if effect['type'] != EffectType.BARRIER]
-        if attacker.is_super_evolved_turn:
-            print(f"DEBUG: {attacker.get_display_name()} 초진화한 턴이므로 데미지 0 받음.")
-            attacker_damage_taken = 0
+
         if target.has_keyword(EffectType.BARRIER):
             print(f"DEBUG: {target.card_data['name']} 배리어로 데미지 0 받음.")
             target_damage_taken = 0
             target.effects = [effect for effect in target.effects if effect['type'] != EffectType.BARRIER]
 
-        attacker_destroyed = attacker.take_damage(attacker_damage_taken)
         target_destroyed = target.take_damage(target_damage_taken)
+
+        if attacker.has_keyword(EffectType.BANE):
+            print(f"DEBUG: {attacker.get_display_name()} 필살 능력으로 {target.get_display_name()} 파괴됨.")
+            target_destroyed = True
+
+        if attacker.is_super_evolved and target_destroyed:
+            print(f"DEBUG: {attacker.get_display_name()} 초진화 효과로 데미지 0 받고, 리더에 1 데미지.")
+            attacker_damage_taken = 0
+            self.game_state_manager.players[target.owner_id].take_damage(1)
+
+        elif attacker.is_super_evolved_turn:
+            print(f"DEBUG: {attacker.get_display_name()} 초진화 효과로 데미지 0 받음.")
+            attacker_damage_taken = 0
+
+        attacker_destroyed = attacker.take_damage(attacker_damage_taken)
 
         # 흡혈 효과
         self.event_manager.publish(EventType.DAMAGE_DEALT,
@@ -370,9 +382,6 @@ class Game:
         attacker.is_engaged = True  # 공격 완료 표시
 
         # 필살 효과
-        if attacker.has_keyword(EffectType.BANE):
-            print(f"DEBUG: {attacker.get_display_name()} 필살 능력으로 {target.get_display_name()} 파괴됨.")
-            target_destroyed = True
         if target.has_keyword(EffectType.BANE):
             print(f"DEBUG: {target.get_display_name()} 필살 능력으로 {attacker.get_display_name()} 파괴됨.")
             attacker_destroyed = True
@@ -418,3 +427,13 @@ class Game:
         self.game_state_manager.super_evolve_card_with_sep(card_id, player_id)
         self.event_manager.publish(EventType.FOLLOWER_SUPER_EVOLVED, {"card_id": card_id})
         self.process_events()
+
+    def get_start_turn_ifo(self, player_id: str):
+        current_pp, max_pp = self.game_state_manager.get_pp_info(player_id)
+        player_field_card_ids = self.game_state_manager.get_card_ids_in_zone(player_id, Zone.FIELD)
+        opponent_field_card_ids = self.game_state_manager.get_card_ids_in_zone(self.opponent_id[player_id], Zone.FIELD)
+        return current_pp, max_pp, player_field_card_ids, opponent_field_card_ids
+
+    def get_playable_cards_id(self, player_id: str):
+        player_hand_id = self.game_state_manager.get_card_ids_in_zone(player_id, Zone.HAND)
+        return player_hand_id, [self.rule_engine.validate_play_card(card_id, player_id) for card_id in player_hand_id]

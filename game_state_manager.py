@@ -267,14 +267,16 @@ class GameStateManager:
         card = self.get_entity_by_id(card_id, Zone.FIELD)
         if card:
             if self.can_evolve(player_id) and not card.is_evolved:
-                self.players[player_id].spend_ep(1)
+                player = self.players[player_id]
+                player.spend_ep(1)
+                player.spent_ep_in_turn = True
                 self.evolve_card(card_id)
             else:
                 print(f"DEBUG: 규칙상 처리 불가능한 진화 요청")
         else:
             print("DEBUG: 잘못된 카드 ID 전달(evolve_card_with_ep)")
 
-    def turn_off_super_evolve(self, player_id):
+    def turn_off_super_evolve(self, player_id: str):
         """턴 종료로 초진화턴 면역 버프 무력화"""
         player = self.players[player_id]
         if player:
@@ -283,15 +285,20 @@ class GameStateManager:
         else:
             print("DEBUG: 잘못된 플레이어 ID 전달(turn_off_super_evolve)")
 
-    def super_evolve_card_with_sep(self, card_id, player_id):
+    def super_evolve_card_with_sep(self, card_id: str, player_id: str):
         """SEP를 사용한 지정 카드 초진화"""
         card = self.get_entity_by_id(card_id, Zone.FIELD)
         if card:
             if self.can_super_evolve(player_id) and not card.is_evolved:
-                self.players[player_id].spend_sep(1)
+                player = self.players[player_id]
+                player.spend_sep(1)
+                player.spent_ep_in_turn = True
                 self.super_evolve_card(card_id)
             else:
                 print(f"DEBUG: 규칙상 처리 불가능한 초진화 요청")
         else:
             print("DEBUG: 잘못된 카드 ID 전달(super_evolve_card_with_sep)")
+
+    def get_player_defense(self, player_id: str) -> int:
+        return self.players[player_id].current_defense
 

@@ -49,8 +49,9 @@ CARD_DATABASE = {
         {'type': EffectType.ON_SUPER_EVOLVE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.HEAL, 'value': 4}
     ]),
     "Caravan Mammoth": CardData("Caravan Mammoth", "캐러밴 맘모스", 7, CardType.FOLLOWER, 10, 10, effects=[]),
-    "Adventurers' Guild": CardData("Adventurers' Guild", "모험가 길드", 2, CardType.AMULET, effects=[
+    "Adventurers' Guild": CardData("Adventurers' Guild", "모험가 길드", 3, CardType.AMULET, effects=[
         {'type': EffectType.FANFARE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.DRAW, 'value': 1, 'codition': lambda x: x.card_type == CardType.FOLLOWER},
+        {'type': EffectType.ACTIVATE, 'target': TargetType.SELF, 'process': ProcessType.DESTROY},
         {'type': EffectType.ACTIVATE, 'target': TargetType.ALLY_FOLLOWER_CHOICE, 'process': ProcessType.ADD_KEYWORD, 'value': {'type': EffectType.RUSH}}
     ]),
     "Ruby, Greedy Cherub": CardData("Ruby, Greedy Cherub", "욕심쟁이 지천사 루비", 2, CardType.FOLLOWER, 2, 2, effects=[
@@ -71,7 +72,7 @@ CARD_DATABASE = {
     "Goblin": CardData("Goblin", "고블린", 1, CardType.FOLLOWER, 1, 2, effects=[]),
     "Apollo, Heaven's Envoy": CardData("Apollo, Heaven's Envoy", "세찬 광명 아폴론", 3, CardType.FOLLOWER, 1, 2, effects=[
         {'type': EffectType.FANFARE, 'target': TargetType.ALL_OPPONENT_FOLLOWERS, 'process': ProcessType.DEAL_DAMAGE, 'value': 1},
-        {'type': EffectType.ON_EVOLVE, 'target': TargetType.ALL_OPPONENT_FOLLOWERS, 'process': ProcessType.TRIGGER_EFFECT, 'value': EffectType.FANFARE}
+        {'type': EffectType.ON_EVOLVE, 'target': TargetType.SELF, 'process': ProcessType.TRIGGER_EFFECT, 'value': EffectType.FANFARE}
     ]),
     "Seraphic Tidings": CardData("Seraphic Tidings", "치천사의 복음", 3, CardType.SPELL, effects=[
         {'type': EffectType.SPELL, 'target': TargetType.OWN_LEADER, 'process': ProcessType.DRAW, 'value': 2}

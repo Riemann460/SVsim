@@ -73,7 +73,7 @@ class RuleEngine:
         if target.get_type() == CardType.FOLLOWER:
             return self.can_target_follower(attacker_id, target_id)
         elif target.get_type() == CardType.LEADER:  # 리더 공격
-            # 상대의 전장에 수호 추종자가 있을 때
+            # 상대의 전장에 수호 추종자 확인
             opponent_field = self.game_state_manager.get_cards_in_zone(target.player_id, Zone.FIELD)
             has_ward_on_field = any(f.has_keyword(EffectType.WARD) for f in opponent_field)
             return not has_ward_on_field

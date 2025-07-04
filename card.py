@@ -2,7 +2,7 @@ import copy
 import uuid
 from typing import List, Dict, Any
 
-from enums import TargetType, EffectType
+from enums import TargetType, EffectType, CardType
 
 
 class Card:
@@ -41,19 +41,19 @@ class Card:
         # self.event_manager.publish(EventType.HEALED, {'player_id': self.player_id, 'amount': amount, 'current_hp': self.leader_hp})
         print(f"{self.card_data['name']}이(가) {amount} 체력을 회복했습니다. 현재 체력: {self.current_defense}")
 
-    def can_attack(self, target_type: TargetType):
+    def can_attack(self, target_type: CardType):
         """추종자가 공격할 수 있는지 확인"""
         # 공격한 턴에는 공격 불가
         if self.is_engaged:
             return False
 
-        # 소환된 다음 턴 부터는 같은 턴에 공격하지 않았다면 제한없이 가능
+        # 소환된 다음 턴 부터는 제한없이 가능
         if not self.is_summoned:
             return True
 
-        # 질주가 아닌 이상 소환된 턴에 리더 공격 불가
-        if target_type == TargetType.OPPONENT_LEADER:
-            return self.has_keyword(EffectType.STORM) and not self.is_engaged
+        # 질주가 아니면 소환된 턴에 리더 공격 불가
+        if target_type == CardType.LEADER:
+            return self.has_keyword(EffectType.STORM)
 
         # 진화, 돌진, 질주가 아닌 이상 소환된 턴에 추종자 공격 불가
         return self.is_evolved or self.has_keyword(EffectType.RUSH) or self.has_keyword(EffectType.STORM)
