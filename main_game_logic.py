@@ -62,6 +62,7 @@ class Game:
         self.event_manager.subscribe(EventType.TURN_START, self._on_turn_start)
         self.event_manager.subscribe(EventType.FOLLOWER_EVOLVED, self._on_follower_evolved)
         self.event_manager.subscribe(EventType.FOLLOWER_SUPER_EVOLVED, self._on_follower_super_evolved)
+        self.event_manager.subscribe(EventType.AMULET_ACTIVATED, self._on_amulet_activated)
 
     def _on_destroyed(self, event_data: Dict[str, Any]):
         """유언 효과 처리"""
@@ -125,34 +126,43 @@ class Game:
     def _on_follower_evolved(self, event_data: Dict[str, Any]):
         """진화시 효과 처리"""
         card_id = event_data['card_id']
-        self.resolve_effects_type(card_id, EffectType.ON_EVOLVE)
+        if event_data['spend_ep']:
+            self.resolve_effects_type(card_id, EffectType.ON_EVOLVE)
+        self.resolve_effects_type(card_id, EffectType.EVOLVED)
 
     def _on_follower_super_evolved(self, event_data: Dict[str, Any]):
         """초진화시 효과 처리"""
         card_id = event_data['card_id']
-
         # 초진화시 효과가 있다면 진화시 효과는 무시
-        if not self.resolve_effects_type(card_id, EffectType.ON_SUPER_EVOLVE):
-            self.resolve_effects_type(card_id, EffectType.ON_EVOLVE)
+        if event_data['spend_sep']:
+            if not self.resolve_effects_type(card_id, EffectType.ON_SUPER_EVOLVE):
+                self.resolve_effects_type(card_id, EffectType.ON_EVOLVE)
+        if not self.resolve_effects_type(card_id, EffectType.SUPER_EVOLVED):
+            self.resolve_effects_type(card_id, EffectType.EVOLVED)
+
+    def _on_amulet_activated(self, event_data: Dict[str, Any]):
+        """활성화 효과 처리"""
+        card_id = event_data['card_id']
+        self.resolve_effects_type(card_id, EffectType.ACTIVATE)
 
     def _initialize_decks(self, player1_id: str, player2_id: str):
         """초기 덱 설정 (40장, 3장 제한)"""
         # 예시 카드 데이터
         card_data_list = [
-            card_data.CARD_DATABASE["Indomitable Fighter"],
-            card_data.CARD_DATABASE["Leah, Bellringer Angel"],
-            card_data.CARD_DATABASE["Quake Goliath"],
-            card_data.CARD_DATABASE["Detective's Lens"],
-            card_data.CARD_DATABASE["Arriet, Luxminstrel"],
-            card_data.CARD_DATABASE["Caravan Mammoth"],
-            card_data.CARD_DATABASE["Adventurers' Guild"],
-            card_data.CARD_DATABASE["Ruby, Greedy Cherub"],
-            card_data.CARD_DATABASE["Vigilant Detective"],
-            card_data.CARD_DATABASE["Goblin Foray"],
-            card_data.CARD_DATABASE["Apollo, Heaven's Envoy"],
-            card_data.CARD_DATABASE["Seraphic Tidings"],
-            card_data.CARD_DATABASE["Phildau, Lionheart Ward"],
-            card_data.CARD_DATABASE["Divine Thunder"]
+            card_data.BASIC_CARD_DATABASE["Indomitable Fighter"],
+            card_data.BASIC_CARD_DATABASE["Leah, Bellringer Angel"],
+            card_data.BASIC_CARD_DATABASE["Quake Goliath"],
+            card_data.BASIC_CARD_DATABASE["Detective's Lens"],
+            card_data.BASIC_CARD_DATABASE["Arriet, Luxminstrel"],
+            card_data.BASIC_CARD_DATABASE["Caravan Mammoth"],
+            card_data.BASIC_CARD_DATABASE["Adventurers' Guild"],
+            card_data.LEGENDS_RISE_CARD_DATABASE["Ruby, Greedy Cherub"],
+            card_data.LEGENDS_RISE_CARD_DATABASE["Vigilant Detective"],
+            card_data.LEGENDS_RISE_CARD_DATABASE["Goblin Foray"],
+            card_data.LEGENDS_RISE_CARD_DATABASE["Apollo, Heaven's Envoy"],
+            card_data.LEGENDS_RISE_CARD_DATABASE["Seraphic Tidings"],
+            card_data.LEGENDS_RISE_CARD_DATABASE["Phildau, Lionheart Ward"],
+            card_data.LEGENDS_RISE_CARD_DATABASE["Divine Thunder"]
         ]
         player1_deck = []
         player2_deck = []
@@ -225,7 +235,7 @@ class Game:
 
         if not cards_to_mulligan_ids:
             print("교체할 카드를 선택하지 않았습니다. 멀리건을 종료합니다.")
-            print(f"최종 손패: {[c.card_data['name'] for c in hand]}")
+            print(f"최종 손패: {[self.game_state_manager.get_card_name(card_id) for card_id in hand]}")
             print(f"DEBUG: {player_id}멀리건 종료")
             return
         print(f"\n선택한 {len(cards_to_mulligan_ids)}장의 카드를 덱으로 돌려보냅니다.")
@@ -266,9 +276,9 @@ class Game:
         drawn_card_id = deck.pop(0)
         self.game_state_manager.move_card(drawn_card_id, Zone.DECK, Zone.HAND)
 
-    def play_card(self, player_id: str, card_id: Card, enhanced_cost=0):
+    def play_card(self, player_id: str, card_id: str, enhanced_cost=0, use_extra_pp=False):
         """카드 플레이 요청 처리"""
-        if not self.rule_engine.validate_play_card(card_id, player_id):
+        if not self.rule_engine.validate_play_card(card_id, player_id, use_extra_pp):
             print(f"ERROR: {self.game_state_manager.get_card_name(card_id)} 카드 플레이 유효성 검사 실패.")
             return False
 
@@ -363,14 +373,12 @@ class Game:
             print(f"DEBUG: {attacker.get_display_name()} 필살 능력으로 {target.get_display_name()} 파괴됨.")
             target_destroyed = True
 
-        if attacker.is_super_evolved and target_destroyed:
-            print(f"DEBUG: {attacker.get_display_name()} 초진화 효과로 데미지 0 받고, 리더에 1 데미지.")
-            attacker_damage_taken = 0
-            self.game_state_manager.players[target.owner_id].take_damage(1)
-
-        elif attacker.is_super_evolved_turn:
+        if attacker.is_super_evolved:
             print(f"DEBUG: {attacker.get_display_name()} 초진화 효과로 데미지 0 받음.")
             attacker_damage_taken = 0
+            if target_destroyed:
+                print(f"DEBUG: {attacker.get_display_name()} 초진화 효과로 상대 리더에게 데미지 1.")
+                self.game_state_manager.players[target.owner_id].take_damage(1)
 
         attacker_destroyed = attacker.take_damage(attacker_damage_taken)
 
@@ -419,13 +427,19 @@ class Game:
     def evolve_follower(self, card_id: str, player_id: str):
         """EP를 소모하는 진화 처리"""
         self.game_state_manager.evolve_card_with_ep(card_id, player_id)
-        self.event_manager.publish(EventType.FOLLOWER_EVOLVED, {"card_id": card_id})
+        self.event_manager.publish(EventType.FOLLOWER_EVOLVED, {"card_id": card_id, "spend_ep": True})
         self.process_events()
 
     def super_evolve_follower(self, card_id: str, player_id: str):
         """SEP를 소모하는 초진화 처리"""
         self.game_state_manager.super_evolve_card_with_sep(card_id, player_id)
-        self.event_manager.publish(EventType.FOLLOWER_SUPER_EVOLVED, {"card_id": card_id})
+        self.event_manager.publish(EventType.FOLLOWER_SUPER_EVOLVED, {"card_id": card_id, "spend_sep": True})
+        self.process_events()
+
+    def activate_amulet(self, card_id: str, player_id: str):
+        """마법진 활성화 처리"""
+        self.game_state_manager.activate_amulet(card_id, player_id)
+        self.event_manager.publish(EventType.AMULET_ACTIVATED, {"card_id": card_id})
         self.process_events()
 
     def get_start_turn_ifo(self, player_id: str):
@@ -434,6 +448,9 @@ class Game:
         opponent_field_card_ids = self.game_state_manager.get_card_ids_in_zone(self.opponent_id[player_id], Zone.FIELD)
         return current_pp, max_pp, player_field_card_ids, opponent_field_card_ids
 
-    def get_playable_cards_id(self, player_id: str):
+    def get_playable_cards_id(self, player_id: str, use_extra_pp: bool):
         player_hand_id = self.game_state_manager.get_card_ids_in_zone(player_id, Zone.HAND)
-        return player_hand_id, [self.rule_engine.validate_play_card(card_id, player_id) for card_id in player_hand_id]
+        return player_hand_id, [self.rule_engine.validate_play_card(card_id, player_id, use_extra_pp) for card_id in player_hand_id]
+
+    def has_extra_pp(self, player_id: str):
+        return self.game_state_manager.get_entity_by_id(player_id).extra_pp > 0

@@ -16,7 +16,7 @@ def print_field_card(index: int, card_id: str, game: Game):
          if effect_types else ""))
 
 
-def print_hand_card(index: int, card_id: str, is_validate: bool, game: Game):
+def print_hand_card(index: int, card_id: str, is_validate: bool, use_extra_pp: bool, game: Game):
     """패의 카드 정보를 출력(이름/코스트(증강고려)/타입)"""
     card_name, card_type, card_cost = game.game_state_manager.get_card_info_hand(card_id)
 
@@ -27,7 +27,7 @@ def print_hand_card(index: int, card_id: str, is_validate: bool, game: Game):
     # 증강 키워드 체크
     card_cost_info = f"{card_cost}"
     enhance_effects = [effect for effect in game.game_state_manager.get_card_effects(card_id, EffectType.ENHANCE)]
-    enhance_costs = [effect['enhance_cost'] for effect in enhance_effects if effect['enhance_cost'] <= current_pp]
+    enhance_costs = [effect['enhance_cost'] for effect in enhance_effects if effect['enhance_cost'] <= current_pp + (1 if use_extra_pp else 0)]
     if enhance_costs:
         card_cost = max(enhance_costs)
         card_cost_info = f"{card_cost}(증강됨)"
@@ -38,13 +38,13 @@ def print_hand_card(index: int, card_id: str, is_validate: bool, game: Game):
     return 0
 
 
-def print_hand(hand_cards_id, is_validate):
+def print_hand(hand_cards_id, is_validate, use_extra_pp):
     """패 전체의 카드 정보를 출력"""
     card_choice_index = 1
     enhanced_costs = []
     playable_cards_id = []
     for i, card_id in enumerate(hand_cards_id):
-        enhanced_cost = print_hand_card(card_choice_index, card_id, is_validate[i], game)
+        enhanced_cost = print_hand_card(card_choice_index, card_id, is_validate[i], use_extra_pp, game)
         if is_validate[i]:
             card_choice_index += 1
             playable_cards_id.append(card_id)
@@ -84,7 +84,7 @@ def input_and_check(index: int):
         return False, None
 
 
-def get_available_actions(card_id: str, game: Game):
+def get_available_actions(card_id: str, player_id: str, game: Game):
     """대상 필드 카드의 가능한 조작 목록을 출력"""
     card_name, card_type, can_attack_leader, can_attack_follower, _, _, is_evolved, _ = game.game_state_manager.get_card_attack_info_field(selected_card_id)
     available_actions = []
@@ -98,7 +98,7 @@ def get_available_actions(card_id: str, game: Game):
     if card_type == CardType.FOLLOWER and not is_evolved and game.game_state_manager.can_super_evolve(current_player):
         available_actions.append("추종자 초진화")
 
-    if card_type == CardType.AMULET and game.game_state_manager.has_keyword(card_id, EffectType.ACTIVATE):
+    if card_type == CardType.AMULET and game.game_state_manager.has_keyword(card_id, EffectType.ACTIVATE) and game.rule_engine.validate_activate_amulet(card_id, player_id):
         available_actions.append("마법진 활성화")
 
     return available_actions, card_name
@@ -156,7 +156,14 @@ if __name__ == "__main__":
 
             # 선택 행동 처리
             if choice == 0:  # 패에서 카드 내기
-                hand_cards_id, is_validate = game.get_playable_cards_id(current_player)
+                # 엑스트라 PP 사용 여부 확인
+                use_extra_pp = False
+
+                if game.has_extra_pp(current_player):
+                    print("엑스트라 PP를 사용하시겠습니까? (1. 사용 /  2. 미사용)")
+                    use_extra_pp, _ = input_and_check(1)
+
+                hand_cards_id, is_validate = game.get_playable_cards_id(current_player, use_extra_pp)
 
                 if not hand_cards_id or not any(is_validate):
                     print("패에 사용 가능한 카드가 없습니다.")
@@ -164,7 +171,7 @@ if __name__ == "__main__":
 
                 # 플레이어 패 출력
                 print("\n--- 현재 플레이어의 패 ---")
-                playable_cards_id, enhanced_costs = print_hand(hand_cards_id, is_validate)
+                playable_cards_id, enhanced_costs = print_hand(hand_cards_id, is_validate, use_extra_pp)
 
                 # 사용할 카드 선택
                 input_validate, card_idx = input_and_check(len(playable_cards_id))
@@ -174,7 +181,7 @@ if __name__ == "__main__":
                 selected_card_id = playable_cards_id[card_idx]
 
                 # 카드 사용
-                game.play_card(current_player, selected_card_id, enhanced_costs[card_idx])
+                game.play_card(current_player, selected_card_id, enhanced_costs[card_idx], use_extra_pp)
 
             elif choice == 1:  # 필드 조작
                 if not player_field_card_ids:
@@ -195,7 +202,7 @@ if __name__ == "__main__":
                 selected_card_id = player_field_card_ids[card_idx]
 
                 # 선택한 카드의 가능한 조작 목록 생성
-                available_actions, card_name = get_available_actions(selected_card_id, game)
+                available_actions, card_name = get_available_actions(selected_card_id, current_player, game)
                 if not available_actions:
                     print("선택한 카드로는 현재 할 수 있는 행동이 없습니다.")
                     continue

@@ -36,7 +36,7 @@ class EffectProcessor:
             ProcessType.DEAL_DAMAGE: self._process_deal_damage,
             ProcessType.DESTROY: self._process_destroy,
             ProcessType.RECOVER_PP: self._process_recover_pp,
-            ProcessType.EVOLVE_SUPER: self._process_evolve_super,
+            ProcessType.SUPER_EVOLVE: self._process_super_evolve,
             ProcessType.REPLACE_DECK: self._process_replace_deck,
             ProcessType.SET_MAX_HEALTH: self._process_set_max_health,
             ProcessType.ADD_KEYWORD: self._process_add_keyword,
@@ -164,7 +164,7 @@ class EffectProcessor:
     def _process_add_card_to_hand(self, effect_data: Dict[str, Any], target: Player, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
         target_id = target.player_id
-        card = game_state_manager.create_card_instance(card_data.CARD_DATABASE[value], target_id)
+        card = game_state_manager.create_card_instance(card_data, target_id)
         if len(game_state_manager.get_cards_in_zone(target_id, Zone.HAND)) < 9:
             game_state_manager.add_card(card, Zone.HAND, target_id)
         else:
@@ -174,14 +174,14 @@ class EffectProcessor:
     def _process_summon(self, effect_data: Dict[str, Any], target: Player, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
         target_id = target.player_id
-        card = game_state_manager.create_card_instance(card_data.CARD_DATABASE[value], target_id)
+        card = game_state_manager.create_card_instance(card_data, target_id)
         if len(game_state_manager.get_cards_in_zone(target_id, Zone.FIELD)) < 5:
             game_state_manager.add_card(card, Zone.FIELD, target_id)
         print(f"DEBUG: 처리 내용: 필드에 카드 소환, 타겟: {target_id}, 소환 카드: {card.card_data['name']}")
 
     def _process_deal_damage(self, effect_data: Dict[str, Any], target: Any, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
-        if target.has_keyword(EffectType.BARRIER) or target.is_super_evolved_turn:
+        if target.has_keyword(EffectType.BARRIER) or (target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id):
             print(f"DEBUG: {target.get_display_name()} 초진화 효과 혹은 배리어로 데미지 0 받음.")
             value = 0
             target.effects = [effect for effect in target.effects if effect['type'] != EffectType.BARRIER]
@@ -196,7 +196,7 @@ class EffectProcessor:
         print(f"DEBUG: 처리 내용: 피해 입히기, 타겟: {target.card_data['name']}, 피해량: {value}")
 
     def _process_destroy(self, effect_data: Dict[str, Any], target: Any, game_state_manager: 'GameStateManager'):
-        if target.is_super_evolved_turn:
+        if target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
             print(f"DEBUG: 처리 내용: 파괴, 타겟: {target.get_display_name()}")
             print(f"DEBUG: {target.get_display_name()} 초진화 효과로 파괴되지 않음.")
             return
@@ -209,15 +209,17 @@ class EffectProcessor:
         target.gain_pp(value)
         print(f"DEBUG: 처리 내용: PP 회복, 타겟: {target.player_id}, 회복량: {value}")
 
-    def _process_evolve_super(self, effect_data: Dict[str, Any], target: Card, game_state_manager: 'GameStateManager'):
-        print(f"DEBUG: 처리 내용: 초진화, 타겟: {target.card_data['name']}")
+    def _process_super_evolve(self, effect_data: Dict[str, Any], target: Card, game_state_manager: 'GameStateManager'):
+        game_state_manager.super_evolve_card(target.card_id)
+        self.event_manager.publish(EventType.FOLLOWER_SUPER_EVOLVED, {"card_id": target.card_id, "spend_sep": False})
+        print(f"DEBUG: 처리 내용: 초진화, 타겟: {target.get_display_name()}")
 
     def _process_replace_deck(self, effect_data: Dict[str, Any], target: Player, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
         target_id = target.player_id
         replaced_deck_list = []
         for card_name in value:
-            card_data_to_add = Card(card_data.CARD_DATABASE[card_name], target_id)
+            card_data_to_add = game_state_manager.create_card_instance(card_data, target_id)
             replaced_deck_list.append(card_data_to_add)
         random.shuffle(replaced_deck_list)
         replaced_deck = Deck(replaced_deck_list)

@@ -37,7 +37,7 @@ class RuleEngine:
 
         return True  # 기본적으로 공격 가능
 
-    def validate_play_card(self, card_id: str, player_id: str) -> bool:
+    def validate_play_card(self, card_id: str, player_id: str, use_extra_pp: bool) -> bool:
         """카드 플레이의 유효성 검사 (PP, 필드 제한 등)"""
         card = self.game_state_manager.get_entity_by_id(card_id, Zone.HAND)
         player = self.game_state_manager.get_entity_by_id(player_id)
@@ -46,15 +46,31 @@ class RuleEngine:
         field_count = player.field.size()
 
         # PP 부족
-        if current_pp < card.current_cost:
-            # print(f"DEBUG: PP 부족. 현재 PP: {current_pp}, 카드 코스트: {card.current_cost}")
+        if current_pp + (1 if use_extra_pp else 0) < card.current_cost:
             return False
 
         # 필드 제한 (추종자/마법진)
         if (card.get_type() in [CardType.FOLLOWER, CardType.AMULET]) and field_count >= 5:
-            # print(f"DEBUG: 전장 가득 참. 현재 전장: {field_count}, 최대: 5")
             return False
 
+        return True
+
+    def validate_activate_amulet(self, card_id: str, player_id: str) -> bool:
+        """마법진 활성화의 유효성 검사 (PP, 대상 제한 등)"""
+        card = self.game_state_manager.get_entity_by_id(card_id, Zone.FIELD)
+        player = self.game_state_manager.get_entity_by_id(player_id)
+        activate_effect = self.game_state_manager.get_card_effects(card_id, EffectType.ACTIVATE)[0]
+        
+        # 이번 턴에 활성화 했다면 불가능
+        if card.is_activated:
+            return False
+
+        # 활성화에 코스트가 있고 PP 부족하면 불가능
+        if 'cost' in activate_effect.keys():
+            current_pp = player.current_pp
+            # PP 부족
+            if current_pp < activate_effect['cost']:
+                return False
         return True
 
     def validate_attack(self, attacker_id: str, target_id: str) -> bool:

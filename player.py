@@ -25,7 +25,8 @@ class Player:
         self.max_ep = 2
         self.current_sep = 0
         self.max_sep = 2
-        self.extra_pp_uses = {'1-5': 1, '6+': 1}  # 후공 플레이어 전용
+        self.extra_pp = 0
+        self.max_extra_pp = 1
         self.event_manager = event_manager
         self.spent_ep_in_turn = False
         self.effects = []  # 크레스트 효과 인스턴스
@@ -56,13 +57,21 @@ class Player:
         self.current_pp = min(self.current_pp + amount, self.max_pp)
         print(f"{self.player_id} PP가 {amount} 증가했습니다. 현재 PP: {self.current_pp}")
 
-    def spend_pp(self, amount: int) -> bool:
+    def spend_pp(self, amount: int):
         """pp가 소모됨"""
         if self.current_pp >= amount:
             self.current_pp -= amount
             print(f"{self.player_id} PP {amount} 소모. 남은 PP: {self.current_pp}")
-            return True
-        return False
+            return
+
+        if self.current_pp + self.extra_pp >= amount:
+            print(f"{self.player_id} PP {self.current_pp} 소모. 남은 PP: {0}")
+            extra_amount = amount - self.current_pp
+            self.current_pp = 0
+            self.spend_extra_pp(extra_amount)
+            return
+
+        print(f"처리 불가능한 pp 사용 요청! 남은 PP: {self.current_pp} 요청 PP: {amount}")
 
     def refresh_pp(self):
         """pp가 전부 회복됨"""
@@ -70,21 +79,16 @@ class Player:
         self.current_pp = self.max_pp
         print(f"{self.player_id} PP가 {amount} 증가했습니다. 현재 PP: {self.current_pp}")
 
-    def use_extra_pp(self, current_turn: int) -> bool:
-        """후공 플레이어가 epp를 사용함"""
-        if self.player_id == "Player2":  # 후공 플레이어만 사용 가능
-            if 1 <= current_turn <= 5 and self.extra_pp_uses['1-5'] > 0:
-                self.current_pp += 1
-                self.extra_pp_uses['1-5'] -= 1
-                print(f"{self.player_id} 엑스트라 PP 사용! 현재 PP: {self.current_pp}")
-                return True
-            elif current_turn >= 6 and self.extra_pp_uses['6+'] > 0:
-                self.current_pp += 1
-                self.extra_pp_uses['6+'] -= 1
-                print(f"{self.player_id} 엑스트라 PP 사용! 현재 PP: {self.current_pp}")
-                return True
-        print(f"{self.player_id} 엑스트라 PP를 사용할 수 없습니다.")
-        return False
+    def gain_epp(self, amount: int):
+        """epp가 회복됨"""
+        self.extra_pp = min(self.extra_pp + amount, self.max_extra_pp)
+        print(f"{self.player_id} EPP가 {amount} 증가했습니다. 현재 EPP: {self.extra_pp}")
+
+    def spend_extra_pp(self, amount: int) -> bool:
+        """epp를 사용함"""
+        if self.extra_pp >= amount:
+            self.extra_pp -= amount
+            print(f"{self.player_id} EXTRA PP {amount} 소모. 남은 EXTRA PP: {self.extra_pp}")
 
     def gain_ep(self, amount: int):
         """ep가 회복됨"""
@@ -96,8 +100,8 @@ class Player:
         if self.current_ep >= amount:
             self.current_ep -= amount
             print(f"{self.player_id} EP {amount} 소모. 남은 EP: {self.current_ep}")
-            return True
-        return False
+        else:
+            print(f"처리 불가능한 ep 사용 요청! 남은 EP: {self.current_ep} 요청 EP: {amount}")
 
     def gain_sep(self, amount: int):
         """sep가 회복됨"""
@@ -109,8 +113,8 @@ class Player:
         if self.current_sep >= amount:
             self.current_sep -= amount
             print(f"{self.player_id} SEP {amount} 소모. 남은 SEP: {self.current_sep}")
-            return True
-        return False
+        else:
+            print(f"처리 불가능한 sep 사용 요청! 남은 SEP: {self.current_sep} 요청 SEP: {amount}")
 
     def get_type(self):
         return CardType.LEADER

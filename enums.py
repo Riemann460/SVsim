@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class CardType(Enum):
     """카드 카테고리 정의"""
     FOLLOWER = "추종자"
@@ -7,16 +8,18 @@ class CardType(Enum):
     AMULET = "마법진"
     LEADER = "리더"
 
+
 class EventType(Enum):
     """게임 내에서 발생하는 이벤트 타입 정의"""
+    AMULET_ACTIVATED = "마법진_활성화됨"  # 활성화 효과 발동
     CARD_PLAYED = "카드_플레이됨"  # 출격 능력 발동
     DESTROYED_ON_FIELD = "필드_카드_파괴됨"  # 유언 능력 발동
     TURN_START = "턴_시작"  # 카운트다운 처리
     COMBAT_INITIATED = "교전_시작됨"  # 쌍방 교전시 능력 발동
     ATTACK_DECLARED = "공격_선언됨"  # 공격자 공격시 능력 발동
-    SPELL_CAST = "주문_사용됨"  # 주문 능력 발동
-    FOLLOWER_EVOLVED = "추종자_진화됨"  # 진화하면 능력 발동
-    FOLLOWER_SUPER_EVOLVED = "추종자_초진화됨"  # 초진화하면 능력 발동
+    SPELL_CAST = "주문_사용됨"  # 주문 효과 발동
+    FOLLOWER_EVOLVED = "추종자_진화됨"  # 진화시 능력 발동
+    FOLLOWER_SUPER_EVOLVED = "추종자_초진화됨"  # 초진화시 능력 발동
     DAMAGE_DEALT = "데미지_입힘"  # 흡혈 능력 발동
     TURN_END = "턴_종료"  # 턴 종료시 발동
 #    PP_GAINED = "PP_획득됨"
@@ -27,6 +30,19 @@ class EventType(Enum):
 #    CARD_DRAWN = "카드_드로우됨"
 #    CARD_MOVED_TO_GRAVEYARD = "카드_묘지로_이동됨"
 
+
+class ClassType(Enum):
+    """클래스(직업) 정의"""
+    NEUTRAL = "중립"
+    FORESTCRAFT = "엘프"
+    SWORDCRAFT = "로얄"
+    RUNECRAFT = "위치"
+    DRAGONCRAFT = "드래곤"
+    ABYSSCRAFT = "나이트메어"
+    HAVENCRAFT = "비숍"
+    PORTALCRAFT = "네메시스"
+
+
 class Zone(Enum):
     """게임 영역 정의"""
     DECK = "덱"
@@ -35,11 +51,13 @@ class Zone(Enum):
     GRAVEYARD = "묘지"
     BANISHED = "소멸"
 
+
 class GamePhase(Enum):
     """턴 단계 정의"""
     START_PHASE = "시작_단계"
     MAIN_PHASE = "메인_단계"
     END_PHASE = "종료_단계"
+
 
 class EffectType(Enum):
     """카드의 키워드 종류를 정의"""
@@ -50,7 +68,9 @@ class EffectType(Enum):
     FANFARE = "출격"
     LAST_WORDS = "유언"
     ON_EVOLVE = "진화시"
+    EVOLVED = "진화하면"
     ON_SUPER_EVOLVE = "초진화시"
+    SUPER_EVOLVED = "초진화하면"
     ACTIVATE = "활성화"
     WARD = "수호"
     RUSH = "돌진"
@@ -64,6 +84,7 @@ class EffectType(Enum):
     AMBUSH = "잠복"
     BANE = "필살"
 
+
 class ProcessType(Enum):
     """효과의 처리 방식을 정의"""
     STAT_BUFF = "스탯 버프"
@@ -74,13 +95,14 @@ class ProcessType(Enum):
     DEAL_DAMAGE = "피해 입히기"
     DESTROY = "파괴"
     RECOVER_PP = "PP 회복"
-    EVOLVE_SUPER = "초진화"
+    SUPER_EVOLVE = "초진화"
     REPLACE_DECK = "덱 교체"
     SET_MAX_HEALTH = "최대 체력 설정"
     ADD_KEYWORD = "키워드 부여"
     REMOVE_KEYWORD = "키워드 제거"
     RETURN_TO_DECK = "카드를 덱으로 되돌림"
     TRIGGER_EFFECT = "다른 효과 발동"
+
 
 class TargetType(Enum):
     """효과가 적용되는 대상을 정의"""

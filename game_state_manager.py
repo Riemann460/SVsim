@@ -14,14 +14,17 @@ class GameStateManager:
         self.current_turn_player_id: Optional[str] = None
         self.turn_number: int = 0
         self.game_phase: Optional[GamePhase] = None
+        self.cards = []
         self._next_card_instance_id = 0
 
     def create_card_instance(self, card_data, owner_id):
         new_card_id = str(self._next_card_instance_id)
+        card = Card(card_data, owner_id, new_card_id)
+        self.cards.append(card)
         self._next_card_instance_id += 1
-        return Card(card_data, owner_id, new_card_id)
+        return card
 
-    def get_card_ids_in_zone(self, player_id: str, zone: Zone) -> List[Card]:
+    def get_card_ids_in_zone(self, player_id: str, zone: Zone) -> List[str]:
         """특정 플레이어의 특정 영역에 있는 카드 ID 조회"""
         player = self.players[player_id]
         return [card.card_id for card in player.get_cards_in_zone(zone)]
@@ -85,14 +88,18 @@ class GameStateManager:
         if self.turn_number in [12, 13]:
             player.gain_sep(2)
 
+        # EPP 처리
+        if self.turn_number in [2, 12]:
+            player.gain_epp(1)
+
         # 플레이어 EP 소모 상태 리셋
         player.spent_ep_in_turn = False
 
-        # 필드 추종자 engaged 상태 리셋 (새로 공격 가능하게)
+        # 필드 카드 상태 리셋 (공격/활성화)
         for card in self.get_cards_in_zone(player_id, Zone.FIELD):
-            if card.card_data['card_type'] == CardType.FOLLOWER:
-                card.is_engaged = False
-                card.is_summoned = False
+            card.is_engaged = False
+            card.is_summoned = False
+            card.is_activated = False
 
     def play_card(self, player_id, card_id, enhanced_cost=0):
         """지정 카드를 사용"""
@@ -184,7 +191,6 @@ class GameStateManager:
         card = self.get_entity_by_id(card_id, Zone.FIELD)
         card.is_evolved = True
         card.is_super_evolved = True
-        card.is_super_evolved_turn = True
         card.current_attack += 3
         card.current_defense += 3
         card.max_defense += 3
@@ -262,7 +268,9 @@ class GameStateManager:
         print("DEBUG: 잘못된 카드 ID 전달(has_keyword)")
 
     def evolve_card_with_ep(self, card_id: str, player_id:str):
-        """EP를 사용한 지정 카드 진화"""
+        """EP를 사용한 지정 카드 진화
+        :rtype: object
+        """
         card: Card
         card = self.get_entity_by_id(card_id, Zone.FIELD)
         if card:
@@ -302,3 +310,13 @@ class GameStateManager:
     def get_player_defense(self, player_id: str) -> int:
         return self.players[player_id].current_defense
 
+    def activate_amulet(self, card_id: str, player_id: str):
+        card = self.get_entity_by_id(card_id, Zone.FIELD)
+        player = self.players[player_id]
+        card.is_activated = True
+
+        # 활성화에 코스트가 있고 PP 부족
+        activate_effect = self.get_card_effects(card_id, EffectType.ACTIVATE)[0]
+        if 'cost' in activate_effect.keys():
+            cost = activate_effect['cost']
+            player.spend_pp(cost)
