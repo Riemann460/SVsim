@@ -33,14 +33,14 @@ class EventType(Enum):
 
 class ClassType(Enum):
     """클래스(직업) 정의"""
-    NEUTRAL = "중립"
-    FORESTCRAFT = "엘프"
-    SWORDCRAFT = "로얄"
-    RUNECRAFT = "위치"
-    DRAGONCRAFT = "드래곤"
-    ABYSSCRAFT = "나이트메어"
-    HAVENCRAFT = "비숍"
-    PORTALCRAFT = "네메시스"
+    NEUTRAL = "Neutral"
+    FORESTCRAFT = "Forestcraft"
+    SWORDCRAFT = "Swordcraft"
+    RUNECRAFT = "Ruencraft"
+    DRAGONCRAFT = "Dragoncraft"
+    ABYSSCRAFT = "Abysscraft"
+    HAVENCRAFT = "Havencraft"
+    PORTALCRAFT = "Portalcraft"
 
 
 class Zone(Enum):
@@ -117,3 +117,19 @@ class TargetType(Enum):
     OWN_HAND_CHOICE = "자기 패 단일 선택"
     OPPONENT_FOLLOWER_MAX_ATTACK_RANDOM = "상대 추종자 중 가장 공격력이 높은 추종자 중 랜덤"
     ALLY_FOLLOWER_CHOICE_UNEVOLVED = "진화하지 않은 아군 추종자 단일 선택"
+
+
+class TribeType(Enum):
+    """카드의 종족(타입)을 정의"""
+    EARTH_SIGIL = "Earth_Sigil"
+    LUMINOUS = "Luminous"
+    LEVIN = "Levin"
+    MYSTERIA = "Mysteria"
+    ANATHEMA = "Anathema"
+    OFFICER = "Officer"
+    GOLEM = "Golem"
+    SHIKIGAMI = "Shikigami"
+    MARINE = "Marine"
+    DEPARTED = "Departed"
+    PUPPETRY = "Puppetry"
+    ARTIFACT = "Artifact"

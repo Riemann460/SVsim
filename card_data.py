@@ -1,9 +1,10 @@
 from typing import List, Any
-from enums import CardType, EffectType, TargetType, ProcessType, ClassType
+from enums import CardType, EffectType, TargetType, ProcessType, ClassType, TribeType
+import pprint
 
 class CardData:
     """카드의 정적 데이터를 정의합니다."""
-    def __init__(self, card_id: str, name: str, cost: int, card_type: CardType, class_type: ClassType, attack: int = 0, defense: int = 0, effects: List = None):
+    def __init__(self, card_id: str, name: str, cost: int, card_type: CardType, class_type: ClassType, attack: int = 0, defense: int = 0, tribes: List = None, effects: List = None):
         self.card_id = card_id  # 영문명
         self.name = name  # 한글명
         self.cost = cost
@@ -11,11 +12,27 @@ class CardData:
         self.class_type = class_type
         self.attack = attack  # 추종자 전용
         self.defense = defense  # 추종자 전용
-        self.effects = effects if effects is not None else {}  # { 'type': EffectType, 'target': TargetType, 'value':... }
-        # [1, 2, 3]
+        self.tribes = tribes
+        self.effects = effects if effects is not None else []  # { 'type': EffectType, 'target': TargetType, 'value':... }
 
     def get(self, key: str, default: Any = None) -> Any:
         return getattr(self, key, default)
+
+    def __repr__(self):
+        # 객체를 파일에 쓸 때 보기 좋은 형태로 만들기 위함
+        effects_str = pprint.pformat(self.effects, indent=8, width=120)
+        tribe_map = {e.value: e for e in TribeType}
+        tribe = self.tribes[0] if len(self.tribes) > 0 else None
+        tribe_str = str(tribe) if tribe else ""
+        if len(self.effects) > 1:
+            return (f'CardData("{self.card_id}", "{self.name}", {self.cost}, CardType.{self.card_type.name}, '
+                    f'ClassType.{self.class_type.name}, {self.attack}, {self.defense}, tribes=[{tribe_str}], effects=[\n\t\t{effects_str.strip("[]").strip()}])')
+        elif len(self.effects) == 1:
+            return (f'CardData("{self.card_id}", "{self.name}", {self.cost}, CardType.{self.card_type.name}, '
+                    f'ClassType.{self.class_type.name}, {self.attack}, {self.defense}, tribes=[{tribe_str}], effects=[{effects_str.strip("[]").strip()}])')
+        else:
+            return (f'CardData("{self.card_id}", "{self.name}", {self.cost}, CardType.{self.card_type.name}, '
+                    f'ClassType.{self.class_type.name}, {self.attack}, {self.defense}, tribes=[{tribe_str}], effects=[])')
 
     def __getitem__(self, key: str) -> Any:
         """
