@@ -8,6 +8,7 @@ class Graveyard:
 
     def add_card(self, card: Card):
         self._cards.append(card)
+        print(f"[LOG] 묘지에 카드 {card.get_display_name()} (ID: {card.card_id}) 추가됨. 현재 묘지 사이즈: {len(self._cards)}")
 
     def get_cards(self) -> List[Card]:
         return list(self._cards)

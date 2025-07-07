@@ -30,33 +30,45 @@ class Card:
     def take_damage(self, amount: int):
         """추종자가 피해를 입음"""
         self.current_defense -= amount
-        print(f"DEBUG: {self.card_data['name']}이(가) {amount} 피해를 입음. 남은 체력: {self.current_defense}")
+        print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})이(가) {amount} 피해를 입음. 남은 체력: {self.current_defense}")
         if self.current_defense <= 0:
+            print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})의 체력이 0 이하가 되어 파괴됨.")
             return True  # 파괴됨
         return False
 
     def heal_damage(self, amount: int):
         """추종자가 회복됨"""
         self.current_defense = min(self.current_defense+amount, self.max_defense)
-        # self.event_manager.publish(EventType.HEALED, {'player_id': self.player_id, 'amount': amount, 'current_hp': self.leader_hp})
-        print(f"{self.card_data['name']}이(가) {amount} 체력을 회복했습니다. 현재 체력: {self.current_defense}")
+        print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})이(가) {amount} 체력을 회복했습니다. 현재 체력: {self.current_defense}")
 
     def can_attack(self, target_type: CardType):
         """추종자가 공격할 수 있는지 확인"""
         # 공격한 턴에는 공격 불가
         if self.is_engaged:
+            print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})는 이미 공격했습니다.")
             return False
 
         # 소환된 다음 턴 부터는 제한없이 가능
         if not self.is_summoned:
+            print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})는 소환된 다음 턴이므로 공격 가능합니다.")
             return True
 
         # 질주가 아니면 소환된 턴에 리더 공격 불가
         if target_type == CardType.LEADER:
-            return self.has_keyword(EffectType.STORM)
+            if self.has_keyword(EffectType.STORM):
+                print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})는 '질주'를 가지고 있어 리더 공격 가능합니다.")
+                return True
+            else:
+                print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})는 '질주'가 없어 소환된 턴에 리더 공격 불가합니다.")
+                return False
 
         # 진화, 돌진, 질주가 아닌 이상 소환된 턴에 추종자 공격 불가
-        return self.is_evolved or self.has_keyword(EffectType.RUSH) or self.has_keyword(EffectType.STORM)
+        if self.is_evolved or self.has_keyword(EffectType.RUSH) or self.has_keyword(EffectType.STORM):
+            print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})는 진화/돌진/질주 상태이므로 추종자 공격 가능합니다.")
+            return True
+        else:
+            print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})는 소환된 턴에 추종자 공격 불가합니다.")
+            return False
 
     def has_keyword(self, keyword_name: EffectType) -> bool:
         """특정 키워드 능력을 가지고 있는지 확인"""

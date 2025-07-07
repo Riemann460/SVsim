@@ -11,17 +11,19 @@ class Field:
 
     def add_card(self, card: Card) -> bool:
         if len(self._cards) >= self.MAX_FIELD_SIZE:
-            print("전장 공간이 부족합니다.")
+            print(f"[LOG] 필드에 카드 {card.get_display_name()} (ID: {card.card_id}) 추가 실패: 필드 제한 ({self.MAX_FIELD_SIZE}) 초과.")
             return False
         self._cards.append(card)
-        print(f"{card.card_data.name}이(가) 전장에 소환되었습니다.")
+        print(f"[LOG] 필드에 카드 {card.get_display_name()} (ID: {card.card_id}) 추가됨. 현재 필드 사이즈: {len(self._cards)}")
         return True
 
     def remove_card(self, card_id: str) -> bool:
         for card in self._cards:
             if card.card_id == card_id:
                 self._cards.remove(card)
+                print(f"[LOG] 필드에서 카드 {card.get_display_name()} (ID: {card_id}) 제거됨. 남은 필드 사이즈: {len(self._cards)}")
                 return True
+        print(f"[LOG] 필드에서 카드 ID {card_id}를 찾을 수 없어 제거 실패.")
         return False
 
     def get_cards(self) -> List[Card]:

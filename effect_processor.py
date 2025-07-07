@@ -48,7 +48,13 @@ class EffectProcessor:
     def _can_target_with_ability(self, target_card_id: str, game_state_manager: 'GameStateManager') -> bool:
         """능력의 대상으로 추종자를 선택할 수 있는지 확인 (오라, 잠복)"""
         target_card = game_state_manager.get_entity_by_id(target_card_id)
-        return not target_card.has_keyword(EffectType.AURA) and not target_card.has_keyword(EffectType.AMBUSH)
+        if target_card.has_keyword(EffectType.AURA):
+            print(f"[LOG] {target_card.get_display_name()} (ID: {target_card_id})는 '오라'로 능력의 대상이 될 수 없습니다.")
+            return False
+        if target_card.has_keyword(EffectType.AMBUSH):
+            print(f"[LOG] {target_card.get_display_name()} (ID: {target_card_id})는 '잠복'으로 능력의 대상이 될 수 없습니다.")
+            return False
+        return True
 
     def _get_target_self(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
         return [caster_card]
@@ -126,13 +132,15 @@ class EffectProcessor:
         """타겟 타입을 해석하고 타겟 리스트 반환"""
         caster_card = game_state_manager.get_entity_by_id(caster_id)
         if not caster_card:
-            print(f"ERROR: list_target - caster card with id {caster_id} not found.")
+            print(f"[ERROR] list_target - caster card with id {caster_id} not found.")
             return []
 
         handler = self.target_handlers.get(target_type)
         if handler:
-            return handler(caster_card, game_state_manager)
-        print(f"타겟 타입 {target_type.value}에 대한 핸들러가 정의되지 않았습니다.")
+            targets = handler(caster_card, game_state_manager)
+            print(f"[LOG] 타겟 타입 {target_type.value}에 대한 타겟 리스트: {[t.get_display_name() for t in targets]}")
+            return targets
+        print(f"[ERROR] 타겟 타입 {target_type.value}에 대한 핸들러가 정의되지 않았습니다.")
         return []
 
 
@@ -142,7 +150,7 @@ class EffectProcessor:
         target.current_attack += attack
         target.current_defense += defense
         target.max_defense += defense
-        print(f"DEBUG: 처리 내용: 스텟 버프, 타겟: {target.card_data['name']}, 증가량: {value}")
+        print(f"[LOG] 처리 내용: 스텟 버프, 타겟: {target.get_display_name()}, 증가량: {value}")
 
     def _process_draw(self, effect_data: Dict[str, Any], target: Player, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
@@ -150,41 +158,47 @@ class EffectProcessor:
         for _ in range(value):
             deck = game_state_manager.get_cards_in_zone(target_id, Zone.DECK)
             if not deck:
-                print(f"게임 종료: {target_id} 덱 아웃!")
+                print(f"[LOG] 게임 종료: {target_id} 덱 아웃!")
                 return
             drawn_card = deck.pop(0)
             game_state_manager.move_card(drawn_card.card_id, Zone.DECK, Zone.HAND)
-        print(f"DEBUG: 처리 내용: 카드 드로우, 타겟: {target_id}, 드로우 장수: {value}")
+        print(f"[LOG] 처리 내용: 카드 드로우, 타겟: {target_id}, 드로우 장수: {value}")
 
     def _process_heal(self, effect_data: Dict[str, Any], target: Any, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
         target.heal_damage(value)
-        print(f"DEBUG: 처리 내용: 체력 회복, 타겟: {target.card_data['name']}, 회복량: {value}")
+        print(f"[LOG] 처리 내용: 체력 회복, 타겟: {target.get_display_name()}, 회복량: {value}")
 
     def _process_add_card_to_hand(self, effect_data: Dict[str, Any], target: Player, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
         target_id = target.player_id
-        card = game_state_manager.create_card_instance(card_data, target_id)
+        card = game_state_manager.create_card_instance(value, target_id)
         if len(game_state_manager.get_cards_in_zone(target_id, Zone.HAND)) < 9:
             game_state_manager.add_card(card, Zone.HAND, target_id)
         else:
             game_state_manager.add_card(card, Zone.GRAVEYARD, target_id)
-        print(f"DEBUG: 처리 내용: 패에 카드 추가, 타겟: {target_id}, 추가 카드: {card.card_data['name']}")
+        print(f"[LOG] 처리 내용: 패에 카드 추가, 타겟: {target_id}, 추가 카드: {card.get_display_name()}")
 
     def _process_summon(self, effect_data: Dict[str, Any], target: Player, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
         target_id = target.player_id
-        card = game_state_manager.create_card_instance(card_data, target_id)
+        card = game_state_manager.create_card_instance(value, target_id)
         if len(game_state_manager.get_cards_in_zone(target_id, Zone.FIELD)) < 5:
             game_state_manager.add_card(card, Zone.FIELD, target_id)
-        print(f"DEBUG: 처리 내용: 필드에 카드 소환, 타겟: {target_id}, 소환 카드: {card.card_data['name']}")
+        print(f"[LOG] 처리 내용: 필드에 카드 소환, 타겟: {target_id}, 소환 카드: {card.get_display_name()}")
 
     def _process_deal_damage(self, effect_data: Dict[str, Any], target: Any, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
-        if target.has_keyword(EffectType.BARRIER) or (target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id):
-            print(f"DEBUG: {target.get_display_name()} 초진화 효과 혹은 배리어로 데미지 0 받음.")
+
+        if target.has_keyword(EffectType.BARRIER):
+            print(f"[LOG] {target.get_display_name()} 배리어로 데미지 0 받음.")
             value = 0
             target.effects = [effect for effect in target.effects if effect['type'] != EffectType.BARRIER]
+
+        elif target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
+            print(f"[LOG] {target.get_display_name()} 초진화 효과로 데미지 0 받음.")
+            value = 0
+
         if target.take_damage(value):
             if target.get_type() == CardType.LEADER:
                 # 게임 종료 처리
@@ -193,26 +207,26 @@ class EffectProcessor:
                 target_id = target.card_id
                 game_state_manager.move_card(target_id, Zone.FIELD, Zone.GRAVEYARD)
                 self.event_manager.publish(EventType.DESTROYED_ON_FIELD, {"card_id": target_id})
-        print(f"DEBUG: 처리 내용: 피해 입히기, 타겟: {target.card_data['name']}, 피해량: {value}")
+        print(f"[LOG] 처리 내용: 피해 입히기, 타겟: {target.get_display_name()}, 피해량: {value}")
 
     def _process_destroy(self, effect_data: Dict[str, Any], target: Any, game_state_manager: 'GameStateManager'):
         if target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
-            print(f"DEBUG: 처리 내용: 파괴, 타겟: {target.get_display_name()}")
-            print(f"DEBUG: {target.get_display_name()} 초진화 효과로 파괴되지 않음.")
+            print(f"[LOG] 처리 내용: 파괴, 타겟: {target.get_display_name()}")
+            print(f"[LOG] {target.get_display_name()} 초진화 효과로 파괴되지 않음.")
             return
         game_state_manager.move_card(target.card_id, Zone.FIELD, Zone.GRAVEYARD)
         self.event_manager.publish(EventType.DESTROYED_ON_FIELD, {"card_id": target.card_id})
-        print(f"DEBUG: 처리 내용: 파괴, 타겟: {target.get_display_name()}")
+        print(f"[LOG] 처리 내용: 파괴, 타겟: {target.get_display_name()}")
 
     def _process_recover_pp(self, effect_data: Dict[str, Any], target: Player, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
         target.gain_pp(value)
-        print(f"DEBUG: 처리 내용: PP 회복, 타겟: {target.player_id}, 회복량: {value}")
+        print(f"[LOG] 처리 내용: PP 회복, 타겟: {target.player_id}, 회복량: {value}")
 
     def _process_super_evolve(self, effect_data: Dict[str, Any], target: Card, game_state_manager: 'GameStateManager'):
         game_state_manager.super_evolve_card(target.card_id)
         self.event_manager.publish(EventType.FOLLOWER_SUPER_EVOLVED, {"card_id": target.card_id, "spend_sep": False})
-        print(f"DEBUG: 처리 내용: 초진화, 타겟: {target.get_display_name()}")
+        print(f"[LOG] 처리 내용: 초진화, 타겟: {target.get_display_name()}")
 
     def _process_replace_deck(self, effect_data: Dict[str, Any], target: Player, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
@@ -224,38 +238,39 @@ class EffectProcessor:
         random.shuffle(replaced_deck_list)
         replaced_deck = Deck(replaced_deck_list)
         target.deck = replaced_deck
-        print(f"DEBUG: 처리 내용: 덱 교체, 타겟: {target.player_id}, 덱 사이즈: {len(replaced_deck)}")
+        print(f"[LOG] 처리 내용: 덱 교체, 타겟: {target.player_id}, 덱 사이즈: {len(replaced_deck)}")
 
     def _process_set_max_health(self, effect_data: Dict[str, Any], target: Any, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
         target.max_defense = value
-        print(f"DEBUG: 처리 내용: 최대 체력 설정, 타겟: {target.card_data['name']}, 설정값: {value}")
+        print(f"[LOG] 처리 내용: 최대 체력 설정, 타겟: {target.get_display_name()}, 설정값: {value}")
 
     def _process_add_keyword(self, effect_data: Dict[str, Any], target: Any, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
         target.effects.append(value)
-        print(f"DEBUG: 처리 내용: 키워드 부여, 타겟: {target.card_data['name']}, 키워드: {value['type'].value}")
+        print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {value['type'].value}")
 
     def _process_remove_keyword(self, effect_data: Dict[str, Any], target: Any, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
         target.effects = [effect for effect in target.effects if not effect['type'] == value]
-        print(f"DEBUG: 처리 내용: 키워드 제거, 타겟: {target.card_data['name']}, 키워드: {value.value}")
+        print(f"[LOG] 처리 내용: 키워드 제거, 타겟: {target.get_display_name()}, 키워드: {value.value}")
 
     def _process_return_to_deck(self, effect_data: Dict[str, Any], target: Card, game_state_manager: 'GameStateManager'):
         game_state_manager.move_card(target.card_id, Zone.HAND, Zone.DECK)
+        print(f"[LOG] 처리 내용: 덱으로 되돌리기, 타겟: {target.get_display_name()}")
 
     def _process_trigger_effect(self, effect_data: Dict[str, Any], target: Any, game_state_manager: 'GameStateManager'):
         value = effect_data.get("value")
         for effect in target.effects:
             if effect['type'] == value:
                 self.resolve_effect(effect, target.card_id, game_state_manager)
-        print(f"DEBUG: 처리 내용: 다른 효과 발동, 타겟: {target.card_data['name']}, 발동 효과: {value.value}")
+        print(f"[LOG] 처리 내용: 다른 효과 발동, 타겟: {target.get_display_name()}, 발동 효과: {value.value}")
 
     def resolve_effect(self, effect_data: Dict[str, Any], caster_id: str,
                        game_state_manager: 'GameStateManager'):
         caster_card = game_state_manager.get_entity_by_id(caster_id)
         if not caster_card:
-            print(f"ERROR: resolve_effect - caster card with id {caster_id} not found.")
+            print(f"[ERROR] resolve_effect - caster card with id {caster_id} not found.")
             return
         
         effect_type = effect_data.get("type")
@@ -264,11 +279,11 @@ class EffectProcessor:
 
         target_list = self.list_target(target_type, caster_id, game_state_manager)
 
-        print(f"DEBUG: {caster_card.get_display_name()}의 키워드 {effect_type.value} 처리 시작")
+        print(f"[LOG] {caster_card.get_display_name()} (ID: {caster_id})의 키워드 {effect_type.value} 처리 시작")
 
         for target in target_list:
             handler = self.process_handlers.get(process_type)
             if handler:
                 handler(effect_data, target, game_state_manager)
             else:
-                print(f"처리 타입 {process_type.value}에 대한 핸들러가 정의되지 않았습니다.")
+                print(f"[ERROR] 처리 타입 {process_type.value}에 대한 핸들러가 정의되지 않았습니다.")
