@@ -127,13 +127,13 @@ def main():
                         card_name = result['카드 이름']
                         card_database[card_name] = result
 
-                        print("  [✓] Success! Card Info:")
+                        print("  [SUCCESS] Card Info:") # 유니코드 문자 제거
                         print(f"      - 이름: {result.get('카드 이름', 'N/A')}")
                         print(
                             f"      - 코스트: {result.get('카드 코스트', 'N/A')}, 공격력: {result.get('카드 공격력', 'N/A')}, 방어력: {result.get('카드 방어력', 'N/A')}")
                         print(f"      - 능력: {result.get('카드 능력 서술문구', 'N/A')[:50]}...")
                     else:
-                        print("  [!] Found container, but failed to parse card info. Skipping rest of this category.")
+                        print("  [FAIL] Found container, but failed to parse card info. Skipping rest of this category.") # 유니코드 문자 제거
                         break
 
                 time.sleep(0.5)
@@ -147,11 +147,11 @@ def main():
     finally:
         driver.quit()
 
-    with open("card_database_generated_final.json", "w", encoding="utf-8") as f:
+    with open("card_database_generated_final.json", "w", encoding="utf-8") as f: # 인코딩 명시
         json.dump(card_database, f, ensure_ascii=False, indent=4)
 
     print("\nScraping complete!")
-    print(f"Total {len(card_database)} cards saved to card_database_generated.json")
+    print(f"Total {len(card_database)} cards saved to card_database_generated_final.json") # 파일명 수정
 
 
 if __name__ == "__main__":
