@@ -1,6 +1,6 @@
 import json
 from collections import Counter
-import re
+
 
 def analyze_effect_texts(file_path):
     try:
@@ -12,6 +12,7 @@ def analyze_effect_texts(file_path):
 
     raw_effect_starters = Counter()
     raw_action_starters = Counter()
+    raw_target_starters = Counter()
 
     for db_name, db_content in data.items():
         if isinstance(db_content, dict):
@@ -28,6 +29,10 @@ def analyze_effect_texts(file_path):
                                 text = effect['raw_action_text']
                                 starter = " ".join(text.split()[:4])
                                 raw_action_starters[starter] += 1
+                            if 'raw_target_text' in effect:
+                                text = effect['raw_target_text']
+                                starter = " ".join(text.split()[:4])
+                                raw_target_starters[starter] += 1
 
     print("--- Most Common raw_effect_text Starters ---")
     for starter, count in raw_effect_starters.most_common(10):
@@ -36,6 +41,11 @@ def analyze_effect_texts(file_path):
     print("\n--- Most Common raw_action_text Starters ---")
     for starter, count in raw_action_starters.most_common(10):
         print(f'"{starter}": {count}')
+
+    print("\n--- Most Common raw_target_text Starters ---")
+    for starter, count in raw_target_starters.most_common(10):
+        print(f'"{starter}": {count}')
+
 
 if __name__ == "__main__":
     analyze_effect_texts("C:/Users/SYS/PycharmProjects/pythonProject/shadowverse/process_card_db/card_database_parsed.json")

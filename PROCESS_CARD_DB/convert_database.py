@@ -2,24 +2,9 @@ import json
 from enum import Enum
 
 from enums import CardType, ClassType, TribeType, EffectType, ProcessType, TargetType
-from parse_script import parse_effect_text, Effect # Import Effect class for type checking
+from parse_script import parse_effect_text  # Import Effect class for type checking
+from effect import Effect
 
-def effect_to_dict(effect_obj):
-    if isinstance(effect_obj, Effect):
-        effect_dict = {}
-        for key, value in effect_obj.attributes.items():
-            if isinstance(value, Enum):
-                effect_dict[key] = value.name
-            elif isinstance(value, Effect):
-                effect_dict[key] = effect_to_dict(value)
-            elif isinstance(value, list) and all(isinstance(item, Effect) for item in value):
-                effect_dict[key] = [effect_to_dict(item) for item in value]
-            else:
-                effect_dict[key] = value
-        return effect_dict
-    elif isinstance(effect_obj, dict) and 'raw_effect_text' in effect_obj:
-        return effect_obj # Return raw effect dict as is
-    return str(effect_obj) # Fallback for unexpected types
 
 def convert_json_to_class_script(json_file_path, output_json_path):
     """
@@ -63,12 +48,15 @@ def convert_json_to_class_script(json_file_path, output_json_path):
             class_type_str = details.get('카드 클래스', 'Neutral')
 
             # 효과 파싱 및 딕셔너리 변환
+            raw_effects_text = ""
             parsed_effects = []
             if details.get('카드 능력 서술문구'):
-                raw_effect_text = details['카드 능력 서술문구']
-                parsed_effects_raw = parse_effect_text(raw_effect_text)
-                for effect_obj in parsed_effects_raw:
-                    parsed_effects.append(effect_to_dict(effect_obj))
+                raw_effects_text = details['카드 능력 서술문구']
+                parsed_effects_list = parse_effect_text(raw_effects_text)
+                for effect_obj in parsed_effects_list:
+                    effect_dict = effect_obj.to_dict()
+                    print(effect_dict)
+                    parsed_effects.append(effect_dict)
 
             # Enum으로 변환 및 문자열화
             card_type_enum = type_map.get(card_type_str, CardType.FOLLOWER).name
@@ -77,7 +65,7 @@ def convert_json_to_class_script(json_file_path, output_json_path):
             tribe = details.get('카드 종족 타입', None)
             if tribe:
                 resolved_tribe = tribe_map.get(tribe)
-                if resolved_tribe: # None이 아닌 경우에만 추가
+                if resolved_tribe:  # None이 아닌 경우에만 추가
                     tribes.append(resolved_tribe.name)
 
             # CardData 딕셔너리 생성
@@ -90,7 +78,8 @@ def convert_json_to_class_script(json_file_path, output_json_path):
                 "attack": attack,
                 "defense": defense,
                 "tribes": tribes,
-                "effects": parsed_effects
+                "effects": parsed_effects,
+                "raw_effects_text": raw_effects_text
             }
 
             # 카드팩에 따라 적절한 데이터베이스에 저장

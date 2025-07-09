@@ -147,11 +147,11 @@ def main():
     finally:
         driver.quit()
 
-    with open("card_database_generated_final.json", "w", encoding="utf-8") as f: # 인코딩 명시
+    with open("card_database_raw.json", "w", encoding="utf-8") as f: # 인코딩 명시
         json.dump(card_database, f, ensure_ascii=False, indent=4)
 
     print("\nScraping complete!")
-    print(f"Total {len(card_database)} cards saved to card_database_generated_final.json") # 파일명 수정
+    print(f"Total {len(card_database)} cards saved to card_database_raw.json") # 파일명 수정
 
 
 if __name__ == "__main__":

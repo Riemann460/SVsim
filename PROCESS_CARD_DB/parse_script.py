@@ -1,78 +1,11 @@
 import json
 import re
 from enum import Enum
+from typing import Dict
+
 from enums import EffectType, ProcessType, TargetType, CardType
 from card_data import CardData
-
-
-class Effect:
-    def __init__(self, **kwargs):
-        self.attributes = kwargs
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-    def __repr__(self):
-        parts = []
-        sorted_keys = sorted(self.attributes.keys(), key=lambda k: k != 'type')
-
-        for key in sorted_keys:
-            value = self.attributes[key]
-
-            if isinstance(value, Enum):
-                formatted_value = f"{type(value).__name__}.{value.name}"
-            else:
-                formatted_value = repr(value)
-
-            parts.append(f"'{key}': {formatted_value}")
-
-        return "{"+f"{', '.join(parts)}"+"}"
-
-    def update(self, **kwargs):
-        self.attributes.update(kwargs)
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-
-def _is_new_major_effect_start(line: str) -> bool:
-    simple_keywords = {
-        "Ward", "Storm", "Rush", "Bane", "Drain", "Barrier", "Ambush", "Intimidate"
-    }
-    if line in simple_keywords:
-        return True
-
-    patterns = [
-        r"Enhance \(\d+\):",
-        r"Engage \(\d+\):",
-        r"Engage:",
-        r"Last Words:",
-        r"Fanfare:",
-        r"Evolve:",
-        r"Super-Evolve:",
-        r"Strike:",
-        r"Countdown \(\d+\):",
-        r"Whenever",
-        r"At the end of your turn",
-        r"On Spellboost:",
-        r"When this follower evolves,",
-        r"Follower Strike:",
-        r"Can attack \d+ times per turn.",
-        r"Activates in hand.",
-        r"If you've unlocked super-evolution,",
-        r"Once on each of your turns,",
-        r"Fuse:",
-        r"When you Fuse to this card,",
-        r"Your opponent can't select any cards other than this one for abilities.",
-        r"At the end of your opponent's turn,",
-        r"When this card is discarded,",
-        r"When this card leaves the field,",
-        r"X starts at \d+.",
-        r"Then, if X is at least \d+,"
-        r"\d+\. ",
-    ]
-    for pattern in patterns:
-        if re.match(pattern, line):
-            return True
-    return False
+from effect import Effect
 
 
 def parse_effect_text(description: str):
@@ -81,28 +14,18 @@ def parse_effect_text(description: str):
 
     lines = [line.strip() for line in description.strip().split('\n') if line.strip()]
     parsed_effects = []
-    current_effect_lines = []
 
     for line in lines:
-        if _is_new_major_effect_start(line) and current_effect_lines:
-            combined_text = " ".join(current_effect_lines)
-            parsed_effects.append(_parse_single_effect_block(combined_text))
-            current_effect_lines = [line]
-        else:
-            current_effect_lines.append(line)
-
-    if current_effect_lines:
-        combined_text = " ".join(current_effect_lines)
-        parsed_effects.append(_parse_single_effect_block(combined_text))
+        parsed_effects.append(_parse_single_effect(line))
 
     return parsed_effects
 
 
-def _parse_single_effect_block(text: str):
+def _parse_single_effect(text: str):
     simple_keywords = {
         "Ward": EffectType.WARD, "Storm": EffectType.STORM, "Rush": EffectType.RUSH,
         "Bane": EffectType.BANE, "Drain": EffectType.DRAIN, "Barrier": EffectType.BARRIER,
-        "Ambush": EffectType.AMBUSH, "Intimidate": EffectType.INTIMIDATE
+        "Ambush": EffectType.AMBUSH, "Intimidate": EffectType.INTIMIDATE, "Aura": EffectType.AURA
     }
     if text in simple_keywords:
         return Effect(type=simple_keywords[text])
@@ -115,106 +38,176 @@ def _parse_single_effect_block(text: str):
         effect.update(type=EffectType.ENHANCE, enhance_cost=int(cost))
         return effect
 
-    # ... (rest of the _parse_single_effect_block function) ...
+    evolve_match = re.match(r"Evolve: (.*)", text)
+    if evolve_match:
+        sub_text = evolve_match.group(1)
+        effect_attrs = parse_action(sub_text)
+        effect = Effect(**effect_attrs)
+        effect.update(type=EffectType.ON_EVOLVE)
+        return effect
 
-    return {'raw_effect_text': text}
+    fanfare_match = re.match(r"Fanfare: (.*)", text)
+    if fanfare_match:
+        sub_text = fanfare_match.group(1)
+        effect_attrs = parse_action(sub_text)
+        effect = Effect(**effect_attrs)
+        effect.update(type=EffectType.FANFARE)
+        return effect
 
+    engage_without_cost_match = re.match(r"Engage: (.*)", text)
+    if engage_without_cost_match:
+        sub_text = engage_without_cost_match.group(1)
+        effect_attrs = parse_action(sub_text)
+        effect = Effect(**effect_attrs)
+        effect.update(type=EffectType.ACTIVATE)
+        return effect
 
-def parse_action(text: str):
-    action = {}
+    engage_with_cost_match = re.match(r"Engage \((\d+)\): (.*)", text)
+    if engage_with_cost_match:
+        cost, sub_text = engage_with_cost_match.groups()
+        effect_attrs = parse_action(sub_text)
+        effect = Effect(**effect_attrs)
+        effect.update(type=EffectType.ACTIVATE, cost=int(cost))
+        return effect
 
-    select_and_deal_damage_match = re.search(r"Select an enemy follower on the field and deal it (\d+) damage", text)
-    if select_and_deal_damage_match:
-        action['process'] = ProcessType.DEAL_DAMAGE
-        action['target'] = TargetType.OPPONENT_FOLLOWER_CHOICE
-        action['value'] = int(select_and_deal_damage_match.group(1))
-        return action
-
-    select_and_destroy_match = re.search(r"Select an enemy follower on the field and destroy it", text)
-    if select_and_destroy_match:
-        action['process'] = ProcessType.DESTROY
-        action['target'] = TargetType.OPPONENT_FOLLOWER_CHOICE
-        return action
-
-    select_and_buff_match = re.search(r"Select another allied follower on the field and give it \+(\d+)\/\+(\d+)", text)
-    if select_and_buff_match:
-        action['process'] = ProcessType.STAT_BUFF
-        action['target'] = TargetType.ALLY_FOLLOWER_CHOICE
-        action['value'] = (int(select_and_buff_match.group(1)), int(select_and_buff_match.group(2)))
-        return action
+    last_words_match = re.match(r"Last Words: (.*)", text)
+    if last_words_match:
+        sub_text = last_words_match.group(1)
+        effect_attrs = parse_action(sub_text)
+        effect = Effect(**effect_attrs)
+        effect.update(type=EffectType.LAST_WORDS)
+        return effect
 
     at_end_of_turn_match = re.search(r"At the end of your turn, (.*)", text)
     if at_end_of_turn_match:
         sub_text = at_end_of_turn_match.group(1)
         effect_attrs = parse_action(sub_text)
         effect = Effect(**effect_attrs)
-        effect.update(type=EffectType.AURA, trigger='END_OF_TURN')
-        return effect.attributes
+        effect.update(type=EffectType.ON_MY_TURN_END)
+        return effect
+
+    at_end_of_opponent_turn_match = re.search(r"At the end of your opponent's turn, (.*)", text)
+    if at_end_of_opponent_turn_match:
+        sub_text = at_end_of_opponent_turn_match.group(1)
+        effect_attrs = parse_action(sub_text)
+        effect = Effect(**effect_attrs)
+        effect.update(type=EffectType.ON_OPPONENTS_TURN_END)
+        return effect
+
+    spellboost_match = re.search(r"On Spellboost: (.*)", text)
+    if spellboost_match:
+        sub_text = spellboost_match.group(1)
+        effect_attrs = parse_action(sub_text)
+        effect = Effect(**effect_attrs)
+        effect.update(type=EffectType.SPELLBOOST)
+        return effect
+
+    countdown_match = re.search(r"Countdown \((\d+)\)", text)
+    if countdown_match:
+        turns = countdown_match.group(1)
+        effect = Effect(type=EffectType.COUNTDOWN, value=turns)
+        return effect
+
+    return Effect(raw_effect_text=text)
+
+
+def parse_target(text: str) -> Dict:
+    target = {}
+    self_match = re.search("this follower", text)
+    if self_match:
+        target['target'] = TargetType.SELF
+        return target
+
+    opponent_follower_choice_match = re.search("Select an enemy follower on the field", text)
+    if opponent_follower_choice_match:
+        target['target'] = TargetType.OPPONENT_FOLLOWER_CHOICE
+        return target
+
+    another_ally_follower_choice = re.search("Select another allied follower on the field", text)
+    if another_ally_follower_choice:
+        target['target'] = TargetType.ANOTHER_ALLY_FOLLOWER_CHOICE
+        return target
+
+    ally_follower_choice = re.search("Select an allied follower on the field", text)
+    if ally_follower_choice:
+        target['target'] = TargetType.ALLY_FOLLOWER_CHOICE
+        return target
+
+    all_other_ally_follower_match = re.search("all other allied followers on the field", text)
+    if all_other_ally_follower_match:
+        target['target'] = TargetType.ALL_OTHER_ALLY_FOLLOWERS
+        return target
+
+    target['raw_target_text'] = text
+    return target
+
+
+def parse_action(text: str):
+    action = {}
+
+    # Summon 패턴 처리
+    if text.startswith("Summon "):
+        summon_copies_match = re.search(r"Summon (\d+) copies of (.*)", text)
+        if summon_copies_match:
+            count = int(summon_copies_match.group(1))
+            card_name = summon_copies_match.group(2).strip().replace('.', '')
+            action['process'] = ProcessType.SUMMON
+            action['target'] = TargetType.OWN_LEADER
+            action['value'] = [card_name] * count
+            return action
+
+        card_list_str = text.replace("Summon ", "")
+        cards = re.split(r'\s+and\s+|\s*,\s*an?\s*|\s*,\s*', card_list_str)
+        card_names = [re.sub(r'^an?\s+', '', card).strip().replace('.', '') for card in cards if card.strip()]
+
+        if card_names:
+            action['process'] = ProcessType.SUMMON
+            action['target'] = TargetType.OWN_LEADER
+            # 카드가 하나면 문자열, 여러 개면 리스트로 저장
+            action['value'] = card_names[0] if len(card_names) == 1 else card_names
+            return action
+
+    buff_match = re.search(r"Give (.*) \+(\d+)\/\+(\d+)", text)
+    if buff_match:
+        action = parse_target(buff_match.group(1))
+        action['process'] = ProcessType.STAT_BUFF
+        action['value'] = (int(buff_match.group(2)), int(buff_match.group(3)))
+        return action
+
+    buff_match_2 = re.search(r"(.*) and give it \+(\d+)\/\+(\d+)", text)
+    if buff_match_2:
+        action = parse_target(buff_match_2.group(1))
+        action['process'] = ProcessType.STAT_BUFF
+        action['value'] = (int(buff_match_2.group(2)), int(buff_match_2.group(3)))
+        return action
+
+    deal_damage_match = re.search(r"(.*) and deal it (\d+) damage", text)
+    if deal_damage_match:
+        action = parse_target(deal_damage_match.group(1))
+        action['process'] = ProcessType.DEAL_DAMAGE
+        action['value'] = int(deal_damage_match.group(2))
+        return action
+
+    destroy_match = re.search(r"(.*) and destroy it", text)
+    if destroy_match:
+        action = parse_target(destroy_match.group(1))
+        action['process'] = ProcessType.DESTROY
+        return action
 
     replicate_fanfare_match = re.search(r"Replicate the effects of this card's Fanfare ability", text)
     if replicate_fanfare_match:
-        action['process'] = ProcessType.REPLICATE_EFFECT
-        action['value'] = 'FANFARE'
+        action['process'] = ProcessType.TRIGGER_EFFECT
+        action['value'] = EffectType.FANFARE
         return action
 
-    advance_count_match = re.search(r"Advance this amulet's count by (\d+)", text)
-    if advance_count_match:
-        action['process'] = ProcessType.ADVANCE_COUNTDOWN
-        action['target'] = TargetType.SELF
-        action['value'] = int(advance_count_match.group(1))
+    draw_single_match = re.search(r"Draw a card", text)
+    if draw_single_match:
+        action['process'] = ProcessType.DRAW
+        action['target'] = TargetType.OWN_LEADER
+        action['value'] = 1
         return action
 
     # ... (rest of the original parse_action function) ...
 
     action['raw_action_text'] = text
     return action
-
-
-def main():
-    # Since we are not running from the root, we need to load the data directly
-    with open("card_database_parsed.json", 'r', encoding='utf-8') as f:
-        all_databases_json = json.load(f)
-
-    all_databases = {}
-    for db_name, db_content in all_databases_json.items():
-        all_databases[db_name] = {}
-        for card_name, card_data in db_content.items():
-            # A simplified CardData object for this script's purpose
-            all_databases[db_name][card_name] = CardData(
-                card_id=card_data.get('card_id'),
-                name=card_data.get('name'),
-                cost=card_data.get('cost'),
-                card_type=CardType[card_data.get('card_type')],
-                class_type=None, # Not needed for this script
-                attack=card_data.get('attack'),
-                defense=card_data.get('defense'),
-                tribes=[], # Not needed
-                effects=[e.get('raw_effect_text') or e.get('raw_action_text') or '' for e in card_data.get('effects', [])]
-            )
-
-
-    print("Parsing card effects...")
-    for db_name, db in all_databases.items():
-        for card_name, card_data in db.items():
-            if card_data.effects:
-                parsed_effects = parse_effect_text(card_data.effects[0])
-                card_data.effects = parsed_effects
-
-    output_filename = "final_database.py"
-    with open(output_filename, "w", encoding="utf-8") as f:
-        f.write("# -*- coding: utf-8 -*-\n")
-        f.write("from enums import CardType, ClassType, EffectType, ProcessType, TargetType, TribeType\n")
-        f.write("from card_data import CardData\n\n")
-
-        for db_name, db_content in all_databases.items():
-            f.write(f"{db_name} = {{\n")
-            for card_name, card_obj in db_content.items():
-                f.write(f'    \"{card_name}\": {repr(card_obj)},\n')
-            f.write("}\n\n")
-
-    print(f"\nParsing complete!")
-    print(f"Data saved to {output_filename}")
-
-
-if __name__ == "__main__":
-    main()
