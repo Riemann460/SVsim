@@ -117,7 +117,7 @@ class GameGUI:
             elif card.is_evolved:
                 name_color = "blue"
 
-            name_label = ttk.Label(card_frame, text=card.get_display_name(), font=("Helvetica", 10, "bold"), foreground=name_color)
+            name_label = ttk.Label(card_frame, text=f"{card.get_display_name()} (ID: {card.card_id})", font=("Helvetica", 10, "bold"), foreground=name_color)
             name_label.pack()
 
             cost_label = ttk.Label(card_frame, text=f"Cost: {card.current_cost}")
@@ -133,7 +133,7 @@ class GameGUI:
                 countdown_label = ttk.Label(card_frame, text=f"Countdown: {card.countdown_value}")
                 countdown_label.pack()
 
-            keywords = [eff['type'].value for eff in card.effects]
+            keywords = [eff.type.value for eff in card.effects]
             if keywords:
                 keyword_label = ttk.Label(card_frame, text=", ".join(keywords)[:12], wraplength=100)
                 keyword_label.pack()
@@ -157,7 +157,7 @@ class GameGUI:
         for card in hand_cards:
             var = tk.BooleanVar()
             self.mulligan_vars[card.card_id] = var
-            card_text = f"{card.get_display_name()} (코스트: {card.current_cost})"
+            card_text = f"{card.get_display_name()} (ID: {card.card_id}) (코스트: {card.current_cost})"
             chk = ttk.Checkbutton(cards_frame, text=card_text, variable=var)
             chk.pack(anchor="w", padx=5, pady=2)
 

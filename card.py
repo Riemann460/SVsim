@@ -3,6 +3,7 @@ import uuid
 from typing import List, Dict, Any
 
 from enums import TargetType, EffectType, CardType
+from effect import Effect
 
 
 class Card:
@@ -21,7 +22,7 @@ class Card:
         self.is_activated = False  # 공격 완료 여부
         self.is_summoned = True  # 현재 턴 소환 여부
         self.current_zone = None  # 현재 카드 위치 (Zone Enum)
-        self.effects = copy.deepcopy(card_data.get("effects", []))  # 카드 효과 인스턴스
+        self.effects: List[Effect] = copy.deepcopy(card_data.get("effects", []))  # 카드 효과 인스턴스
 
         # 키워드별 추가 상태
         self.countdown_value = card_data.get("countdown", None)  # 카운트다운 마법진용
@@ -72,7 +73,7 @@ class Card:
 
     def has_keyword(self, keyword_name: EffectType) -> bool:
         """특정 키워드 능력을 가지고 있는지 확인"""
-        return any(effect.get('type') == keyword_name for effect in self.effects)
+        return any(effect.type == keyword_name for effect in self.effects)
 
     def get_type(self):
         """카드 타입을 반환"""

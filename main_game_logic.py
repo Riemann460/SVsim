@@ -9,6 +9,7 @@ from effect_processor import EffectProcessor
 import card_data
 from rule_engine import RuleEngine
 from gui import GameGUI
+from effect import Effect
 
 
 class Game:
@@ -22,6 +23,7 @@ class Game:
     """
     def __init__(self, player1_id: str, player2_id: str):
         self.game_state_manager = GameStateManager()
+        self.game_state_manager.game = self # Game 인스턴스 전달
         self.event_manager = EventManager()
         self.effect_processor = EffectProcessor(self.event_manager)
         self.rule_engine = RuleEngine(self.game_state_manager)
@@ -40,10 +42,13 @@ class Game:
         self._start_turn(player1_id)
         self.gui.update()
 
-    def resolve_effect(self, effect, caster_card_id):
+    def request_user_choice(self, prompt: str, choices: Dict[str, Any]) -> Any:
+        return self.gui.get_user_choice(prompt, choices)
+
+    def resolve_effect(self, effect: Effect, caster_card_id: str):
         self.effect_processor.resolve_effect(effect, caster_card_id, self.game_state_manager)
 
-    def resolve_effects_type(self, caster_card_id, effect_type):
+    def resolve_effects_type(self, caster_card_id: str, effect_type: EffectType):
         effect_list = self.game_state_manager.get_card_effects(caster_card_id, effect_type)
         if effect_list:
             for effect in effect_list:
@@ -63,6 +68,7 @@ class Game:
         self.event_manager.subscribe(EventType.COMBAT_INITIATED, self._on_combat_initiated)  # 교전시
         self.event_manager.subscribe(EventType.SPELL_CAST, self._on_spell_cast)
         self.event_manager.subscribe(EventType.TURN_START, self._on_turn_start)
+        self.event_manager.subscribe(EventType.TURN_END, self._on_turn_end)
         self.event_manager.subscribe(EventType.FOLLOWER_EVOLVED, self._on_follower_evolved)
         self.event_manager.subscribe(EventType.FOLLOWER_SUPER_EVOLVED, self._on_follower_super_evolved)
         self.event_manager.subscribe(EventType.AMULET_ACTIVATED, self._on_amulet_activated)
@@ -91,7 +97,7 @@ class Game:
 
         enhance_list = self.game_state_manager.get_card_effects(played_card_id, EffectType.ENHANCE)
         for effect in enhance_list:
-            if event_data['enhanced_cost'] >= effect['enhance_cost']:
+            if effect.enhance_cost is not None and event_data['enhanced_cost'] >= effect.enhance_cost:
                 print(f"[LOG] {self.game_state_manager.get_card_name(played_card_id)} (ID: {played_card_id}) 증강 효과 처리.")
                 self.resolve_effect(effect, played_card_id)
 
@@ -122,7 +128,7 @@ class Game:
     def _on_spell_cast(self, event_data: Dict[str, Any]):
         """주문 증폭 효과 처리"""
         player_id = event_data['player_id']
-        cards_with_spellboost = self.game_state_manager.get_cards_with_spellboost(player_id)
+        cards_with_spellboost = self.game_state_manager.get_cards_with_keyword(player_id, Zone.FIELD, EffectType.SPELLBOOST)
         if cards_with_spellboost:
             print(f"[LOG] {player_id}의 주문 증폭 효과 처리. 대상 카드: {[self.game_state_manager.get_card_name(card_id) for card_id in cards_with_spellboost]}")
         for card_id in cards_with_spellboost:
@@ -131,7 +137,7 @@ class Game:
     def _on_turn_start(self, event_data: Dict[str, Any]):
         """카운트다운 효과 처리"""
         player_id = event_data['player_id']
-        cards_with_countdown = self.game_state_manager.get_cards_with_countdown(player_id)
+        cards_with_countdown = self.game_state_manager.get_cards_with_keyword(player_id, Zone.FIELD, EffectType.COUNTDOWN)
         for card_id in cards_with_countdown:
             print(f"[LOG] {self.game_state_manager.get_card_name(card_id)} (ID: {card_id}) 카운트다운 감소.")
             if self.game_state_manager.countdown(card_id):
@@ -139,6 +145,23 @@ class Game:
                 self.game_state_manager.move_card(card_id, Zone.FIELD, Zone.GRAVEYARD)
                 self.event_manager.publish(EventType.DESTROYED_ON_FIELD, {"card_id": card_id})
                 self.process_events()
+
+    def _on_turn_end(self, event_data: Dict[str, Any]):
+        """턴 종료 시 효과 처리"""
+        player_id = event_data['player_id']
+        opponent_id = self.get_opponent_id(player_id)
+
+        cards_with_turn_end = self.game_state_manager.get_cards_with_keyword(player_id, Zone.FIELD, EffectType.ON_MY_TURN_END)
+        if cards_with_turn_end:
+            print(f"[LOG] {player_id}의 내 턴 종료 시 효과 처리. 대상 카드: {[self.game_state_manager.get_card_name(card_id) for card_id in cards_with_turn_end]}")
+        for card_id in cards_with_turn_end:
+            self.resolve_effects_type(card_id, EffectType.ON_MY_TURN_END)
+
+        cards_with_opponent_turn_end = self.game_state_manager.get_cards_with_keyword(opponent_id, Zone.FIELD, EffectType.ON_OPPONENTS_TURN_END)
+        if cards_with_opponent_turn_end:
+            print(f"[LOG] {opponent_id}의 상대방 턴 종료 시 효과 처리. 대상 카드: {[self.game_state_manager.get_card_name(card_id) for card_id in cards_with_opponent_turn_end]}")
+        for card_id in cards_with_opponent_turn_end:
+            self.resolve_effects_type(card_id, EffectType.ON_OPPONENTS_TURN_END)
 
     def _on_follower_evolved(self, event_data: Dict[str, Any]):
         """진화시 효과 처리"""
@@ -308,7 +331,7 @@ class Game:
         if target.has_keyword(EffectType.BARRIER):
             print(f"[LOG] {target.get_display_name()} (ID: {target.player_id}) 배리어로 데미지 0 받음.")
             target_damage_taken = 0
-            target.effects = [effect for effect in target.effects if effect['type'] != EffectType.BARRIER]
+            target.effects = [effect for effect in target.effects if effect.type != EffectType.BARRIER]
 
         target.take_damage(target_damage_taken)
 
@@ -356,12 +379,12 @@ class Game:
         if attacker.has_keyword(EffectType.BARRIER):
             print(f"[LOG] {attacker.get_display_name()} (ID: {attacker_id}) 배리어로 데미지 0 받음.")
             attacker_damage_taken = 0
-            attacker.effects = [effect for effect in target.effects if effect['type'] != EffectType.BARRIER]
+            attacker.effects = [effect for effect in target.effects if effect.type != EffectType.BARRIER]
 
         if target.has_keyword(EffectType.BARRIER):
             print(f"[LOG] {target.card_data['name']} (ID: {target_id}) 배리어로 데미지 0 받음.")
             target_damage_taken = 0
-            target.effects = [effect for effect in target.effects if effect['type'] != EffectType.BARRIER]
+            target.effects = [effect for effect in target.effects if effect.type != EffectType.BARRIER]
 
         target_destroyed = target.take_damage(target_damage_taken)
 

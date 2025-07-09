@@ -1,10 +1,17 @@
-from typing import List, Any
+import json
+from typing import List, Any, Dict
 from enums import CardType, EffectType, TargetType, ProcessType, ClassType, TribeType
-import pprint
+from effect import Effect
+
+# 전역 변수로 선언하여 다른 함수에서 접근 가능하도록 함
+BASIC_CARD_DATABASE: Dict[str, 'CardData'] = {}
+LEGENDS_RISE_CARD_DATABASE: Dict[str, 'CardData'] = {}
+TOKEN_CARD_DATABASE: Dict[str, 'CardData'] = {}
+
 
 class CardData:
     """카드의 정적 데이터를 정의합니다."""
-    def __init__(self, card_id: str, name: str, cost: int, card_type: CardType, class_type: ClassType, attack: int = 0, defense: int = 0, tribes: List = None, effects: List = None):
+    def __init__(self, card_id: str, name: str, cost: int, card_type: CardType, class_type: ClassType, attack: int = 0, defense: int = 0, tribes: List = None, effects: List[Effect] = None, raw_effects_text: str = ""):
         self.card_id = card_id  # 영문명
         self.name = name  # 한글명
         self.cost = cost
@@ -12,128 +19,148 @@ class CardData:
         self.class_type = class_type
         self.attack = attack  # 추종자 전용
         self.defense = defense  # 추종자 전용
-        self.tribes = tribes
-        self.effects = effects if effects is not None else []  # { 'type': EffectType, 'target': TargetType, 'value':... }
+        self.tribes = tribes if tribes is not None else []
+        self.effects = effects if effects is not None else []  # Effect 인스턴스 리스트
+        self.raw_effects_text = raw_effects_text
 
     def get(self, key: str, default: Any = None) -> Any:
         return getattr(self, key, default)
 
     def __repr__(self):
-        # 객체를 파일에 쓸 때 보기 좋은 형태로 만들기 위함
-        effects_str = pprint.pformat(self.effects, indent=8, width=120)
-        tribe_map = {e.value: e for e in TribeType}
-        tribe = self.tribes[0] if len(self.tribes) > 0 else None
+        effects_repr = repr(self.effects)
+        tribe = self.tribes[0] if self.tribes and len(self.tribes) > 0 else None
         tribe_str = str(tribe) if tribe else ""
-        if len(self.effects) > 1:
-            return (f'CardData("{self.card_id}", "{self.name}", {self.cost}, CardType.{self.card_type.name}, '
-                    f'ClassType.{self.class_type.name}, {self.attack}, {self.defense}, tribes=[{tribe_str}], effects=[\n\t\t{effects_str.strip("[]").strip()}])')
-        elif len(self.effects) == 1:
-            return (f'CardData("{self.card_id}", "{self.name}", {self.cost}, CardType.{self.card_type.name}, '
-                    f'ClassType.{self.class_type.name}, {self.attack}, {self.defense}, tribes=[{tribe_str}], effects=[{effects_str.strip("[]").strip()}])')
-        else:
-            return (f'CardData("{self.card_id}", "{self.name}", {self.cost}, CardType.{self.card_type.name}, '
-                    f'ClassType.{self.class_type.name}, {self.attack}, {self.defense}, tribes=[{tribe_str}], effects=[])')
+
+        return (f'CardData("{self.card_id}", "{self.name}", {self.cost}, CardType.{self.card_type.name}, '
+                f'ClassType.{self.class_type.name}, {self.attack}, {self.defense}, tribes=[{tribe_str}], effects={effects_repr}), raw_effects_text={self.raw_effects_text}')
 
     def __getitem__(self, key: str) -> Any:
-        """
-        객체의 속성을 딕셔너리처럼 대괄호([])를 이용해 접근할 수 있게 합니다.
-        예: card['cost']
-        """
-        # 만약 키가 존재하지 않을 때 KeyError 대신 AttributeError를 발생시키고 싶지 않다면
-        # hasattr로 확인하는 로직을 추가할 수 있습니다.
         if hasattr(self, key):
             return getattr(self, key)
         raise KeyError(f"CardData에 '{key}' 속성이 없습니다.")
 
 
-# 예시 카드 데이터베이스 (실제로는 JSON 등 외부 파일에서 로드)
-BASIC_CARD_DATABASE = {
-    "Indomitable Fighter": CardData("Indomitable Fighter", "불굴의 파이터", 2, CardType.FOLLOWER, ClassType.NEUTRAL, 2, 2, effects=[
-        {'type': EffectType.ENHANCE, 'target': TargetType.SELF, 'enhance_cost': 4, 'process': ProcessType.STAT_BUFF, 'value': (3, 3)}
-    ]),
-    "Leah, Bellringer Angel": CardData("Leah, Bellringer Angel", "종소리의 천사 리아", 2, CardType.FOLLOWER, ClassType.NEUTRAL, 0, 2, effects=[
-        {'type': EffectType.WARD},
-        {'type': EffectType.LAST_WORDS, 'target': TargetType.OWN_LEADER, 'process': ProcessType.DRAW, 'value': 1},
-        {'type': EffectType.ON_EVOLVE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.DRAW, 'value': 1}
-    ]),
-    "Quake Goliath": CardData("Quake Goliath", "격진의 골리앗", 4, CardType.FOLLOWER, ClassType.NEUTRAL, 4, 5, effects=[
-        {'type': EffectType.WARD}
-    ]),
-    "Detective's Lens": CardData("Detective's Lens", "탐정의 돋보기", 2, CardType.AMULET,ClassType.NEUTRAL,  effects=[
-        {'type': EffectType.ACTIVATE, 'target': TargetType.SELF, 'process': ProcessType.DESTROY},
-        {'type': EffectType.ACTIVATE, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'process': ProcessType.REMOVE_KEYWORD, 'value': EffectType.WARD}
-    ]),
-    "Arriet, Luxminstrel": CardData("Arriet, Luxminstrel", "빛의 연주자 앙리에트", 3, CardType.FOLLOWER, ClassType.NEUTRAL, 3, 3, effects=[
-        {'type': EffectType.ON_EVOLVE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.HEAL, 'value': 2},
-        {'type': EffectType.ON_SUPER_EVOLVE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.HEAL, 'value': 4}
-    ]),
-    "Caravan Mammoth": CardData("Caravan Mammoth", "캐러밴 맘모스", 7, CardType.FOLLOWER, ClassType.NEUTRAL, 10, 10, effects=[]),
-    "Adventurers' Guild": CardData("Adventurers' Guild", "모험가 길드", 3, CardType.AMULET, ClassType.NEUTRAL, effects=[
-        {'type': EffectType.FANFARE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.DRAW, 'value': 1, 'codition': lambda x: x.card_type == CardType.FOLLOWER},
-        {'type': EffectType.ACTIVATE, 'target': TargetType.SELF, 'process': ProcessType.DESTROY},
-        {'type': EffectType.ACTIVATE, 'target': TargetType.ALLY_FOLLOWER_CHOICE, 'process': ProcessType.ADD_KEYWORD, 'value': {'type': EffectType.RUSH}}
-    ]),
-    "Goblin": CardData("Goblin", "고블린", 1, CardType.FOLLOWER, ClassType.NEUTRAL, 1, 2, effects=[]),
-    "Silent Rider": CardData("Silent Rider", "침묵의 마왕", 6, CardType.FOLLOWER, ClassType.NEUTRAL, 10, 10, effects=[
-        {'type': EffectType.STORM}
-    ]),
-    "Servant of Cocytus": CardData("Servant of Cocytus", "사탄의 하수인", 1, CardType.FOLLOWER, ClassType.NEUTRAL, 13, 13, effects=[]),
-    "Demon of Purgatory": CardData("Demon of Purgatory", "변옥의 악귀", 5, CardType.FOLLOWER, ClassType.NEUTRAL, 9, 6, effects=[
-        {'type': EffectType.FANFARE, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE2, 'process': ProcessType.DEAL_DAMAGE, 'value': 6},
-        {'type': EffectType.FANFARE, 'target': TargetType.OPPONENT_LEADER, 'process': ProcessType.DEAL_DAMAGE, 'value': 6},
-    ]),
-    "Astaroth's Reckoning": CardData("Astaroth's Reckoning", "아스타로트의 선고", 10, CardType.SPELL, ClassType.NEUTRAL, effects=[
-        {'type': EffectType.SPELL, 'target': TargetType.OPPONENT_LEADER, 'process': ProcessType.SET_MAX_HEALTH, 'value': 1}
-    ])
-}
+def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
+    # Enum 값은 문자열로 저장되어 있으므로 변환
+    effect_type = EffectType[effect_dict["type"]]
+    target_type = TargetType[effect_dict["target"]] if "target" in effect_dict and effect_dict["target"] is not None else None
+    process_type = ProcessType[effect_dict["process"]] if "process" in effect_dict and effect_dict["process"] is not None else None
+    value = effect_dict.get("value")
+    enhance_cost = effect_dict.get("enhance_cost")
+    cost = effect_dict.get("cost")
 
-LEGENDS_RISE_CARD_DATABASE = {
-    "Ruby, Greedy Cherub": CardData("Ruby, Greedy Cherub", "욕심쟁이 지천사 루비", 2, CardType.FOLLOWER, ClassType.NEUTRAL, 2, 2, effects=[
-        {'type': EffectType.FANFARE, 'target': TargetType.OWN_HAND_CHOICE, 'process': ProcessType.RETURN_TO_DECK},
-        {'type': EffectType.FANFARE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.DRAW, 'value': 1}
-    ]),
-    "Vigilant Detective": CardData("Vigilant Detective", "관찰하는 탐정", 3, CardType.FOLLOWER, ClassType.NEUTRAL, 3, 3, effects=[
-        # value에 카드 이름을 문자열로 전달하여, 어떤 카드를 만들지 명시
-        {'type': EffectType.LAST_WORDS, 'target': TargetType.OWN_LEADER, 'process': ProcessType.ADD_CARD_TO_HAND, 'value': BASIC_CARD_DATABASE["Detective's Lens"]}
-    ]),
-    "Goblin Foray": CardData("Goblin Foray", "고블린의 습격", 5, CardType.SPELL, ClassType.NEUTRAL, effects=[
-        {'type': EffectType.SPELL, 'target': TargetType.OWN_LEADER, 'process': ProcessType.SUMMON, 'value': BASIC_CARD_DATABASE["Goblin"]},
-        {'type': EffectType.SPELL, 'target': TargetType.OWN_LEADER, 'process': ProcessType.SUMMON, 'value': BASIC_CARD_DATABASE["Goblin"]},
-        {'type': EffectType.SPELL, 'target': TargetType.OWN_LEADER, 'process': ProcessType.SUMMON, 'value': BASIC_CARD_DATABASE["Goblin"]},
-        {'type': EffectType.SPELL, 'target': TargetType.OWN_LEADER, 'process': ProcessType.SUMMON, 'value': BASIC_CARD_DATABASE["Goblin"]},
-        {'type': EffectType.SPELL, 'target': TargetType.OWN_LEADER, 'process': ProcessType.SUMMON, 'value': BASIC_CARD_DATABASE["Goblin"]}
-    ]),
-    "Apollo, Heaven's Envoy": CardData("Apollo, Heaven's Envoy", "세찬 광명 아폴론", 3, CardType.FOLLOWER, ClassType.NEUTRAL, 1, 2, effects=[
-        {'type': EffectType.FANFARE, 'target': TargetType.ALL_OPPONENT_FOLLOWERS, 'process': ProcessType.DEAL_DAMAGE, 'value': 1},
-        {'type': EffectType.ON_EVOLVE, 'target': TargetType.SELF, 'process': ProcessType.TRIGGER_EFFECT, 'value': EffectType.FANFARE}
-    ]),
-    "Seraphic Tidings": CardData("Seraphic Tidings", "치천사의 복음", 3, CardType.SPELL, ClassType.NEUTRAL, effects=[
-        {'type': EffectType.SPELL, 'target': TargetType.OWN_LEADER, 'process': ProcessType.DRAW, 'value': 2}
-    ]),
-    "Phildau, Lionheart Ward": CardData("Phildau, Lionheart Ward", "낙랑의 천궁 필도어", 2, CardType.FOLLOWER, ClassType.NEUTRAL, 2, 2, effects=[
-        {'type': EffectType.ON_EVOLVE, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'process': ProcessType.DESTROY}
-    ]),
-    "Divine Thunder": CardData("Divine Thunder", "신의 뇌정", 4, CardType.SPELL, ClassType.NEUTRAL, effects=[
-        {'type': EffectType.SPELL, 'target': TargetType.OPPONENT_FOLLOWER_MAX_ATTACK_RANDOM, 'process': ProcessType.DESTROY},
-        {'type': EffectType.SPELL, 'target': TargetType.ALL_OPPONENT_FOLLOWERS, 'process': ProcessType.DEAL_DAMAGE, 'value': 1}
-    ]),
-    "Olivia, Heroic Dark Angel": CardData("Olivia, Heroic Dark Angel", "기백의 타천사 올리비에", 7, CardType.FOLLOWER, ClassType.NEUTRAL, 4, 4, effects=[
-        {'type': EffectType.FANFARE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.DRAW, 'value': 2},
-        {'type': EffectType.FANFARE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.HEAL, 'value': 2},
-        {'type': EffectType.FANFARE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.RECOVER_PP, 'value': 2},
-        {'type': EffectType.ON_SUPER_EVOLVE, 'target': TargetType.ALLY_FOLLOWER_CHOICE_UNEVOLVED, 'process': ProcessType.SUPER_EVOLVE}
-    ]),
-    "Ruler of Cocytus": CardData("Ruler of Cocytus", "종막의 죄 사탄", 10, CardType.FOLLOWER, ClassType.NEUTRAL, 10, 10, effects=[
-        {'type': EffectType.FANFARE, 'target': TargetType.OWN_LEADER, 'process': ProcessType.REPLACE_DECK,
-         'value': [BASIC_CARD_DATABASE["Silent Rider"],
-                   BASIC_CARD_DATABASE["Silent Rider"],
-                   BASIC_CARD_DATABASE["Silent Rider"],
-                   BASIC_CARD_DATABASE["Servant of Cocytus"],
-                   BASIC_CARD_DATABASE["Servant of Cocytus"],
-                   BASIC_CARD_DATABASE["Servant of Cocytus"],
-                   BASIC_CARD_DATABASE["Demon of Purgatory"],
-                   BASIC_CARD_DATABASE["Demon of Purgatory"],
-                   BASIC_CARD_DATABASE["Demon of Purgatory"],
-                   BASIC_CARD_DATABASE["Astaroth's Reckoning"]]}
-    ])
-}
+    # Handle nested Effect for ADD_KEYWORD
+    if process_type == ProcessType.ADD_KEYWORD and isinstance(value, dict) and "type" in value:
+        value = _load_effect_from_dict(value)
+    # Handle EffectType for REMOVE_KEYWORD and TRIGGER_EFFECT
+    elif (process_type == ProcessType.REMOVE_KEYWORD or process_type == ProcessType.TRIGGER_EFFECT) and isinstance(value, str):
+        try:
+            value = EffectType[value]
+        except KeyError:
+            print(f"[WARNING] EffectType '{value}' not found for {process_type.name} effect.")
+            pass # Keep as string if not found, will cause error later if not handled
+
+    # condition handling (assuming condition is a string for now)
+    condition = effect_dict.get("condition")
+    if condition and isinstance(condition, str) and condition.startswith("CARD_TYPE_"):
+        # Example: "CARD_TYPE_FOLLOWER" -> lambda x: x.card_type == CardType.FOLLOWER
+        card_type_str = condition.replace("CARD_TYPE_", "")
+        try:
+            condition = lambda x: x.card_type == CardType[card_type_str]
+        except KeyError:
+            print(f"[WARNING] CardType '{card_type_str}' not found for condition.")
+            condition = None
+    elif condition and isinstance(condition, str) and condition.startswith("NECROMANCY_"):
+        # Example: "NECROMANCY_4"
+        pass # Keep as string, will be handled by rule engine
+    elif condition and isinstance(condition, str) and condition == "OVERFLOW":
+        pass # Keep as string, will be handled by rule engine
+
+    # trigger handling (assuming trigger is a string for now)
+    trigger = effect_dict.get("trigger")
+    if trigger and isinstance(trigger, str) and trigger.startswith("ALLY_") and trigger.endswith("_ENTERS_FIELD"):
+        pass # Keep as string, will be handled by event manager
+    elif trigger and isinstance(trigger, str) and trigger == "ENGAGE_AMULET":
+        pass # Keep as string, will be handled by event manager
+    elif trigger and isinstance(trigger, str) and trigger == "DISCARDED":
+        pass # Keep as string, will be handled by event manager
+
+    return Effect(type=effect_type, target=target_type, process=process_type, value=value, condition=condition, enhance_cost=enhance_cost, cost=cost, trigger=trigger)
+
+
+def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
+    effects = []
+    for e_dict in card_dict.get("effects", []):
+        if "raw_effect_text" in e_dict:
+            # Raw text effects are stored as dictionaries with 'raw_effect_text' key
+            effects.append(e_dict) # Keep as dict for now
+        else:
+            effects.append(_load_effect_from_dict(e_dict))
+
+    return CardData(
+        card_id=card_dict["card_id"],
+        name=card_dict["name"],
+        cost=card_dict["cost"],
+        card_type=CardType[card_dict["card_type"]],
+        class_type=ClassType[card_dict["class_type"]],
+        attack=card_dict.get("attack", 0),
+        defense=card_dict.get("defense", 0),
+        tribes=[TribeType[t] for t in card_dict.get("tribes", [])],
+        effects=effects
+    )
+
+
+def resolve_card_references(card_db: Dict[str, CardData], global_card_db: Dict[str, CardData]):
+    for card_id, card_data_obj in card_db.items():
+        for effect in card_data_obj.effects:
+            # Check if it's a structured Effect object or a raw text dict
+            if isinstance(effect, Effect):
+                # Only resolve card references for specific process types
+                if effect.process in [ProcessType.ADD_CARD_TO_HAND, ProcessType.SUMMON, ProcessType.REPLACE_DECK]:
+                    if isinstance(effect.value, str): # value is a single card ID string
+                        if effect.value == "Apocalypse Deck": # Special case for Apocalypse Deck
+                            # This needs to be handled as a list of CardData objects for the Apocalypse Deck
+                            # For now, keep as string, will be resolved in game logic if needed
+                            pass
+                        elif effect.value in global_card_db:
+                            effect.value = global_card_db[effect.value]
+                        else:
+                            print(f"[WARNING] Card reference '{effect.value}' not found for effect in {card_id} (process: {effect.process.name})")
+                    elif isinstance(effect.value, list): # value is a list of card ID strings
+                        resolved_list = []
+                        for item in effect.value:
+                            if isinstance(item, str) and item in global_card_db:
+                                resolved_list.append(global_card_db[item])
+                            else:
+                                # If it's not a string or not in DB, keep it as is (might be a literal or an error)
+                                print(f"[WARNING] Item '{item}' in list for effect in {card_id} not a valid card reference.")
+                                resolved_list.append(item)
+                        effect.value = resolved_list
+                # For other process types, value should not be a card reference string
+                # If it's a string and not an EffectType (already handled in _load_effect_from_dict), it's likely an error in JSON
+                elif isinstance(effect.value, str) and not isinstance(effect.value, EffectType):
+                    print(f"[WARNING] Unexpected string value '{effect.value}' for effect in {card_id} (process: {effect.process.name}). Expected a literal or EffectType.")
+
+
+def load_card_databases(json_path: str = 'card_database_parsed.json'):
+    global BASIC_CARD_DATABASE, LEGENDS_RISE_CARD_DATABASE, TOKEN_CARD_DATABASE
+    with open(json_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    # 1차 로딩: 모든 CardData 객체 생성 (참조는 아직 해결하지 않음)
+    for db_name, db_data in data.items():
+        if db_name == "BASIC_CARD_DATABASE":
+            for card_id, card_dict in db_data.items():
+                BASIC_CARD_DATABASE[card_id] = _load_card_data_from_dict(card_dict)
+        elif db_name == "LEGENDS_RISE_CARD_DATABASE":
+            for card_id, card_dict in db_data.items():
+                LEGENDS_RISE_CARD_DATABASE[card_id] = _load_card_data_from_dict(card_dict)
+        elif db_name == "TOKEN_CARD_DATABASE":
+            for card_id, card_dict in db_data.items():
+                TOKEN_CARD_DATABASE[card_id] = _load_card_data_from_dict(card_dict)
+
+    # 2차 로딩: 카드 참조 해결
+    all_cards = {**BASIC_CARD_DATABASE, **LEGENDS_RISE_CARD_DATABASE, **TOKEN_CARD_DATABASE}
+    resolve_card_references(BASIC_CARD_DATABASE, all_cards)
+    resolve_card_references(LEGENDS_RISE_CARD_DATABASE, all_cards)
+    resolve_card_references(TOKEN_CARD_DATABASE, all_cards)

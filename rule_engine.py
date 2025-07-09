@@ -1,6 +1,7 @@
 from card import Card
 from enums import Zone, CardType, EffectType
 from game_state_manager import GameStateManager
+from effect import Effect
 
 
 class RuleEngine:
@@ -64,7 +65,7 @@ class RuleEngine:
         """마법진 활성화의 유효성 검사 (PP, 대상 제한 등)"""
         card = self.game_state_manager.get_entity_by_id(card_id, Zone.FIELD)
         player = self.game_state_manager.get_entity_by_id(player_id)
-        activate_effect = self.game_state_manager.get_card_effects(card_id, EffectType.ACTIVATE)[0]
+        activate_effect: Effect = self.game_state_manager.get_card_effects(card_id, EffectType.ACTIVATE)[0]
         
         # 이번 턴에 활성화 했다면 불가능
         if card.is_activated:
@@ -72,11 +73,11 @@ class RuleEngine:
             return False
 
         # 활성화에 코스트가 있고 PP 부족하면 불가능
-        if 'cost' in activate_effect.keys():
+        if activate_effect.cost is not None:
             current_pp = player.current_pp
             # PP 부족
-            if current_pp < activate_effect['cost']:
-                print(f"[LOG] {player_id}의 PP ({current_pp}) 부족으로 {card.get_display_name()} (ID: {card_id}) 활성화 불가. 필요 PP: {activate_effect['cost']}")
+            if current_pp < activate_effect.cost:
+                print(f"[LOG] {player_id}의 PP ({current_pp}) 부족으로 {card.get_display_name()} (ID: {card_id}) 활성화 불가. 필요 PP: {activate_effect.cost}")
                 return False
         print(f"[LOG] {player_id}가 {card.get_display_name()} (ID: {card_id})를 활성화할 수 있습니다.")
         return True

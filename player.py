@@ -2,13 +2,14 @@ from typing import TYPE_CHECKING, List
 
 import card_data
 from card import Card
-from enums import CardType, EffectType, EventType, Zone
+from enums import CardType, EffectType, EventType, Zone, ClassType
 from event import Event # 상대 경로 임포트
 from event_manager import EventManager # 상대 경로 임포트
 from deck import Deck # 상대 경로 임포트
 from hand import Hand # 상대 경로 임포트
 from field import Field # 상대 경로 임포트
 from graveyard import Graveyard # 상대 경로 임포트
+from effect import Effect
 
 class Player:
     """개별 플레이어의 상태와 자원을 관리합니다."""
@@ -29,8 +30,8 @@ class Player:
         self.max_extra_pp = 1
         self.event_manager = event_manager
         self.spent_ep_in_turn = False
-        self.effects = []  # 크레스트 효과 인스턴스
-        self.card_data = card_data.CardData('Leader', 'player_id', 0, CardType.LEADER, 0, self.max_defense, self.effects)
+        self.effects: List[Effect] = []  # 크레스트 효과 인스턴스
+        self.card_data = card_data.CardData('Leader', self.player_id, 0, CardType.LEADER, ClassType.NEUTRAL, 0, self.max_defense, effects=self.effects)
 
         # 영역 초기화
         self.hand = Hand()
