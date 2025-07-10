@@ -22,6 +22,7 @@ class EventType(Enum):
     FOLLOWER_SUPER_EVOLVED = "추종자_초진화됨"  # 초진화시 능력 발동
     DAMAGE_DEALT = "데미지_입힘"  # 흡혈 능력 발동
     TURN_END = "턴_종료"  # 턴 종료시 발동
+    FOLLOWER_ENTER_FIELD = "추종자_전장_소환됨"
 #    PP_GAINED = "PP_획득됨"
 #    HEALED = "회복됨"
 #    PP_SPENT = "PP_소모됨"
@@ -36,7 +37,7 @@ class ClassType(Enum):
     NEUTRAL = "Neutral"
     FORESTCRAFT = "Forestcraft"
     SWORDCRAFT = "Swordcraft"
-    RUNECRAFT = "Ruencraft"
+    RUNECRAFT = "Runecraft"
     DRAGONCRAFT = "Dragoncraft"
     ABYSSCRAFT = "Abysscraft"
     HAVENCRAFT = "Havencraft"
@@ -72,6 +73,7 @@ class EffectType(Enum):
     ON_SUPER_EVOLVE = "초진화시"
     ON_MY_TURN_END = "내 턴 종료시"
     ON_OPPONENTS_TURN_END = "상대방 턴 종료시"
+    ON_FOLLOWER_ENTER_FIELD = "추종자가 전장에 소환되었을 때"
     SUPER_EVOLVED = "초진화하면"
     ACTIVATE = "활성화"
     WARD = "수호"
@@ -100,9 +102,10 @@ class ProcessType(Enum):
     SUPER_EVOLVE = "초진화"
     REPLACE_DECK = "덱 교체"
     SET_MAX_HEALTH = "최대 체력 설정"
-    ADD_KEYWORD = "키워드 부여"
+    ADD_EFFECT = "키워드 부여"
     REMOVE_KEYWORD = "키워드 제거"
     RETURN_TO_DECK = "카드를 덱으로 되돌림"
+    RETURN_TO_HAND = "카드를 패로 되돌림"
     TRIGGER_EFFECT = "다른 효과 발동"
 
 

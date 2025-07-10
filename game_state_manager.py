@@ -31,10 +31,10 @@ class GameStateManager:
         player = self.players[player_id]
         return [card.card_id for card in player.get_cards_in_zone(zone)]
 
-    def get_cards_in_zone(self, player_id: str, zone: Zone) -> List[Card]:
+    def get_cards_in_zone(self, player_id: str, zone: Zone, condition=lambda x: True) -> List[Card]:
         """특정 플레이어의 특정 영역에 있는 카드 직접 반환"""
         player = self.players[player_id]
-        return [card for card in player.get_cards_in_zone(zone)]
+        return [card for card in player.get_cards_in_zone(zone) if condition(card)]
 
     def move_card(self, card_id: str, from_zone: Zone, to_zone: Zone):
         """카드를 한 영역에서 다른 영역으로 이동"""
@@ -49,6 +49,8 @@ class GameStateManager:
             elif to_zone == Zone.FIELD:
                 print(f"[LOG] {card.get_display_name()} (ID: {card_id}) 필드 소환 제한 매수 초과로 소멸.")
         else:
+            if to_zone == Zone.FIELD and card.get_type() == CardType.FOLLOWER:
+                self.game.event_manager.publish(EventType.FOLLOWER_ENTER_FIELD, {"card_id": card.card_id, "player_id": card.owner_id})
             print(f"[LOG] 카드 {card.get_display_name()} (ID: {card_id})이(가) {from_zone.value}에서 {to_zone.value}로 이동됨.")
 
     def add_card(self, card: Card, to_zone: Zone, player_id: str):
@@ -61,6 +63,8 @@ class GameStateManager:
             elif to_zone == Zone.FIELD:
                 print(f"[LOG] {card.get_display_name()} (ID: {card.card_id}) 필드 소환 제한 매수 초과로 소멸.")
         else:
+            if to_zone == Zone.FIELD and card.get_type() == CardType.FOLLOWER:
+                self.game.event_manager.publish(EventType.FOLLOWER_ENTER_FIELD, {"card_id": card.card_id, "player_id": card.owner_id})
             print(f"[LOG] 카드 {card.get_display_name()} (ID: {card.card_id})이(가) {to_zone.value}로 추가됨.")
 
     def shuffle_deck(self, player_id: str):

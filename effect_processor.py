@@ -1,7 +1,7 @@
 import random
 
 import card_data
-from typing import Any, Dict, List
+from typing import Any, List
 
 from deck import Deck
 from enums import CardType, EventType, Zone, TargetType, ProcessType, EffectType
@@ -42,9 +42,10 @@ class EffectProcessor:
             ProcessType.SUPER_EVOLVE: self._process_super_evolve,
             ProcessType.REPLACE_DECK: self._process_replace_deck,
             ProcessType.SET_MAX_HEALTH: self._process_set_max_health,
-            ProcessType.ADD_KEYWORD: self._process_add_keyword,
+            ProcessType.ADD_EFFECT: self._process_add_keyword,
             ProcessType.REMOVE_KEYWORD: self._process_remove_keyword,
             ProcessType.RETURN_TO_DECK: self._process_return_to_deck,
+            ProcessType.RETURN_TO_HAND: self._process_return_to_hand,
             ProcessType.TRIGGER_EFFECT: self._process_trigger_effect,
         }
 
@@ -207,13 +208,29 @@ class EffectProcessor:
     def _process_draw(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
         value = effect_data.value
         target_id = target.player_id
+        condition = (lambda x: True)
+        if effect_data.condition:
+            condition = effect_data.condition
+        deck = game_state_manager.get_cards_in_zone(target_id, Zone.DECK, condition)
+
         for _ in range(value):
-            deck = game_state_manager.get_cards_in_zone(target_id, Zone.DECK)
             if not deck:
-                print(f"[LOG] 게임 종료: {target_id} 덱 아웃!")
+                if effect_data.condition:
+                    print(f"[LOG] : {target_id} 덱에서 조건에 맞는 카드가 검색되지 않았습니다.")
+                    return
+                print(f"[LOG] : {target_id} 덱 아웃!")
                 return
             drawn_card = deck.pop(0)
             game_state_manager.move_card(drawn_card.card_id, Zone.DECK, Zone.HAND)
+
+            if effect_data.post_action:
+                post_action = effect_data.post_action
+                handler = self.process_handlers.get(post_action["process"])
+                if handler:
+                    handler(post_action, drawn_card, game_state_manager)
+                else:
+                    print(f"[ERROR] 처리 타입 {post_action['process'].value}에 대한 핸들러가 정의되지 않았습니다.")
+
         print(f"[LOG] 처리 내용: 카드 드로우, 타겟: {target_id}, 드로우 장수: {value}")
 
     def _process_heal(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
@@ -224,20 +241,42 @@ class EffectProcessor:
     def _process_add_card_to_hand(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
         value = effect_data.value
         target_id = target.player_id
-        card = game_state_manager.create_card_instance(value, target_id)
-        if len(game_state_manager.get_cards_in_zone(target_id, Zone.HAND)) < 9:
-            game_state_manager.add_card(card, Zone.HAND, target_id)
-        else:
-            game_state_manager.add_card(card, Zone.GRAVEYARD, target_id)
-        print(f"[LOG] 처리 내용: 패에 카드 추가, 타겟: {target_id}, 추가 카드: {card.get_display_name()}")
+
+        if isinstance(value, card_data.CardData):
+            card = game_state_manager.create_card_instance(value, target_id)
+            if len(game_state_manager.get_cards_in_zone(target_id, Zone.HAND)) < 9:
+                game_state_manager.add_card(card, Zone.HAND, target_id)
+            else:
+                game_state_manager.add_card(card, Zone.GRAVEYARD, target_id)
+            print(f"[LOG] 처리 내용: 패에 카드 추가, 타겟: {target_id}, 추가 카드: {card.get_display_name()}")
+
+        elif isinstance(value, list):
+            while value:
+                data = value.pop()
+                card = game_state_manager.create_card_instance(data, target_id)
+                if len(game_state_manager.get_cards_in_zone(target_id, Zone.HAND)) < 9:
+                    game_state_manager.add_card(card, Zone.HAND, target_id)
+                else:
+                    game_state_manager.add_card(card, Zone.GRAVEYARD, target_id)
+                print(f"[LOG] 처리 내용: 패에 카드 추가, 타겟: {target_id}, 추가 카드: {card.get_display_name()}")
 
     def _process_summon(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
         value = effect_data.value
         target_id = target.player_id
-        card = game_state_manager.create_card_instance(value, target_id)
-        if len(game_state_manager.get_cards_in_zone(target_id, Zone.FIELD)) < 5:
-            game_state_manager.add_card(card, Zone.FIELD, target_id)
-        print(f"[LOG] 처리 내용: 필드에 카드 소환, 타겟: {target_id}, 소환 카드: {card.get_display_name()}")
+
+        if isinstance(value, card_data.CardData):
+            card = game_state_manager.create_card_instance(value, target_id)
+            if len(game_state_manager.get_cards_in_zone(target_id, Zone.FIELD)) < 5:
+                game_state_manager.add_card(card, Zone.FIELD, target_id)
+            print(f"[LOG] 처리 내용: 필드에 카드 소환, 타겟: {target_id}, 소환 카드: {card.get_display_name()}")
+
+        elif isinstance(value, list):
+            while value:
+                data = value.pop()
+                card = game_state_manager.create_card_instance(data, target_id)
+                if len(game_state_manager.get_cards_in_zone(target_id, Zone.FIELD)) < 5:
+                    game_state_manager.add_card(card, Zone.FIELD, target_id)
+                print(f"[LOG] 처리 내용: 필드에 카드 소환, 타겟: {target_id}, 소환 카드: {card.get_display_name()}")
 
     def _process_deal_damage(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         value = effect_data.value
@@ -310,6 +349,11 @@ class EffectProcessor:
     def _process_return_to_deck(self, effect_data: Effect, target: Card, game_state_manager: 'GameStateManager'):
         game_state_manager.move_card(target.card_id, Zone.HAND, Zone.DECK)
         print(f"[LOG] 처리 내용: 덱으로 되돌리기, 타겟: {target.get_display_name()}")
+
+    def _process_return_to_hand(self, effect_data: Effect, target: Card, game_state_manager: 'GameStateManager'):
+        game_state_manager.move_card(target.card_id, Zone.FIELD, Zone.HAND)
+        target.current_cost = target.card_data['cost']
+        print(f"[LOG] 처리 내용: 패로 되돌리기, 타겟: {target.get_display_name()}")
 
     def _process_trigger_effect(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         value = effect_data.value

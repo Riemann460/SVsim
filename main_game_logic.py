@@ -30,6 +30,18 @@ class Game:
         self.opponent_id = {player1_id: player2_id, player2_id: player1_id}
         self.gui = GameGUI(self.game_state_manager)
 
+        self.EVENT_TO_EFFECT_TRIGGER_MAP = {
+            EventType.CARD_PLAYED: [EffectType.FANFARE, EffectType.SPELL],
+            EventType.DESTROYED_ON_FIELD: [EffectType.LAST_WORDS],
+            EventType.ATTACK_DECLARED: [EffectType.STRIKE],
+            EventType.COMBAT_INITIATED: [EffectType.CLASH],
+            EventType.FOLLOWER_EVOLVED: [EffectType.ON_EVOLVE, EffectType.EVOLVED],
+            EventType.FOLLOWER_SUPER_EVOLVED: [EffectType.ON_SUPER_EVOLVE, EffectType.SUPER_EVOLVED],
+            EventType.AMULET_ACTIVATED: [EffectType.ACTIVATE],
+            EventType.TURN_END: [EffectType.ON_MY_TURN_END, EffectType.ON_OPPONENTS_TURN_END],
+            EventType.FOLLOWER_ENTER_FIELD: [EffectType.ON_FOLLOWER_ENTER_FIELD]
+        }
+
         self.game_state_manager.players[player1_id] = Player(player1_id, self.event_manager)
         self.game_state_manager.players[player2_id] = Player(player2_id, self.event_manager)
         self.game_state_manager.opponent_id = self.opponent_id
@@ -61,69 +73,28 @@ class Game:
 
     def _setup_listeners(self):
         """이벤트 리스너 설정"""
-        self.event_manager.subscribe(EventType.DESTROYED_ON_FIELD, self._on_destroyed)  # 유언
-        self.event_manager.subscribe(EventType.CARD_PLAYED, self._on_card_played)  # 출격 / 주문효과
-        self.event_manager.subscribe(EventType.ATTACK_DECLARED, self._on_attack_declared)  # 공격시
-        self.event_manager.subscribe(EventType.DAMAGE_DEALT, self._on_damage_dealt)  # 흡혈
-        self.event_manager.subscribe(EventType.COMBAT_INITIATED, self._on_combat_initiated)  # 교전시
+        for event_type in self.EVENT_TO_EFFECT_TRIGGER_MAP.keys():
+            self.event_manager.subscribe(event_type, self._handle_triggered_effect)
+
+        # 범용 핸들러로 처리되지 않는 나머지 이벤트들은 그대로 둠
         self.event_manager.subscribe(EventType.SPELL_CAST, self._on_spell_cast)
         self.event_manager.subscribe(EventType.TURN_START, self._on_turn_start)
-        self.event_manager.subscribe(EventType.TURN_END, self._on_turn_end)
-        self.event_manager.subscribe(EventType.FOLLOWER_EVOLVED, self._on_follower_evolved)
-        self.event_manager.subscribe(EventType.FOLLOWER_SUPER_EVOLVED, self._on_follower_super_evolved)
-        self.event_manager.subscribe(EventType.AMULET_ACTIVATED, self._on_amulet_activated)
+        self.event_manager.subscribe(EventType.DAMAGE_DEALT, self._on_damage_dealt)
 
-    def _on_destroyed(self, event_data: Dict[str, Any]):
-        """유언 효과 처리"""
-        destroyed_card_id = event_data['card_id']
-        print(f"[LOG] 카드 {self.game_state_manager.get_card_name(destroyed_card_id)} (ID: {destroyed_card_id}) 파괴됨. 유언 효과 처리.")
-        self.resolve_effects_type(destroyed_card_id, EffectType.LAST_WORDS)
+    def _handle_triggered_effect(self, event_data: Dict[str, Any]):
+        event_type = event_data.get('event_type')
+        if event_type not in self.EVENT_TO_EFFECT_TRIGGER_MAP:
+            return
 
-    def _on_card_played(self, event_data: Dict[str, Any]):
-        """주문 증폭 발행, 주문/출격/증강 효과 처리"""
-        played_card_id = event_data['card_id']
-        print(f"[LOG] 카드 {self.game_state_manager.get_card_name(played_card_id)} (ID: {played_card_id}) 플레이됨. 효과 처리 시작.")
+        effect_trigger_types = self.EVENT_TO_EFFECT_TRIGGER_MAP[event_type]
+        
+        for effect_trigger_type in effect_trigger_types:
+            print(f"[LOG] Universal handler processing: Event '{event_type.name}' -> Effect Trigger '{effect_trigger_type.name}'")
 
-        # 주문 증폭 이벤트 발행
-        if self.game_state_manager.get_type(played_card_id) == CardType.SPELL:
-            print(f"[LOG] {self.game_state_manager.get_card_name(played_card_id)} (ID: {played_card_id}) 주문 증폭 이벤트 발행.")
-            self.event_manager.publish(EventType.SPELL_CAST, {"player_id": self.game_state_manager.get_owner(played_card_id)})
-            self.process_events()
-
-        print(f"[LOG] {self.game_state_manager.get_card_name(played_card_id)} (ID: {played_card_id}) 출격 효과 처리.")
-        self.resolve_effects_type(played_card_id, EffectType.FANFARE)
-        print(f"[LOG] {self.game_state_manager.get_card_name(played_card_id)} (ID: {played_card_id}) 주문 효과 처리.")
-        self.resolve_effects_type(played_card_id, EffectType.SPELL)
-
-        enhance_list = self.game_state_manager.get_card_effects(played_card_id, EffectType.ENHANCE)
-        for effect in enhance_list:
-            if effect.enhance_cost is not None and event_data['enhanced_cost'] >= effect.enhance_cost:
-                print(f"[LOG] {self.game_state_manager.get_card_name(played_card_id)} (ID: {played_card_id}) 증강 효과 처리.")
-                self.resolve_effect(effect, played_card_id)
-
-    def _on_attack_declared(self, event_data: Dict[str, Any]):
-        """공격시 효과 처리"""
-        attacker_id = event_data['attacker_id']
-        target_id = event_data['target_id']
-        print(f"[LOG] {self.game_state_manager.get_card_name(attacker_id)} (ID: {attacker_id})이(가) {self.game_state_manager.get_card_name(target_id) if self.game_state_manager.get_type(target_id) != CardType.LEADER else target_id} (ID: {target_id}) 공격 선언. 공격시 효과 처리.")
-        self.resolve_effects_type(attacker_id, EffectType.STRIKE)
-
-    def _on_damage_dealt(self, event_data: Dict[str, Any]):
-        """흡혈 효과 처리"""
-        attacker_id = event_data['attacker_id']
-        attacker = self.game_state_manager.get_entity_by_id(attacker_id, Zone.FIELD)
-        if attacker and attacker.has_keyword(EffectType.DRAIN):
-            owner = self.game_state_manager.players[attacker.owner_id]
-            owner.heal_damage(event_data['damage'])
-            print(f"[LOG] {attacker.get_display_name()} (ID: {attacker_id}) 흡혈 효과 발동. {owner.player_id} {event_data['damage']}만큼 회복.")
-
-    def _on_combat_initiated(self, event_data: Dict[str, Any]):
-        """교전시 효과 처리"""
-        attacker_id = event_data['attacker_id']
-        defender_id = event_data['defender_id']
-        print(f"[LOG] {self.game_state_manager.get_card_name(attacker_id)} (ID: {attacker_id})와 {self.game_state_manager.get_card_name(defender_id)} (ID: {defender_id}) 교전 시작. 교전시 효과 처리.")
-        self.resolve_effects_type(attacker_id, EffectType.CLASH)  # 교전 상대의 정보 추가 전달 필요!!
-        self.resolve_effects_type(defender_id, EffectType.CLASH)  # 교전 상대의 정보 추가 전달 필요!!
+            # 모든 플레이어의 모든 필드 카드를 확인
+            for player in self.game_state_manager.players.values():
+                for card in player.field.get_cards():
+                    self.resolve_effects_type(card.card_id, effect_trigger_type)
 
     def _on_spell_cast(self, event_data: Dict[str, Any]):
         """주문 증폭 효과 처리"""
@@ -145,48 +116,15 @@ class Game:
                 self.game_state_manager.move_card(card_id, Zone.FIELD, Zone.GRAVEYARD)
                 self.event_manager.publish(EventType.DESTROYED_ON_FIELD, {"card_id": card_id})
                 self.process_events()
-
-    def _on_turn_end(self, event_data: Dict[str, Any]):
-        """턴 종료 시 효과 처리"""
-        player_id = event_data['player_id']
-        opponent_id = self.get_opponent_id(player_id)
-
-        cards_with_turn_end = self.game_state_manager.get_cards_with_keyword(player_id, Zone.FIELD, EffectType.ON_MY_TURN_END)
-        if cards_with_turn_end:
-            print(f"[LOG] {player_id}의 내 턴 종료 시 효과 처리. 대상 카드: {[self.game_state_manager.get_card_name(card_id) for card_id in cards_with_turn_end]}")
-        for card_id in cards_with_turn_end:
-            self.resolve_effects_type(card_id, EffectType.ON_MY_TURN_END)
-
-        cards_with_opponent_turn_end = self.game_state_manager.get_cards_with_keyword(opponent_id, Zone.FIELD, EffectType.ON_OPPONENTS_TURN_END)
-        if cards_with_opponent_turn_end:
-            print(f"[LOG] {opponent_id}의 상대방 턴 종료 시 효과 처리. 대상 카드: {[self.game_state_manager.get_card_name(card_id) for card_id in cards_with_opponent_turn_end]}")
-        for card_id in cards_with_opponent_turn_end:
-            self.resolve_effects_type(card_id, EffectType.ON_OPPONENTS_TURN_END)
-
-    def _on_follower_evolved(self, event_data: Dict[str, Any]):
-        """진화시 효과 처리"""
-        card_id = event_data['card_id']
-        print(f"[LOG] {self.game_state_manager.get_card_name(card_id)} (ID: {card_id}) 진화됨. 진화시 효과 처리.")
-        if event_data['spend_ep']:
-            self.resolve_effects_type(card_id, EffectType.ON_EVOLVE)
-        self.resolve_effects_type(card_id, EffectType.EVOLVED)
-
-    def _on_follower_super_evolved(self, event_data: Dict[str, Any]):
-        """초진화시 효과 처리"""
-        card_id = event_data['card_id']
-        print(f"[LOG] {self.game_state_manager.get_card_name(card_id)} (ID: {card_id}) 초진화됨. 초진화시 효과 처리.")
-        # 초진화시 효과가 있다면 진화시 효과는 무시
-        if event_data['spend_sep']:
-            if not self.resolve_effects_type(card_id, EffectType.ON_SUPER_EVOLVE):
-                self.resolve_effects_type(card_id, EffectType.ON_EVOLVE)
-        if not self.resolve_effects_type(card_id, EffectType.SUPER_EVOLVED):
-            self.resolve_effects_type(card_id, EffectType.EVOLVED)
-
-    def _on_amulet_activated(self, event_data: Dict[str, Any]):
-        """활성화 효과 처리"""
-        card_id = event_data['card_id']
-        print(f"[LOG] {self.game_state_manager.get_card_name(card_id)} (ID: {card_id}) 마법진 활성화됨. 활성화 효과 처리.")
-        self.resolve_effects_type(card_id, EffectType.ACTIVATE)
+    
+    def _on_damage_dealt(self, event_data: Dict[str, Any]):
+        """흡혈 효과 처리"""
+        attacker_id = event_data['attacker_id']
+        attacker = self.game_state_manager.get_entity_by_id(attacker_id, Zone.FIELD)
+        if attacker and attacker.has_keyword(EffectType.DRAIN):
+            owner = self.game_state_manager.players[attacker.owner_id]
+            owner.heal_damage(event_data['damage'])
+            print(f"[LOG] {attacker.get_display_name()} (ID: {attacker_id}) 흡혈 효과 발동. {owner.player_id} {event_data['damage']}만큼 회복.")
 
     def _initialize_decks(self, player1_id: str, player2_id: str):
         """초기 덱 설정 (40장, 3장 제한)"""
@@ -478,3 +416,22 @@ class Game:
 
     def has_extra_pp(self, player_id: str):
         return self.game_state_manager.get_entity_by_id(player_id).extra_pp > 0
+
+    def get_available_actions(self, card_id: str, player_id: str):
+        """대상 필드 카드의 가능한 조작 목록을 출력"""
+        card_name, card_type, can_attack_leader, can_attack_follower, _, _, is_evolved, _ = self.game_state_manager.get_card_attack_info_field(card_id)
+        available_actions = []
+
+        if card_type == CardType.FOLLOWER and can_attack_follower:
+            available_actions.append("추종자 공격")
+
+        if card_type == CardType.FOLLOWER and not is_evolved and self.game_state_manager.can_evolve(player_id):
+            available_actions.append("추종자 진화")
+
+        if card_type == CardType.FOLLOWER and not is_evolved and self.game_state_manager.can_super_evolve(player_id):
+            available_actions.append("추종자 초진화")
+
+        if card_type == CardType.AMULET and self.game_state_manager.has_keyword(card_id, EffectType.ACTIVATE) and self.rule_engine.validate_activate_amulet(card_id, player_id):
+            available_actions.append("마법진 활성화")
+
+        return available_actions, card_name

@@ -41,51 +41,55 @@ class CardData:
 
 
 def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
+    attrs = effect_dict
     # Enum 값은 문자열로 저장되어 있으므로 변환
-    effect_type = EffectType[effect_dict["type"]]
-    target_type = TargetType[effect_dict["target"]] if "target" in effect_dict and effect_dict["target"] is not None else None
-    process_type = ProcessType[effect_dict["process"]] if "process" in effect_dict and effect_dict["process"] is not None else None
-    value = effect_dict.get("value")
-    enhance_cost = effect_dict.get("enhance_cost")
-    cost = effect_dict.get("cost")
+    if "type" in effect_dict and effect_dict["type"] is not None:
+        attrs["type"] = EffectType[effect_dict["type"]]
+    if "target" in effect_dict and effect_dict["target"] is not None:
+        attrs["target"] = TargetType[effect_dict["target"]]
+    if "process" in effect_dict and effect_dict["process"] is not None:
+        attrs["process"] = ProcessType[effect_dict["process"]]
 
-    # Handle nested Effect for ADD_KEYWORD
-    if process_type == ProcessType.ADD_KEYWORD and isinstance(value, dict) and "type" in value:
-        value = _load_effect_from_dict(value)
-    # Handle EffectType for REMOVE_KEYWORD and TRIGGER_EFFECT
-    elif (process_type == ProcessType.REMOVE_KEYWORD or process_type == ProcessType.TRIGGER_EFFECT) and isinstance(value, str):
+    # effect 인스턴스 처리
+    for key, value in effect_dict.items():
+        if isinstance(value, dict):
+            attrs[key] = _load_effect_from_dict(value)
+
+    # REMOVE_KEYWORD와 TRIGGER_EFFECT의 EffectType enum value 처리
+    if (attrs["process"] in [ProcessType.REMOVE_KEYWORD, ProcessType.TRIGGER_EFFECT]) and isinstance(effect_dict["value"], str):
         try:
-            value = EffectType[value]
+            attrs["value"] = EffectType[effect_dict["value"]]
         except KeyError:
             print(f"[WARNING] EffectType '{value}' not found for {process_type.name} effect.")
             pass # Keep as string if not found, will cause error later if not handled
 
-    # condition handling (assuming condition is a string for now)
+    # condition 처리
     condition = effect_dict.get("condition")
-    if condition and isinstance(condition, str) and condition.startswith("CARD_TYPE_"):
-        # Example: "CARD_TYPE_FOLLOWER" -> lambda x: x.card_type == CardType.FOLLOWER
-        card_type_str = condition.replace("CARD_TYPE_", "")
-        try:
-            condition = lambda x: x.card_type == CardType[card_type_str]
-        except KeyError:
-            print(f"[WARNING] CardType '{card_type_str}' not found for condition.")
-            condition = None
-    elif condition and isinstance(condition, str) and condition.startswith("NECROMANCY_"):
-        # Example: "NECROMANCY_4"
-        pass # Keep as string, will be handled by rule engine
-    elif condition and isinstance(condition, str) and condition == "OVERFLOW":
-        pass # Keep as string, will be handled by rule engine
+    if condition and isinstance(condition, str):
+        if condition.startswith("CARD_TYPE_"):
+            card_type_str = condition.replace("CARD_TYPE_", "")
+            try:
+                condition = lambda x: x.get_type() == CardType[card_type_str]
+            except KeyError:
+                print(f"[WARNING] CardType '{card_type_str}' not found for condition.")
+                condition = None
+        elif condition.startswith("CLASS_TYPE_"):
+            class_type_str = condition.replace("CLASS_TYPE_", "")
+            try:
+                condition = lambda x: x.card_data['class_type'] == ClassType[class_type_str]
+            except KeyError:
+                print(f"[WARNING] ClassType '{class_type_str}' not found for condition.")
+                condition = None
+        elif condition.startswith("NAME_"):
+            name_str = condition.replace("NAME_", "")
+            try:
+                condition = lambda x: x.card_data['name'] == name_str
+            except KeyError:
+                print(f"[WARNING] Name '{name_str}' not found for condition.")
+                condition = None
+        attrs["condition"] = condition
 
-    # trigger handling (assuming trigger is a string for now)
-    trigger = effect_dict.get("trigger")
-    if trigger and isinstance(trigger, str) and trigger.startswith("ALLY_") and trigger.endswith("_ENTERS_FIELD"):
-        pass # Keep as string, will be handled by event manager
-    elif trigger and isinstance(trigger, str) and trigger == "ENGAGE_AMULET":
-        pass # Keep as string, will be handled by event manager
-    elif trigger and isinstance(trigger, str) and trigger == "DISCARDED":
-        pass # Keep as string, will be handled by event manager
-
-    return Effect(type=effect_type, target=target_type, process=process_type, value=value, condition=condition, enhance_cost=enhance_cost, cost=cost, trigger=trigger)
+    return Effect(attrs)
 
 
 def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
@@ -164,3 +168,6 @@ def load_card_databases(json_path: str = 'card_database_parsed.json'):
     resolve_card_references(BASIC_CARD_DATABASE, all_cards)
     resolve_card_references(LEGENDS_RISE_CARD_DATABASE, all_cards)
     resolve_card_references(TOKEN_CARD_DATABASE, all_cards)
+
+
+load_card_databases()

@@ -96,9 +96,9 @@
       "defense": 0,
       "tribes": [],
       "effects": [
-        { "type": "FANFARE", "target": "OWN_LEADER", "process": "DRAW", "value": 1, "condition_type": "CARD_TYPE_FOLLOWER" },
+        { "type": "FANFARE", "target": "OWN_LEADER", "process": "DRAW", "value": 1, "condition": "CARD_TYPE_FOLLOWER" },
         { "type": "ACTIVATE", "target": "SELF", "process": "DESTROY" },
-        { "type": "ACTIVATE", "target": "ALLY_FOLLOWER_CHOICE", "process": "ADD_KEYWORD", "value": { "type": "RUSH" } }
+        { "type": "ACTIVATE", "target": "ALLY_FOLLOWER_CHOICE", "process": "ADD_EFFECT", "value": { "type": "RUSH" } }
       ]
     },
     "Goblin": {

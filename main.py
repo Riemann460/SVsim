@@ -4,26 +4,6 @@ from main_game_logic import Game
 from player import Player
 
 
-def get_available_actions(card_id: str, player_id: str, game: Game):
-    """대상 필드 카드의 가능한 조작 목록을 출력"""
-    card_name, card_type, can_attack_leader, can_attack_follower, _, _, is_evolved, _ = game.game_state_manager.get_card_attack_info_field(card_id)
-    available_actions = []
-
-    if card_type == CardType.FOLLOWER and can_attack_follower:
-        available_actions.append("추종자 공격")
-
-    if card_type == CardType.FOLLOWER and not is_evolved and game.game_state_manager.can_evolve(current_player):
-        available_actions.append("추종자 진화")
-
-    if card_type == CardType.FOLLOWER and not is_evolved and game.game_state_manager.can_super_evolve(current_player):
-        available_actions.append("추종자 초진화")
-
-    if card_type == CardType.AMULET and game.game_state_manager.has_keyword(card_id, EffectType.ACTIVATE) and game.rule_engine.validate_activate_amulet(card_id, player_id):
-        available_actions.append("마법진 활성화")
-
-    return available_actions, card_name
-
-
 # --- 게임 실행 예시 ---
 if __name__ == "__main__":
     game = Game("player1", "player2")
@@ -76,7 +56,7 @@ if __name__ == "__main__":
                 card_choices["뒤로 가기"] = None
                 selected_card_id = str(game.gui.get_user_choice("--- 현재 플레이어의 패 ---", card_choices))
 
-                if selected_card_id is None:
+                if selected_card_id == "None":
                     print("다시 선택해주세요.")
                     continue
                 
@@ -93,12 +73,12 @@ if __name__ == "__main__":
                 card_choices["뒤로 가기"] = None
                 selected_card_id = str(game.gui.get_user_choice("--- 조작할 카드 선택 ---", card_choices))
 
-                if selected_card_id is None:
+                if selected_card_id == "None":
                     print("다시 선택해주세요.")
                     continue
 
                 # 선택한 카드의 가능한 조작 목록 생성
-                available_actions, card_name = get_available_actions(selected_card_id, current_player, game)
+                available_actions, card_name = game.get_available_actions(selected_card_id, current_player)
                 if not available_actions:
                     game.gui.get_user_choice("선택한 카드로는 현재 할 수 있는 행동이 없습니다.", {"확인": None})
                     continue
@@ -108,7 +88,7 @@ if __name__ == "__main__":
                 action_choices["취소"] = None
                 chosen_action = str(game.gui.get_user_choice(f"[{card_name}]으로 할 행동 선택 ---", action_choices))
 
-                if chosen_action is None:
+                if chosen_action == "None":
                     print("다시 선택해주세요.")
                     continue
 
