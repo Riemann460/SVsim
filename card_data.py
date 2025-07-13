@@ -1,6 +1,6 @@
 import json
 from typing import List, Any, Dict
-from enums import CardType, EffectType, TargetType, ProcessType, ClassType, TribeType
+from enums import CardType, EffectType, TargetType, ProcessType, ClassType, TribeType, EventType
 from effect import Effect
 
 # 전역 변수로 선언하여 다른 함수에서 접근 가능하도록 함
@@ -11,7 +11,7 @@ TOKEN_CARD_DATABASE: Dict[str, 'CardData'] = {}
 
 class CardData:
     """카드의 정적 데이터를 정의합니다."""
-    def __init__(self, card_id: str, name: str, cost: int, card_type: CardType, class_type: ClassType, attack: int = 0, defense: int = 0, tribes: List = None, effects: List[Effect] = None, raw_effects_text: str = ""):
+    def __init__(self, card_id: str, name: str, cost: int, card_type: CardType, class_type: ClassType, attack: int = 0, defense: int = 0, tribes: List = None, effects: List[Effect] = None, raw_effects_text: str = "", required_listeners: List[EventType] = None):
         self.card_id = card_id  # 영문명
         self.name = name  # 한글명
         self.cost = cost
@@ -22,11 +22,14 @@ class CardData:
         self.tribes = tribes if tribes is not None else []
         self.effects = effects if effects is not None else []  # Effect 인스턴스 리스트
         self.raw_effects_text = raw_effects_text
+        self.required_listeners = required_listeners if required_listeners is not None else []
 
     def get(self, key: str, default: Any = None) -> Any:
+        """객체의 속성 값을 가져옵니다."""
         return getattr(self, key, default)
 
     def __repr__(self):
+        """CardData 객체를 대표하는 문자열을 반환합니다."""
         effects_repr = repr(self.effects)
         tribe = self.tribes[0] if self.tribes and len(self.tribes) > 0 else None
         tribe_str = str(tribe) if tribe else ""
@@ -35,12 +38,14 @@ class CardData:
                 f'ClassType.{self.class_type.name}, {self.attack}, {self.defense}, tribes=[{tribe_str}], effects={effects_repr}), raw_effects_text={self.raw_effects_text}')
 
     def __getitem__(self, key: str) -> Any:
+        """키를 사용하여 객체의 속성에 접근할 수 있게 합니다."""
         if hasattr(self, key):
             return getattr(self, key)
         raise KeyError(f"CardData에 '{key}' 속성이 없습니다.")
 
 
 def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
+    """딕셔너리에서 Effect 객체를 로드합니다."""
     attrs = effect_dict
     # Enum 값은 문자열로 저장되어 있으므로 변환
     if "type" in effect_dict and effect_dict["type"] is not None:
@@ -56,7 +61,7 @@ def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
             attrs[key] = _load_effect_from_dict(value)
 
     # REMOVE_KEYWORD와 TRIGGER_EFFECT의 EffectType enum value 처리
-    if (attrs["process"] in [ProcessType.REMOVE_KEYWORD, ProcessType.TRIGGER_EFFECT]) and isinstance(effect_dict["value"], str):
+    if "process" in effect_dict and (attrs["process"] in [ProcessType.REMOVE_KEYWORD, ProcessType.TRIGGER_EFFECT]) and isinstance(effect_dict["value"], str):
         try:
             attrs["value"] = EffectType[effect_dict["value"]]
         except KeyError:
@@ -89,10 +94,42 @@ def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
                 condition = None
         attrs["condition"] = condition
 
-    return Effect(attrs)
+    return Effect(**attrs)
+
+
+def _get_required_listeners(effects: List[Effect]) -> List[EventType]:
+    """효과 목록을 기반으로 필요한 이벤트 리스너 목록을 결정합니다."""
+    effect_to_event_map = {
+        EffectType.FANFARE: EventType.CARD_PLAYED,
+        EffectType.SPELL: EventType.CARD_PLAYED,
+        EffectType.LAST_WORDS: EventType.DESTROYED_ON_FIELD,
+        EffectType.STRIKE: EventType.ATTACK_DECLARED,
+        EffectType.CLASH: EventType.COMBAT_INITIATED,
+        EffectType.ON_EVOLVE: EventType.FOLLOWER_EVOLVED,
+        EffectType.EVOLVED: EventType.FOLLOWER_EVOLVED,
+        EffectType.ACTIVATE: EventType.AMULET_ACTIVATED,
+        EffectType.ON_FOLLOWER_ENTER_FIELD: EventType.FOLLOWER_ENTER_FIELD,
+        EffectType.ON_SUPER_EVOLVE: EventType.FOLLOWER_SUPER_EVOLVED,
+        EffectType.SUPER_EVOLVED: EventType.FOLLOWER_SUPER_EVOLVED,
+        EffectType.COUNTDOWN: EventType.TURN_START,
+        EffectType.ON_MY_TURN_END: EventType.TURN_END,
+        EffectType.ON_OPPONENTS_TURN_END: EventType.TURN_END,
+        EffectType.DRAIN: EventType.DAMAGE_DEALT,
+    }
+    
+    listeners = set()
+    for effect in effects:
+        if effect.type in effect_to_event_map:
+            listeners.add(effect_to_event_map[effect.type])
+        # super_evolved 리스너는 진화 관련 효과가 있을 때도 등록
+        if effect.type in [EffectType.ON_EVOLVE, EffectType.EVOLVED, EffectType.ON_SUPER_EVOLVE, EffectType.SUPER_EVOLVED]:
+            listeners.add(EventType.FOLLOWER_SUPER_EVOLVED)
+
+    return list(listeners)
 
 
 def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
+    """딕셔너리에서 CardData 객체를 로드합니다."""
     effects = []
     for e_dict in card_dict.get("effects", []):
         if "raw_effect_text" in e_dict:
@@ -101,7 +138,7 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
         else:
             effects.append(_load_effect_from_dict(e_dict))
 
-    return CardData(
+    card_data_obj = CardData(
         card_id=card_dict["card_id"],
         name=card_dict["name"],
         cost=card_dict["cost"],
@@ -112,41 +149,45 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
         tribes=[TribeType[t] for t in card_dict.get("tribes", [])],
         effects=effects
     )
+    
+    # 효과에 기반하여 필요한 리스너 목록을 생성
+    card_data_obj.required_listeners = _get_required_listeners(card_data_obj.effects)
+    
+    return card_data_obj
 
 
 def resolve_card_references(card_db: Dict[str, CardData], global_card_db: Dict[str, CardData]):
+    """카드 데이터베이스 내의 카드 참조를 해결합니다."""
     for card_id, card_data_obj in card_db.items():
         for effect in card_data_obj.effects:
-            # Check if it's a structured Effect object or a raw text dict
             if isinstance(effect, Effect):
-                # Only resolve card references for specific process types
-                if effect.process in [ProcessType.ADD_CARD_TO_HAND, ProcessType.SUMMON, ProcessType.REPLACE_DECK]:
-                    if isinstance(effect.value, str): # value is a single card ID string
-                        if effect.value == "Apocalypse Deck": # Special case for Apocalypse Deck
-                            # This needs to be handled as a list of CardData objects for the Apocalypse Deck
-                            # For now, keep as string, will be resolved in game logic if needed
-                            pass
-                        elif effect.value in global_card_db:
+                # 카드 인스턴스를 생성하는 이펙트 체크
+                if "process" in effect.attributes.keys() and effect.process in [ProcessType.ADD_CARD_TO_HAND, ProcessType.SUMMON, ProcessType.REPLACE_DECK]:
+                    # 단일 카드 생성
+                    if isinstance(effect.value, str):
+                        if effect.value in global_card_db:
                             effect.value = global_card_db[effect.value]
                         else:
-                            print(f"[WARNING] Card reference '{effect.value}' not found for effect in {card_id} (process: {effect.process.name})")
-                    elif isinstance(effect.value, list): # value is a list of card ID strings
+                            print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name}에서 카드 데이터 '{effect.value}'을(를) 찾을 수 없습니다.")
+
+                    # 복수 카드 생성
+                    elif isinstance(effect.value, list):
                         resolved_list = []
                         for item in effect.value:
                             if isinstance(item, str) and item in global_card_db:
                                 resolved_list.append(global_card_db[item])
                             else:
-                                # If it's not a string or not in DB, keep it as is (might be a literal or an error)
-                                print(f"[WARNING] Item '{item}' in list for effect in {card_id} not a valid card reference.")
+                                print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name}에서 아이템 '{item}'을(를) 찾을 수 없습니다.")
                                 resolved_list.append(item)
                         effect.value = resolved_list
-                # For other process types, value should not be a card reference string
-                # If it's a string and not an EffectType (already handled in _load_effect_from_dict), it's likely an error in JSON
-                elif isinstance(effect.value, str) and not isinstance(effect.value, EffectType):
-                    print(f"[WARNING] Unexpected string value '{effect.value}' for effect in {card_id} (process: {effect.process.name}). Expected a literal or EffectType.")
+
+                # 나머지 이펙트에 카드 이름이 입력된 경우 체크
+                elif "value" in effect.attributes.keys() and isinstance(effect.value, str):
+                    print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name})에 예기치 않은 스트링 입력 '{effect.value}'.")
 
 
 def load_card_databases(json_path: str = 'card_database_parsed.json'):
+    """JSON 파일에서 모든 카드 데이터베이스를 로드합니다."""
     global BASIC_CARD_DATABASE, LEGENDS_RISE_CARD_DATABASE, TOKEN_CARD_DATABASE
     with open(json_path, 'r', encoding='utf-8') as f:
         data = json.load(f)

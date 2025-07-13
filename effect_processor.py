@@ -14,6 +14,7 @@ from effect import Effect
 class EffectProcessor:
     """카드 효과를 해석하고 실행"""
     def __init__(self, event_manager: 'EventManager'):
+        """EffectProcessor 클래스의 생성자입니다."""
         self.event_manager = event_manager
         self.target_handlers = {
             TargetType.SELF: self._get_target_self,
@@ -61,16 +62,20 @@ class EffectProcessor:
         return True
 
     def _get_target_self(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 자기 자신"""
         return [caster_card]
 
     def _get_target_own_leader(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 자신의 리더"""
         return [game_state_manager.players[caster_card.owner_id]]
 
     def _get_target_opponent_leader(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 상대방 리더"""
         opponent_id = game_state_manager.opponent_id[caster_card.owner_id]
         return [game_state_manager.players[opponent_id]]
 
     def _get_target_another_ally_follower_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 자신을 제외한 아군 추종자 선택"""
         ally_cards = game_state_manager.get_cards_in_zone(caster_card.owner_id, Zone.FIELD)
         ally_followers = [card for card in ally_cards if card.get_type() == CardType.FOLLOWER and card.card_id != caster_card.card_id]
         if not ally_followers: return []
@@ -83,6 +88,7 @@ class EffectProcessor:
         return []
 
     def _get_target_ally_follower_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 아군 추종자 선택"""
         ally_cards = game_state_manager.get_cards_in_zone(caster_card.owner_id, Zone.FIELD)
         ally_followers = [card for card in ally_cards if card.get_type() == CardType.FOLLOWER]
         if not ally_followers: return []
@@ -95,6 +101,7 @@ class EffectProcessor:
         return []
 
     def _get_target_opponent_follower_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 상대 추종자 선택"""
         opponent_id = game_state_manager.opponent_id[caster_card.owner_id]
         opponent_cards = game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
         opponent_followers = [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER and self._can_target_with_ability(card.card_id, game_state_manager)]
@@ -108,6 +115,7 @@ class EffectProcessor:
         return []
 
     def _get_target_opponent_follower_choice2(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 상대 추종자 2명 선택"""
         opponent_id = game_state_manager.opponent_id[caster_card.owner_id]
         opponent_cards = game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
         opponent_followers = [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER and self._can_target_with_ability(card.card_id, game_state_manager)]
@@ -126,19 +134,23 @@ class EffectProcessor:
         return [game_state_manager.get_entity_by_id(card_id) for card_id in selected_targets]
 
     def _get_target_all_ally_followers(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 모든 아군 추종자"""
         ally_cards = game_state_manager.get_cards_in_zone(caster_card.owner_id, Zone.FIELD)
         return [card for card in ally_cards if card.get_type() == CardType.FOLLOWER]
 
     def _get_target_all_other_ally_followers(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 자신을 제외한 모든 아군 추종자"""
         ally_cards = game_state_manager.get_cards_in_zone(caster_card.owner_id, Zone.FIELD)
         return [card for card in ally_cards if card.get_type() == CardType.FOLLOWER and card.card_id != caster_card.card_id]
 
     def _get_target_all_opponent_followers(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 모든 상대 추종자"""
         opponent_id = game_state_manager.opponent_id[caster_card.owner_id]
         opponent_cards = game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
         return [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER]
 
     def _get_target_own_hand_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 자신의 패에서 카드 선택"""
         hand_cards = game_state_manager.get_cards_in_zone(caster_card.owner_id, Zone.HAND)
         if not hand_cards: return []
 
@@ -150,6 +162,7 @@ class EffectProcessor:
         return []
 
     def _get_target_opponent_follower_max_attack_random(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 가장 공격력이 높은 상대 추종자 중 무작위 선택"""
         opponent_id = game_state_manager.opponent_id[caster_card.owner_id]
         opponent_cards = game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
         opponent_followers = [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER]
@@ -169,6 +182,7 @@ class EffectProcessor:
         return [selected_card]
 
     def _get_target_ally_follower_choice_unevolved(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """대상: 진화하지 않은 아군 추종자 선택"""
         ally_cards = game_state_manager.get_cards_in_zone(caster_card.owner_id, Zone.FIELD)
         unevolved_ally_followers = [card for card in ally_cards if card.get_type() == CardType.FOLLOWER and not card.is_evolved]
         if not unevolved_ally_followers: return []
@@ -198,6 +212,7 @@ class EffectProcessor:
 
 
     def _process_stat_buff(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리: 스탯 버프"""
         value = effect_data.value
         attack, defense = value
         target.current_attack += attack
@@ -206,10 +221,11 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 스텟 버프, 타겟: {target.get_display_name()}, 증가량: {value}")
 
     def _process_draw(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
+        """처리: 카드 드로우"""
         value = effect_data.value
         target_id = target.player_id
         condition = (lambda x: True)
-        if effect_data.condition:
+        if 'condition' in effect_data.attributes.keys():
             condition = effect_data.condition
         deck = game_state_manager.get_cards_in_zone(target_id, Zone.DECK, condition)
 
@@ -223,7 +239,7 @@ class EffectProcessor:
             drawn_card = deck.pop(0)
             game_state_manager.move_card(drawn_card.card_id, Zone.DECK, Zone.HAND)
 
-            if effect_data.post_action:
+            if 'post_action' in effect_data.attributes.keys():
                 post_action = effect_data.post_action
                 handler = self.process_handlers.get(post_action["process"])
                 if handler:
@@ -234,11 +250,13 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 카드 드로우, 타겟: {target_id}, 드로우 장수: {value}")
 
     def _process_heal(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리: 체력 회복"""
         value = effect_data.value
         target.heal_damage(value)
         print(f"[LOG] 처리 내용: 체력 회복, 타겟: {target.get_display_name()}, 회복량: {value}")
 
     def _process_add_card_to_hand(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
+        """처리: 패에 카드 추가"""
         value = effect_data.value
         target_id = target.player_id
 
@@ -261,6 +279,7 @@ class EffectProcessor:
                 print(f"[LOG] 처리 내용: 패에 카드 추가, 타겟: {target_id}, 추가 카드: {card.get_display_name()}")
 
     def _process_summon(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
+        """처리: 필드에 카드 소환"""
         value = effect_data.value
         target_id = target.player_id
 
@@ -279,6 +298,7 @@ class EffectProcessor:
                 print(f"[LOG] 처리 내용: 필드에 카드 소환, 타겟: {target_id}, 소환 카드: {card.get_display_name()}")
 
     def _process_deal_damage(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리: 피해 입히기"""
         value = effect_data.value
 
         if target.has_keyword(EffectType.BARRIER):
@@ -301,6 +321,7 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 피해 입히기, 타겟: {target.get_display_name()}, 피해량: {value}")
 
     def _process_destroy(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리: 파괴"""
         if target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
             print(f"[LOG] 처리 내용: 파괴, 타겟: {target.get_display_name()}")
             print(f"[LOG] {target.get_display_name()} 초진화 효과로 파괴되지 않음.")
@@ -310,16 +331,19 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 파괴, 타겟: {target.get_display_name()}")
 
     def _process_recover_pp(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
+        """처리: PP 회복"""
         value = effect_data.value
         target.gain_pp(value)
         print(f"[LOG] 처리 내용: PP 회복, 타겟: {target.player_id}, 회복량: {value}")
 
     def _process_super_evolve(self, effect_data: Effect, target: Card, game_state_manager: 'GameStateManager'):
+        """처리: 초진화"""
         game_state_manager.super_evolve_card(target.card_id)
         self.event_manager.publish(EventType.FOLLOWER_SUPER_EVOLVED, {"card_id": target.card_id, "spend_sep": False})
         print(f"[LOG] 처리 내용: 초진화, 타겟: {target.get_display_name()}")
 
     def _process_replace_deck(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
+        """처리: 덱 교체"""
         value = effect_data.value
         target_id = target.player_id
         replaced_deck_list = []
@@ -332,30 +356,36 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 덱 교체, 타겟: {target.player_id}, 덱 사이즈: {len(replaced_deck)}")
 
     def _process_set_max_health(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리: 최대 체력 설정"""
         value = effect_data.value
         target.max_defense = value
         print(f"[LOG] 처리 내용: 최대 체력 설정, 타겟: {target.get_display_name()}, 설정값: {value}")
 
     def _process_add_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리: 키워드 부여"""
         value = effect_data.value # value 자체가 Effect 객체
         target.effects.append(value)
         print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {value.type.value}")
 
     def _process_remove_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리: 키워드 제거"""
         value = effect_data.value
         target.effects = [effect for effect in target.effects if not effect.type == value]
         print(f"[LOG] 처리 내용: 키워드 제거, 타겟: {target.get_display_name()}, 키워드: {value.value}")
 
     def _process_return_to_deck(self, effect_data: Effect, target: Card, game_state_manager: 'GameStateManager'):
+        """처리: 덱으로 되돌리기"""
         game_state_manager.move_card(target.card_id, Zone.HAND, Zone.DECK)
         print(f"[LOG] 처리 내용: 덱으로 되돌리기, 타겟: {target.get_display_name()}")
 
     def _process_return_to_hand(self, effect_data: Effect, target: Card, game_state_manager: 'GameStateManager'):
+        """처리: 패로 되돌리기"""
         game_state_manager.move_card(target.card_id, Zone.FIELD, Zone.HAND)
         target.current_cost = target.card_data['cost']
         print(f"[LOG] 처리 내용: 패로 되돌리기, 타겟: {target.get_display_name()}")
 
     def _process_trigger_effect(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리: 다른 효과 발동"""
         value = effect_data.value
         for effect in target.effects:
             if effect.type == value:
@@ -363,23 +393,27 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 다른 효과 발동, 타겟: {target.get_display_name()}, 발동 효과: {value.value}")
 
     def resolve_effect(self, effect_data: Effect, caster_id: str,
-                       game_state_manager: 'GameStateManager'):
+                       game_state_manager: 'GameStateManager', target_id: str):
+        """효과를 해결하고 게임 상태에 적용합니다."""
         caster_card = game_state_manager.get_entity_by_id(caster_id)
         if not caster_card:
             print(f"[ERROR] resolve_effect - caster card with id {caster_id} not found.")
             return
         
         effect_type = effect_data.type
-        target_type = effect_data.target
         process_type = effect_data.process
-
-        target_list = self.list_target(target_type, caster_id, game_state_manager)
+        handler = self.process_handlers.get(process_type)
+        if not handler:
+            print(f"[ERROR] 처리 타입 {process_type.value}에 대한 핸들러가 정의되지 않았습니다.")
 
         print(f"[LOG] {caster_card.get_display_name()} (ID: {caster_id})의 키워드 {effect_type.value} 처리 시작")
 
+        if target_id:
+            target = game_state_manager.get_entity_by_id(target_id)
+            handler(effect_data, target, game_state_manager)
+
+        target_type = effect_data.target
+        target_list = self.list_target(target_type, caster_id, game_state_manager)
+
         for target in target_list:
-            handler = self.process_handlers.get(process_type)
-            if handler:
-                handler(effect_data, target, game_state_manager)
-            else:
-                print(f"[ERROR] 처리 타입 {process_type.value}에 대한 핸들러가 정의되지 않았습니다.")
+            handler(effect_data, target, game_state_manager)

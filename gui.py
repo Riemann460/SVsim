@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
 class GameGUI:
     def __init__(self, game_state_manager: 'GameStateManager'):
+        """GameGUI 클래스의 생성자입니다."""
         self.root = tk.Tk()
         self.root.title("Shadowverse Game Viewer")
         self.root.geometry("1200x800")
@@ -72,10 +73,12 @@ class GameGUI:
         self.update()
 
     def update(self):
+        """GUI의 모든 위젯을 최신 게임 상태로 업데이트합니다."""
         self._update_widgets()
         self.root.update()
 
     def _update_widgets(self):
+        """내부 위젯들을 업데이트하는 헬퍼 메서드입니다."""
         # Update turn info
         current_player = self.game_state_manager.current_turn_player_id
         turn_num = self.game_state_manager.turn_number
@@ -103,6 +106,7 @@ class GameGUI:
         self.root.update_idletasks()
 
     def _update_zone_frame(self, frame, cards: list['Card'], is_field: bool):
+        """특정 영역(패 또는 필드)의 카드 표시를 업데이트합니다."""
         from enums import CardType
         for widget in frame.winfo_children():
             widget.destroy()
@@ -139,6 +143,7 @@ class GameGUI:
                 keyword_label.pack()
 
     def get_mulligan_choices(self, player_id: str, hand_cards: list['Card']) -> list[str]:
+        """플레이어에게 멀리건 선택 창을 표시하고 선택된 카드 ID 리스트를 반환합니다."""
         self.mulligan_selected_card_ids = []
         self.mulligan_vars = {}
 
@@ -157,7 +162,7 @@ class GameGUI:
         for card in hand_cards:
             var = tk.BooleanVar()
             self.mulligan_vars[card.card_id] = var
-            card_text = f"{card.get_display_name()} (ID: {card.card_id}) (코스트: {card.current_cost})"
+            card_text = f"{card.get_display_name()} (ID: {card.card_id}) (코스트: {card.current_cost})";
             chk = ttk.Checkbutton(cards_frame, text=card_text, variable=var)
             chk.pack(anchor="w", padx=5, pady=2)
 
@@ -168,12 +173,14 @@ class GameGUI:
         return self.mulligan_selected_card_ids
 
     def _confirm_mulligan_choices(self):
+        """멀리건 선택을 확정하고 선택된 카드 ID를 저장합니다."""
         for card_id, var in self.mulligan_vars.items():
             if var.get():
                 self.mulligan_selected_card_ids.append(card_id)
         self.mulligan_window.destroy()
 
     def get_user_choice(self, prompt: str, choices: dict[str, any]) -> any:
+        """사용자에게 선택지를 제시하고 선택된 값을 반환합니다."""
         self.user_choice_var = tk.StringVar()
         self.choice_label.config(text=prompt)
 
@@ -192,4 +199,5 @@ class GameGUI:
         return self.user_choice_var.get()
 
     def _set_user_choice(self, choice):
+        """사용자 선택 변수 값을 설정하고 대기를 종료합니다."""
         self.user_choice_var.set(choice)

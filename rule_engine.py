@@ -73,7 +73,7 @@ class RuleEngine:
             return False
 
         # 활성화에 코스트가 있고 PP 부족하면 불가능
-        if activate_effect.cost is not None:
+        if 'cost' in activate_effect.attributes.keys():
             current_pp = player.current_pp
             # PP 부족
             if current_pp < activate_effect.cost:

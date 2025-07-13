@@ -1,14 +1,13 @@
-from typing import TYPE_CHECKING, List
+from typing import List
 
 import card_data
 from card import Card
-from enums import CardType, EffectType, EventType, Zone, ClassType
-from event import Event # 상대 경로 임포트
-from event_manager import EventManager # 상대 경로 임포트
-from deck import Deck # 상대 경로 임포트
-from hand import Hand # 상대 경로 임포트
-from field import Field # 상대 경로 임포트
-from graveyard import Graveyard # 상대 경로 임포트
+from enums import CardType, EffectType, Zone, ClassType
+from event_manager import EventManager
+from deck import Deck
+from hand import Hand
+from field import Field
+from graveyard import Graveyard
 from effect import Effect
 
 class Player:
@@ -17,6 +16,7 @@ class Player:
     MAX_PP = 10 # [7, 6]
 
     def __init__(self, player_id: str, event_manager: EventManager):
+        """Player 클래스의 생성자입니다."""
         self.player_id = player_id
         self.current_defense = self.STARTING_LEADER_HP
         self.max_defense = self.STARTING_LEADER_HP
@@ -119,12 +119,15 @@ class Player:
             print(f"[ERROR] 처리 불가능한 SEP 사용 요청! 남은 SEP: {self.current_sep} 요청 SEP: {amount}")
 
     def get_type(self):
+        """플레이어의 타입을 반환합니다 (리더)."""
         return CardType.LEADER
 
     def get_display_name(self):
+        """플레이어의 ID를 표시 이름으로 반환합니다."""
         return self.player_id
 
     def get_cards_in_zone(self, zone: Zone) -> List[Card]:
+        """지정된 영역에 있는 모든 카드의 리스트를 반환합니다."""
         return self.zone_dict[zone].get_cards()
 
     def has_keyword(self, effect_type:EffectType):

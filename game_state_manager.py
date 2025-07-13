@@ -1,15 +1,17 @@
-from typing import TYPE_CHECKING, List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional
 
-from enums import GamePhase, CardType, Zone, EffectType, EventType, TargetType
+from enums import GamePhase, CardType, Zone, EffectType, TargetType
 from card import Card
 from player import Player
 from effect import Effect
+from event import FollowerEnterFieldEvent
 
 
 class GameStateManager:
     """게임 보드 상태를 관리하는 객체"""
 
     def __init__(self):
+        """GameStateManager 클래스의 생성자입니다."""
         self.players: Dict[str, Player] = {}
         self.opponent_id: Dict[str, str] = {}
         self.current_turn_player_id: Optional[str] = None
@@ -20,6 +22,7 @@ class GameStateManager:
         self.game = None # Game 인스턴스를 참조하기 위한 필드 추가
 
     def create_card_instance(self, card_data, owner_id):
+        """새로운 카드 인스턴스를 생성하고 게임에 추가합니다."""
         new_card_id = str(self._next_card_instance_id)
         card = Card(card_data, owner_id, new_card_id)
         self.cards.append(card)
@@ -39,7 +42,16 @@ class GameStateManager:
     def move_card(self, card_id: str, from_zone: Zone, to_zone: Zone):
         """카드를 한 영역에서 다른 영역으로 이동"""
         card = self.get_entity_by_id(card_id, from_zone)
+        if not card:
+            print(f"[ERROR] move_card - card with id {card_id} from zone {from_zone} not found.")
+            return
+
         player = self.players[card.owner_id]
+        
+        # 필드를 벗어날 때 리스너 해제
+        if from_zone == Zone.FIELD:
+            self.game._unregister_card_listeners(card)
+
         player.zone_dict[from_zone].remove_card(card_id)
 
         if not player.zone_dict[to_zone].add_card(card):
@@ -49,8 +61,12 @@ class GameStateManager:
             elif to_zone == Zone.FIELD:
                 print(f"[LOG] {card.get_display_name()} (ID: {card_id}) 필드 소환 제한 매수 초과로 소멸.")
         else:
-            if to_zone == Zone.FIELD and card.get_type() == CardType.FOLLOWER:
-                self.game.event_manager.publish(EventType.FOLLOWER_ENTER_FIELD, {"card_id": card.card_id, "player_id": card.owner_id})
+            # 필드에 들어올 때 리스너 등록
+            if to_zone == Zone.FIELD:
+                self.game._register_card_listeners(card)
+                if card.get_type() == CardType.FOLLOWER:
+                    self.game.event_manager.publish(FollowerEnterFieldEvent(card_id=card.card_id, player_id=card.owner_id))
+            
             print(f"[LOG] 카드 {card.get_display_name()} (ID: {card_id})이(가) {from_zone.value}에서 {to_zone.value}로 이동됨.")
 
     def add_card(self, card: Card, to_zone: Zone, player_id: str):
@@ -63,8 +79,12 @@ class GameStateManager:
             elif to_zone == Zone.FIELD:
                 print(f"[LOG] {card.get_display_name()} (ID: {card.card_id}) 필드 소환 제한 매수 초과로 소멸.")
         else:
-            if to_zone == Zone.FIELD and card.get_type() == CardType.FOLLOWER:
-                self.game.event_manager.publish(EventType.FOLLOWER_ENTER_FIELD, {"card_id": card.card_id, "player_id": card.owner_id})
+            # 필드에 들어올 때 리스너 등록
+            if to_zone == Zone.FIELD:
+                self.game._register_card_listeners(card)
+                if card.get_type() == CardType.FOLLOWER:
+                    self.game.event_manager.publish(FollowerEnterFieldEvent(card_id=card.card_id, player_id=card.owner_id))
+
             print(f"[LOG] 카드 {card.get_display_name()} (ID: {card.card_id})이(가) {to_zone.value}로 추가됨.")
 
     def shuffle_deck(self, player_id: str):
@@ -73,6 +93,7 @@ class GameStateManager:
         player.deck.shuffle()
 
     def start_turn(self, player_id: str):
+        """지정된 플레이어의 턴을 시작합니다."""
         self.game_phase = GamePhase.START_PHASE
         self.turn_number += 1
         self.current_turn_player_id = player_id
@@ -317,9 +338,11 @@ class GameStateManager:
             print(f"[ERROR] super_evolve_card_with_sep - 카드 ID {card_id}를 찾을 수 없습니다.")
 
     def get_player_defense(self, player_id: str) -> int:
+        """지정된 플레이어의 현재 체력을 반환합니다."""
         return self.players[player_id].current_defense
 
     def activate_amulet(self, card_id: str, player_id: str):
+        """지정된 마법진 카드를 활성화합니다."""
         card = self.get_entity_by_id(card_id, Zone.FIELD)
         player = self.players[player_id]
         card.is_activated = True
