@@ -35,5 +35,8 @@ class EventManager:
             print(f"[LOG] {event.event_type.value} 이벤트 처리 시작. 데이터: {event}")
             # 리스너 목록을 복사하여 순회 중에 리스너가 변경되어도 안전하도록 함
             for listener in list(self.listeners[event.event_type]):
-                if listener.condition(event):
-                    listener.callback(event)
+                if listener.card_id and event.card_id != listener.card_id:
+                    continue
+                if listener.player_id and event.player_id != listener.player_id:
+                    continue
+                listener.callback(event)

@@ -9,6 +9,7 @@ from card import Card
 from game_state_manager import GameStateManager
 from player import Player
 from effect import Effect
+from event import Event, DestroyedOnFieldEvent, FollowerSuperEvolvedEvent
 
 
 class EffectProcessor:
@@ -317,7 +318,7 @@ class EffectProcessor:
             else:
                 target_id = target.card_id
                 game_state_manager.move_card(target_id, Zone.FIELD, Zone.GRAVEYARD)
-                self.event_manager.publish(EventType.DESTROYED_ON_FIELD, {"card_id": target_id})
+                self.event_manager.publish(DestroyedOnFieldEvent(target_id))
         print(f"[LOG] 처리 내용: 피해 입히기, 타겟: {target.get_display_name()}, 피해량: {value}")
 
     def _process_destroy(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
@@ -327,7 +328,7 @@ class EffectProcessor:
             print(f"[LOG] {target.get_display_name()} 초진화 효과로 파괴되지 않음.")
             return
         game_state_manager.move_card(target.card_id, Zone.FIELD, Zone.GRAVEYARD)
-        self.event_manager.publish(EventType.DESTROYED_ON_FIELD, {"card_id": target.card_id})
+        self.event_manager.publish(DestroyedOnFieldEvent(target.card_id))
         print(f"[LOG] 처리 내용: 파괴, 타겟: {target.get_display_name()}")
 
     def _process_recover_pp(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
@@ -339,7 +340,7 @@ class EffectProcessor:
     def _process_super_evolve(self, effect_data: Effect, target: Card, game_state_manager: 'GameStateManager'):
         """처리: 초진화"""
         game_state_manager.super_evolve_card(target.card_id)
-        self.event_manager.publish(EventType.FOLLOWER_SUPER_EVOLVED, {"card_id": target.card_id, "spend_sep": False})
+        self.event_manager.publish(FollowerSuperEvolvedEvent(target.card_id, spend_sep="False"))
         print(f"[LOG] 처리 내용: 초진화, 타겟: {target.get_display_name()}")
 
     def _process_replace_deck(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
@@ -389,7 +390,7 @@ class EffectProcessor:
         value = effect_data.value
         for effect in target.effects:
             if effect.type == value:
-                self.resolve_effect(effect, target.card_id, game_state_manager)
+                self.resolve_effect(effect, target.card_id, game_state_manager, None)
         print(f"[LOG] 처리 내용: 다른 효과 발동, 타겟: {target.get_display_name()}, 발동 효과: {value.value}")
 
     def resolve_effect(self, effect_data: Effect, caster_id: str,

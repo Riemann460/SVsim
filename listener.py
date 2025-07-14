@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Callable
+from typing import Callable, Optional
 from enums import EventType
 from event import Event
 
@@ -9,4 +9,6 @@ class Listener:
     id: str
     event_type: EventType
     callback: Callable[[Event], None]
-    condition: Callable[[Event], bool] = field(default=lambda event: True)
+    # condition: Callable[[Event], bool] = field(default=lambda event: True)
+    card_id: str = None
+    player_id: str = None

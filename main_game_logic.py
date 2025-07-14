@@ -25,14 +25,14 @@ from event import (
     SpellCastEvent,
     TurnStartEvent,
     TurnEndEvent,
-    DamageDealtByCombatEvent
+    DamageDealtByCombatEvent,
+    FollowerEnterFieldEvent
 )
 
 
 class Game:
     """
     게임 전체 흐름을 관리하는 객체
-
     주요 역할:
     1. 플레이어의 요청 처리
     2. 게임 보드의 이벤트에 따른 효과 처리
@@ -89,14 +89,12 @@ class Game:
 
     def _register_card_listeners(self, card: Card):
         """카드의 능력에 따라 이벤트 리스너를 동적으로 등록합니다."""
-        for event_type in card.card_data.required_listeners:
+        for event_type, effect in card.card_data.required_listeners:
             # Card-specific listeners
-            if event_type in [EventType.CARD_PLAYED, EventType.DESTROYED_ON_FIELD, EventType.ATTACK_DECLARED, EventType.COMBAT_INITIATED, EventType.FOLLOWER_EVOLVED, EventType.AMULET_ACTIVATED, EventType.FOLLOWER_ENTER_FIELD]:
-                for effect in card.effects:
-                    handler = partial(self._handle_card_effect, effect_to_resolve=effect)
-                    listener_id = f"{card.card_id}_{effect.type.name}_{id(effect)}"
-                    condition = lambda event, cid=card.card_id: hasattr(event, 'card_id') and event.card_id == cid
-                    self.event_manager.subscribe(Listener(id=listener_id, event_type=event_type, callback=handler, condition=condition))
+            if event_type in [EventType.CARD_PLAYED, EventType.DESTROYED_ON_FIELD, EventType.ATTACK_DECLARED, EventType.COMBAT_INITIATED, EventType.FOLLOWER_EVOLVED, EventType.AMULET_ACTIVATED]:
+                handler = partial(self._handle_card_effect, effect_to_resolve=effect)
+                listener_id = f"{card.card_id}_{effect.type.name}_{id(effect)}"
+                self.event_manager.subscribe(Listener(id=listener_id, event_type=event_type, callback=handler, card_id=card.card_id))
             
             # Semi-global listeners
             else:
@@ -105,6 +103,7 @@ class Game:
                     EventType.TURN_START: ('global_turn_start', self._on_turn_start),
                     EventType.TURN_END: ('global_turn_end', self._on_turn_end),
                     EventType.DAMAGE_DEALT: ('global_damage_dealt', self._on_damage_dealt),
+                    EventType.FOLLOWER_ENTER_FIELD: ('global_follower_enter', self._on_follower_enter_field)
                 }.get(event_type)
 
                 if self.listener_ref_counts[listener_id] == 0:
@@ -113,12 +112,11 @@ class Game:
 
     def _unregister_card_listeners(self, card: Card):
         """필드에서 벗어나는 카드의 모든 리스너를 해제합니다."""
-        for event_type in card.card_data.required_listeners:
+        for event_type, effect in card.card_data.required_listeners:
             # Card-specific listeners
             if event_type in [EventType.CARD_PLAYED, EventType.DESTROYED_ON_FIELD, EventType.ATTACK_DECLARED, EventType.COMBAT_INITIATED, EventType.FOLLOWER_EVOLVED, EventType.AMULET_ACTIVATED, EventType.FOLLOWER_ENTER_FIELD]:
-                for effect in card.effects:
-                    listener_id = f"{card.card_id}_{effect.type.name}_{id(effect)}"
-                    self.event_manager.unsubscribe(event_type, listener_id)
+                listener_id = f"{card.card_id}_{effect.type.name}_{id(effect)}"
+                self.event_manager.unsubscribe(event_type, listener_id)
             
             # Semi-global listeners
             else:
@@ -126,7 +124,7 @@ class Game:
                     EventType.FOLLOWER_SUPER_EVOLVED: ('global_super_evolved', self._on_follower_super_evolved),
                     EventType.TURN_START: ('global_turn_start', self._on_turn_start),
                     EventType.TURN_END: ('global_turn_end', self._on_turn_end),
-                    EventType.DAMAGE_DEALT: ('global_damage_dealt', self._on_damage_dealt),
+                    EventType.DAMAGE_DEALT: ('global_damage_dealt', self._on_damage_dealt)
                 }.get(event_type)
                 
                 self.listener_ref_counts[listener_id] -= 1
@@ -193,6 +191,15 @@ class Game:
             owner = self.game_state_manager.players[attacker.owner_id]
             owner.heal_damage(event.damage)
             print(f"[LOG] {attacker.get_display_name()} (ID: {attacker_id}) 흡혈 효과 발동. {owner.player_id} {event.damage}만큼 회복.")
+
+    def _on_follower_enter_field(self, event: FollowerEnterFieldEvent):
+        """필드 소환 효과 처리"""
+        player_id = event.player_id
+        cards_with_enter_field = self.game_state_manager.get_cards_with_keyword(player_id, Zone.FIELD, EffectType.ON_FOLLOWER_ENTER_FIELD)
+        if cards_with_enter_field:
+            print(f"[LOG] {player_id}의 필드 소환 처리. 대상 카드: {[self.game_state_manager.get_card_name(card_id) for card_id in cards_with_enter_field]}")
+        for card_id in cards_with_enter_field:
+            self.resolve_effects_type(card_id, EffectType.ON_FOLLOWER_ENTER_FIELD, target_id=event.card_id)
 
     def _initialize_decks(self, player1_id: str, player2_id: str):
         """초기 덱 설정 (40장, 3장 제한)"""
@@ -417,13 +424,14 @@ class Game:
             attacker_destroyed = True
 
         # 파괴된 추종자 묘지로 이동 및 유언 처리
-        if attacker_destroyed:
-            self.game_state_manager.move_card(attacker_id, Zone.FIELD, Zone.GRAVEYARD)
-            self.event_manager.publish(DestroyedOnFieldEvent(card_id=attacker_id))
         if target_destroyed:
-            self.game_state_manager.move_card(target_id, Zone.FIELD, Zone.GRAVEYARD)
             self.event_manager.publish(DestroyedOnFieldEvent(card_id=target_id))
-        self.process_events()
+            self.process_events()
+            self.game_state_manager.move_card(target_id, Zone.FIELD, Zone.GRAVEYARD)
+        if attacker_destroyed:
+            self.event_manager.publish(DestroyedOnFieldEvent(card_id=attacker_id))
+            self.process_events()
+            self.game_state_manager.move_card(attacker_id, Zone.FIELD, Zone.GRAVEYARD)
         self.gui.update()
         return True
 

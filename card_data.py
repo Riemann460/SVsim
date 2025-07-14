@@ -97,11 +97,12 @@ def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
     return Effect(**attrs)
 
 
-def _get_required_listeners(effects: List[Effect]) -> List[EventType]:
+def _get_required_listeners(effects: List[Effect]) -> List:
     """효과 목록을 기반으로 필요한 이벤트 리스너 목록을 결정합니다."""
     effect_to_event_map = {
         EffectType.FANFARE: EventType.CARD_PLAYED,
         EffectType.SPELL: EventType.CARD_PLAYED,
+        EffectType.ENHANCE: EventType.CARD_PLAYED,
         EffectType.LAST_WORDS: EventType.DESTROYED_ON_FIELD,
         EffectType.STRIKE: EventType.ATTACK_DECLARED,
         EffectType.CLASH: EventType.COMBAT_INITIATED,
@@ -120,10 +121,10 @@ def _get_required_listeners(effects: List[Effect]) -> List[EventType]:
     listeners = set()
     for effect in effects:
         if effect.type in effect_to_event_map:
-            listeners.add(effect_to_event_map[effect.type])
+            listeners.add((effect_to_event_map[effect.type], effect))
         # super_evolved 리스너는 진화 관련 효과가 있을 때도 등록
         if effect.type in [EffectType.ON_EVOLVE, EffectType.EVOLVED, EffectType.ON_SUPER_EVOLVE, EffectType.SUPER_EVOLVED]:
-            listeners.add(EventType.FOLLOWER_SUPER_EVOLVED)
+            listeners.add((EventType.FOLLOWER_SUPER_EVOLVED, effect))
 
     return list(listeners)
 
