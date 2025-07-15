@@ -17,6 +17,9 @@
           "process": "STAT_BUFF",
           "value": [3, 3]
         }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
       ]
     },
     "Leah, Bellringer Angel": {
@@ -32,6 +35,11 @@
         { "type": "WARD" },
         { "type": "LAST_WORDS", "target": "OWN_LEADER", "process": "DRAW", "value": 1 },
         { "type": "ON_EVOLVE", "target": "OWN_LEADER", "process": "DRAW", "value": 1 }
+      ],
+      "required_listeners": [
+        "DESTROYED_ON_FIELD",
+        "FOLLOWER_EVOLVED",
+        "FOLLOWER_SUPER_EVOLVED"
       ]
     },
     "Quake Goliath": {
@@ -45,7 +53,8 @@
       "tribes": [],
       "effects": [
         { "type": "WARD" }
-      ]
+      ],
+      "required_listeners": []
     },
     "Detective's Lens": {
       "card_id": "Detective's Lens",
@@ -59,6 +68,9 @@
       "effects": [
         { "type": "ACTIVATE", "target": "SELF", "process": "DESTROY" },
         { "type": "ACTIVATE", "target": "OPPONENT_FOLLOWER_CHOICE", "process": "REMOVE_KEYWORD", "value": "WARD" }
+      ],
+      "required_listeners": [
+        "AMULET_ACTIVATED"
       ]
     },
     "Arriet, Luxminstrel": {
@@ -73,6 +85,10 @@
       "effects": [
         { "type": "ON_EVOLVE", "target": "OWN_LEADER", "process": "HEAL", "value": 2 },
         { "type": "ON_SUPER_EVOLVE", "target": "OWN_LEADER", "process": "HEAL", "value": 4 }
+      ],
+      "required_listeners": [
+        "FOLLOWER_EVOLVED",
+        "FOLLOWER_SUPER_EVOLVED"
       ]
     },
     "Caravan Mammoth": {
@@ -84,7 +100,8 @@
       "attack": 10,
       "defense": 10,
       "tribes": [],
-      "effects": []
+      "effects": [],
+      "required_listeners": []
     },
     "Adventurers' Guild": {
       "card_id": "Adventurers' Guild",
@@ -99,6 +116,10 @@
         { "type": "FANFARE", "target": "OWN_LEADER", "process": "DRAW", "value": 1, "condition": "CARD_TYPE_FOLLOWER" },
         { "type": "ACTIVATE", "target": "SELF", "process": "DESTROY" },
         { "type": "ACTIVATE", "target": "ALLY_FOLLOWER_CHOICE", "process": "ADD_EFFECT", "value": { "type": "RUSH" } }
+      ],
+      "required_listeners": [
+        "AMULET_ACTIVATED",
+        "CARD_PLAYED"
       ]
     },
     "Goblin": {
@@ -110,7 +131,8 @@
       "attack": 1,
       "defense": 2,
       "tribes": [],
-      "effects": []
+      "effects": [],
+      "required_listeners": []
     },
     "Silent Rider": {
       "card_id": "Silent Rider",
@@ -123,7 +145,8 @@
       "tribes": [],
       "effects": [
         { "type": "STORM" }
-      ]
+      ],
+      "required_listeners": []
     },
     "Servant of Cocytus": {
       "card_id": "Servant of Cocytus",
@@ -134,7 +157,8 @@
       "attack": 13,
       "defense": 13,
       "tribes": [],
-      "effects": []
+      "effects": [],
+      "required_listeners": []
     },
     "Demon of Purgatory": {
       "card_id": "Demon of Purgatory",
@@ -148,6 +172,9 @@
       "effects": [
         { "type": "FANFARE", "target": "OPPONENT_FOLLOWER_CHOICE2", "process": "DEAL_DAMAGE", "value": 6 },
         { "type": "FANFARE", "target": "OPPONENT_LEADER", "process": "DEAL_DAMAGE", "value": 6 }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
       ]
     },
     "Astaroth's Reckoning": {
@@ -161,6 +188,9 @@
       "tribes": [],
       "effects": [
         { "type": "SPELL", "target": "OPPONENT_LEADER", "process": "SET_MAX_HEALTH", "value": 1 }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
       ]
     }
   },
@@ -177,6 +207,9 @@
       "effects": [
         { "type": "FANFARE", "target": "OWN_HAND_CHOICE", "process": "RETURN_TO_DECK" },
         { "type": "FANFARE", "target": "OWN_LEADER", "process": "DRAW", "value": 1 }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
       ]
     },
     "Vigilant Detective": {
@@ -190,6 +223,9 @@
       "tribes": [],
       "effects": [
         { "type": "LAST_WORDS", "target": "OWN_LEADER", "process": "ADD_CARD_TO_HAND", "value": "Detective's Lens" }
+      ],
+      "required_listeners": [
+        "DESTROYED_ON_FIELD"
       ]
     },
     "Goblin Foray": {
@@ -207,6 +243,9 @@
         { "type": "SPELL", "target": "OWN_LEADER", "process": "SUMMON", "value": "Goblin" },
         { "type": "SPELL", "target": "OWN_LEADER", "process": "SUMMON", "value": "Goblin" },
         { "type": "SPELL", "target": "OWN_LEADER", "process": "SUMMON", "value": "Goblin" }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
       ]
     },
     "Apollo, Heaven's Envoy": {
@@ -221,6 +260,11 @@
       "effects": [
         { "type": "FANFARE", "target": "ALL_OPPONENT_FOLLOWERS", "process": "DEAL_DAMAGE", "value": 1 },
         { "type": "ON_EVOLVE", "target": "SELF", "process": "TRIGGER_EFFECT", "value": "FANFARE" }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED",
+        "FOLLOWER_EVOLVED",
+        "FOLLOWER_SUPER_EVOLVED"
       ]
     },
     "Seraphic Tidings": {
@@ -234,6 +278,9 @@
       "tribes": [],
       "effects": [
         { "type": "SPELL", "target": "OWN_LEADER", "process": "DRAW", "value": 2 }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
       ]
     },
     "Phildau, Lionheart Ward": {
@@ -247,6 +294,10 @@
       "tribes": [],
       "effects": [
         { "type": "ON_EVOLVE", "target": "OPPONENT_FOLLOWER_CHOICE", "process": "DESTROY" }
+      ],
+      "required_listeners": [
+        "FOLLOWER_EVOLVED",
+        "FOLLOWER_SUPER_EVOLVED"
       ]
     },
     "Divine Thunder": {
@@ -261,6 +312,9 @@
       "effects": [
         { "type": "SPELL", "target": "OPPONENT_FOLLOWER_MAX_ATTACK_RANDOM", "process": "DESTROY" },
         { "type": "SPELL", "target": "ALL_OPPONENT_FOLLOWERS", "process": "DEAL_DAMAGE", "value": 1 }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
       ]
     },
     "Olivia, Heroic Dark Angel": {
@@ -277,6 +331,10 @@
         { "type": "FANFARE", "target": "OWN_LEADER", "process": "HEAL", "value": 2 },
         { "type": "FANFARE", "target": "OWN_LEADER", "process": "RECOVER_PP", "value": 2 },
         { "type": "ON_SUPER_EVOLVE", "target": "ALLY_FOLLOWER_CHOICE_UNEVOLVED", "process": "SUPER_EVOLVE" }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED",
+        "FOLLOWER_SUPER_EVOLVED"
       ]
     },
     "Ruler of Cocytus": {
@@ -306,6 +364,9 @@
             "Astaroth's Reckoning"
           ]
         }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
       ]
     }
   }

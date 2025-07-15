@@ -3,7 +3,7 @@ from typing import List, Any, Dict
 from enums import CardType, EffectType, TargetType, ProcessType, ClassType, TribeType, EventType
 from effect import Effect
 
-# 전역 변수로 선언하여 다른 함수에서 접근 가능하도록 함
+# 전역 변수
 BASIC_CARD_DATABASE: Dict[str, 'CardData'] = {}
 LEGENDS_RISE_CARD_DATABASE: Dict[str, 'CardData'] = {}
 TOKEN_CARD_DATABASE: Dict[str, 'CardData'] = {}
@@ -97,8 +97,18 @@ def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
     return Effect(**attrs)
 
 
-def _get_required_listeners(effects: List[Effect]) -> List:
-    """효과 목록을 기반으로 필요한 이벤트 리스너 목록을 결정합니다."""
+def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
+    """딕셔너리에서 CardData 객체를 로드합니다."""
+    effects = []
+    for e_dict in card_dict.get("effects", []):
+        if "raw_effect_text" in e_dict:
+            # Raw text effects are stored as dictionaries with 'raw_effect_text' key
+            effects.append(e_dict) # Keep as dict for now
+        else:
+            effects.append(_load_effect_from_dict(e_dict))
+
+    required_listeners_from_json = card_dict.get("required_listeners", [])
+    
     effect_to_event_map = {
         EffectType.FANFARE: EventType.CARD_PLAYED,
         EffectType.SPELL: EventType.CARD_PLAYED,
@@ -120,24 +130,15 @@ def _get_required_listeners(effects: List[Effect]) -> List:
     
     listeners = set()
     for effect in effects:
-        if effect.type in effect_to_event_map:
-            listeners.add((effect_to_event_map[effect.type], effect))
-        # super_evolved 리스너는 진화 관련 효과가 있을 때도 등록
-        if effect.type in [EffectType.ON_EVOLVE, EffectType.EVOLVED, EffectType.ON_SUPER_EVOLVE, EffectType.SUPER_EVOLVED]:
-            listeners.add((EventType.FOLLOWER_SUPER_EVOLVED, effect))
-
-    return list(listeners)
-
-
-def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
-    """딕셔너리에서 CardData 객체를 로드합니다."""
-    effects = []
-    for e_dict in card_dict.get("effects", []):
-        if "raw_effect_text" in e_dict:
-            # Raw text effects are stored as dictionaries with 'raw_effect_text' key
-            effects.append(e_dict) # Keep as dict for now
-        else:
-            effects.append(_load_effect_from_dict(e_dict))
+        if isinstance(effect, Effect):
+            if effect.type in effect_to_event_map:
+                event_type = effect_to_event_map[effect.type]
+                if event_type.name in required_listeners_from_json:
+                    listeners.add((event_type, effect))
+            
+            if effect.type in [EffectType.ON_EVOLVE, EffectType.EVOLVED, EffectType.ON_SUPER_EVOLVE, EffectType.SUPER_EVOLVED]:
+                if EventType.FOLLOWER_SUPER_EVOLVED.name in required_listeners_from_json:
+                    listeners.add((EventType.FOLLOWER_SUPER_EVOLVED, effect))
 
     card_data_obj = CardData(
         card_id=card_dict["card_id"],
@@ -148,11 +149,9 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
         attack=card_dict.get("attack", 0),
         defense=card_dict.get("defense", 0),
         tribes=[TribeType[t] for t in card_dict.get("tribes", [])],
-        effects=effects
+        effects=effects,
+        required_listeners=list(listeners)
     )
-    
-    # 효과에 기반하여 필요한 리스너 목록을 생성
-    card_data_obj.required_listeners = _get_required_listeners(card_data_obj.effects)
     
     return card_data_obj
 
@@ -212,4 +211,4 @@ def load_card_databases(json_path: str = 'card_database_parsed.json'):
     resolve_card_references(TOKEN_CARD_DATABASE, all_cards)
 
 
-load_card_databases()
+# load_card_databases()
