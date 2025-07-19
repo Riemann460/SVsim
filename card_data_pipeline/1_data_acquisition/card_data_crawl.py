@@ -56,7 +56,7 @@ def parse_card_from_html(html: str):
 
 def generate_card_prefixes():
     """ID의 앞 6자리(카드 카테고리) 조합을 생성합니다."""
-    expansions = ['100', '101', '900']
+    expansions = ['102']
     classes = ['0', '1', '2', '3', '4', '5', '6', '7']
     rarities = ['1', '2', '3', '4']
     card_types = ['1', '2', '3']
@@ -108,9 +108,7 @@ def main():
                 card_found = False
                 try:
                     driver.get(url)
-                    # WebDriverWait은 그대로 유지하는 것이 좋습니다.
-                    # 페이지가 eager로 로드된 후, 원하는 컨테이너가 JS로 렌더링될 때까지 기다려줍니다.
-                    wait = WebDriverWait(driver, 3)
+                    wait = WebDriverWait(driver, 5)
                     wait.until(
                         EC.presence_of_element_located((By.ID, "rootOfProContentshadowverse"))
                     )
@@ -139,15 +137,15 @@ def main():
                 time.sleep(0.5)
 
             # 중간 저장 로직 (선택적)
-            if i > 0 and i % 50 == 0:
+            if i > 0 and i % 10 == 0:
                 print(f"\n--- Saving progress ({len(card_database)} cards collected) ---")
-                with open("card_database_generated_temp.json", "w", encoding="utf-8") as f:
+                with open("102_card_database_generated_temp.json", "w", encoding="utf-8") as f:
                     json.dump(card_database, f, ensure_ascii=False, indent=4)
 
     finally:
         driver.quit()
 
-    with open("card_database_raw.json", "w", encoding="utf-8") as f: # 인코딩 명시
+    with open("102_card_database_raw.json", "w", encoding="utf-8") as f: # 인코딩 명시
         json.dump(card_database, f, ensure_ascii=False, indent=4)
 
     print("\nScraping complete!")
