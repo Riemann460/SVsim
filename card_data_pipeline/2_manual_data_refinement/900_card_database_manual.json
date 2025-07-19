@@ -1,0 +1,1186 @@
+{
+    "Goblin": {
+        "card_id": "Goblin",
+        "name": "Goblin",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 1,
+        "defense": 2,
+        "tribes": [],
+        "effects": [],
+        "raw_effects_text": "",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Silent Rider": {
+        "card_id": "Silent Rider",
+        "name": "Silent Rider",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 10,
+        "defense": 10,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "STORM"
+            }
+        ],
+        "raw_effects_text": "Storm",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Servant of Cocytus": {
+        "card_id": "Servant of Cocytus",
+        "name": "Servant of Cocytus",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 13,
+        "defense": 13,
+        "tribes": [],
+        "effects": [],
+        "raw_effects_text": "",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Demon of Purgatory": {
+        "card_id": "Demon of Purgatory",
+        "name": "Demon of Purgatory",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 9,
+        "defense": 6,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "target": "OPPONENT_FOLLOWER_CHOICE2",
+                "process": "DEAL_DAMAGE",
+                "value": 6
+            },
+            {
+                "type": "FANFARE",
+                "target": "OPPONENT_LEADER",
+                "process": "DEAL_DAMAGE",
+                "value": 6
+            }
+        ],
+        "raw_effects_text": "Fanfare: Select 2 enemy followers on the field and deal 6 damage to them and the enemy leader.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Astaroth's Reckoning": {
+        "card_id": "Astaroth's Reckoning",
+        "name": "Astaroth's Reckoning",
+        "cost": 10,
+        "card_type": "SPELL",
+        "class_type": "NEUTRAL",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "raw_effect_text": "Set the enemy leader's max defense to 1.",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Set the enemy leader's max defense to 1.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Fairy": {
+        "card_id": "Fairy",
+        "name": "Fairy",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "RUSH"
+            }
+        ],
+        "raw_effects_text": "Rush",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Deepwood Bounty": {
+        "card_id": "Deepwood Bounty",
+        "name": "Deepwood Bounty",
+        "cost": 0,
+        "card_type": "SPELL",
+        "class_type": "FORESTCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "raw_effect_text": "Restore 1 defense to your leader.",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Restore 1 defense to your leader.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Bramble Burst": {
+        "card_id": "Bramble Burst",
+        "name": "Bramble Burst",
+        "cost": 1,
+        "card_type": "SPELL",
+        "class_type": "FORESTCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "raw_effect_text": "Select an enemy follower on the field or the enemy leader and deal it 3 damage.",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Select an enemy follower on the field or the enemy leader and deal it 3 damage.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Knight": {
+        "card_id": "Knight",
+        "name": "Knight",
+        "cost": 0,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [
+            "OFFICER"
+        ],
+        "effects": [],
+        "raw_effects_text": "",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Steelclad Knight": {
+        "card_id": "Steelclad Knight",
+        "name": "Steelclad Knight",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [
+            "OFFICER"
+        ],
+        "effects": [],
+        "raw_effects_text": "",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Nonja, Silent Maid": {
+        "card_id": "Nonja, Silent Maid",
+        "name": "Nonja, Silent Maid",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [
+            "OFFICER"
+        ],
+        "effects": [],
+        "raw_effects_text": "",
+        "required_listeners": []
+    },
+    "Clay Golem": {
+        "card_id": "Clay Golem",
+        "name": "Clay Golem",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [
+            "GOLEM"
+        ],
+        "effects": [],
+        "raw_effects_text": "",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Guardian Golem": {
+        "card_id": "Guardian Golem",
+        "name": "Guardian Golem",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [
+            "GOLEM"
+        ],
+        "effects": [
+            {
+                "type": "WARD"
+            }
+        ],
+        "raw_effects_text": "Ward",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Paper Shikigami": {
+        "card_id": "Paper Shikigami",
+        "name": "Paper Shikigami",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 2,
+        "defense": 1,
+        "tribes": [
+            "SHIKIGAMI"
+        ],
+        "effects": [
+            {
+                "type": "RUSH"
+            },
+            {
+                "type": "LAST_WORDS",
+                "raw_action_text": "Spellboost your hand."
+            }
+        ],
+        "raw_effects_text": "Rush\nLast Words: Spellboost your hand.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD"
+        ]
+    },
+    "Demonic Shikigami": {
+        "card_id": "Demonic Shikigami",
+        "name": "Demonic Shikigami",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [
+            "SHIKIGAMI"
+        ],
+        "effects": [
+            {
+                "type": "RUSH"
+            },
+            {
+                "type": "LAST_WORDS",
+                "raw_action_text": "Spellboost your hand."
+            }
+        ],
+        "raw_effects_text": "Rush\nLast Words: Spellboost your hand.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD"
+        ]
+    },
+    "Magic Sediment": {
+        "card_id": "Magic Sediment",
+        "name": "Magic Sediment",
+        "cost": 1,
+        "card_type": "AMULET",
+        "class_type": "RUNECRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [
+            "EARTH_SIGIL"
+        ],
+        "effects": [
+            {
+                "raw_effect_text": "Earth Sigil"
+            },
+            {
+                "type": "ACTIVATE",
+                "raw_action_text": "Gain an earth sigil.",
+                "cost": 1
+            }
+        ],
+        "raw_effects_text": "Earth Sigil\nEngage (1): Gain an earth sigil.",
+        "required_listeners": [
+            "AMULET_ACTIVATED"
+        ]
+    },
+    "Onion Patch": {
+        "card_id": "Onion Patch",
+        "name": "Onion Patch",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "RUSH"
+            },
+            {
+                "raw_effect_text": "Strike: Spellboost your hand."
+            }
+        ],
+        "raw_effects_text": "Rush\nStrike: Spellboost your hand.",
+        "required_listeners": []
+    },
+    "Looking Smart!": {
+        "card_id": "Looking Smart!",
+        "name": "Looking Smart!",
+        "cost": 1,
+        "card_type": "SPELL",
+        "class_type": "RUNECRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [
+            "MYSTERIA"
+        ],
+        "effects": [
+            {
+                "raw_effect_text": "Draw 2 cards. Deal 2 damage to a random enemy follower.",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Draw 2 cards. Deal 2 damage to a random enemy follower.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Celestial Shikigami": {
+        "card_id": "Celestial Shikigami",
+        "name": "Celestial Shikigami",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 4,
+        "defense": 5,
+        "tribes": [
+            "SHIKIGAMI"
+        ],
+        "effects": [
+            {
+                "type": "WARD"
+            },
+            {
+                "type": "LAST_WORDS",
+                "raw_action_text": "Spellboost your hand 3 times."
+            }
+        ],
+        "raw_effects_text": "Ward\nLast Words: Spellboost your hand 3 times.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD"
+        ]
+    },
+    "Noble Shikigami": {
+        "card_id": "Noble Shikigami",
+        "name": "Noble Shikigami",
+        "cost": 10,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [
+            "SHIKIGAMI"
+        ],
+        "effects": [
+            {
+                "raw_effect_text": "When this follower enters the field, give it +X/+Y. X/Y is the total base attack/defense of allied Shikigami followers destroyed this turn."
+            },
+            {
+                "type": "WARD"
+            },
+            {
+                "type": "AURA"
+            }
+        ],
+        "raw_effects_text": "When this follower enters the field, give it +X/+Y. X/Y is the total base attack/defense of allied Shikigami followers destroyed this turn.\nWard\nAura",
+        "required_listeners": []
+    },
+    "Anne's Summoning": {
+        "card_id": "Anne's Summoning",
+        "name": "Anne's Summoning",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 5,
+        "defense": 5,
+        "tribes": [
+            "MYSTERIA"
+        ],
+        "effects": [
+            {
+                "type": "RUSH"
+            },
+            {
+                "type": "WARD"
+            },
+            {
+                "type": "ON_OPPONENTS_TURN_END",
+                "target": "SELF",
+                "process": "DESTROY"
+            }
+        ],
+        "raw_effects_text": "Rush\nWard\nAt the end of your opponent's turn, destroy this card.",
+        "required_listeners": [
+            "TURN_END"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Fire Drake Whelp": {
+        "card_id": "Fire Drake Whelp",
+        "name": "Fire Drake Whelp",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "INTIMIDATE"
+            }
+        ],
+        "raw_effects_text": "Intimidate",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Vastwing Dragon": {
+        "card_id": "Vastwing Dragon",
+        "name": "Vastwing Dragon",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 5,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "INTIMIDATE"
+            }
+        ],
+        "raw_effects_text": "Intimidate",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Majestic Megalorca": {
+        "card_id": "Majestic Megalorca",
+        "name": "Majestic Megalorca",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [
+            "MARINE"
+        ],
+        "effects": [
+            {
+                "type": "RUSH"
+            }
+        ],
+        "raw_effects_text": "Rush",
+        "required_listeners": []
+    },
+    "Otohime's Bodyguard": {
+        "card_id": "Otohime's Bodyguard",
+        "name": "Otohime's Bodyguard",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [
+            "MARINE"
+        ],
+        "effects": [
+            {
+                "type": "STORM"
+            },
+            {
+                "type": "WARD"
+            }
+        ],
+        "raw_effects_text": "Storm\nWard",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Supreme Golden Dragon": {
+        "card_id": "Supreme Golden Dragon",
+        "name": "Supreme Golden Dragon",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 4,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "WARD"
+            }
+        ],
+        "raw_effects_text": "Ward",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Supreme Silver Dragon": {
+        "card_id": "Supreme Silver Dragon",
+        "name": "Supreme Silver Dragon",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 5,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "RUSH"
+            }
+        ],
+        "raw_effects_text": "Rush",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Whitefrost Whisper": {
+        "card_id": "Whitefrost Whisper",
+        "name": "Whitefrost Whisper",
+        "cost": 3,
+        "card_type": "SPELL",
+        "class_type": "DRAGONCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "raw_effect_text": "Select a Mode to activate.",
+                "type": "SPELL"
+            },
+            {
+                "raw_effect_text": "1. Destroy all damaged enemy followers.",
+                "type": "SPELL"
+            },
+            {
+                "raw_effect_text": "2. Increase the cost of all cards in your opponent's hand by 1 until the end of their turn.",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Select a Mode to activate.\n1. Destroy all damaged enemy followers.\n2. Increase the cost of all cards in your opponent's hand by 1 until the end of their turn.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Skeleton": {
+        "card_id": "Skeleton",
+        "name": "Skeleton",
+        "cost": 0,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [
+            "DEPARTED"
+        ],
+        "effects": [],
+        "raw_effects_text": "",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Bat": {
+        "card_id": "Bat",
+        "name": "Bat",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "DRAIN"
+            }
+        ],
+        "raw_effects_text": "Drain",
+        "required_listeners": [
+            "DAMAGE_DEALT"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Ghost": {
+        "card_id": "Ghost",
+        "name": "Ghost",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [
+            "DEPARTED"
+        ],
+        "effects": [
+            {
+                "type": "STORM"
+            },
+            {
+                "raw_effect_text": "When this card leaves the field, banish it."
+            },
+            {
+                "type": "ON_MY_TURN_END",
+                "raw_action_text": "banish this card."
+            }
+        ],
+        "raw_effects_text": "Storm\nWhen this card leaves the field, banish it.\nAt the end of your turn, banish this card.",
+        "required_listeners": [
+            "TURN_END"
+        ]
+    },
+    "Rotting Zombie": {
+        "card_id": "Rotting Zombie",
+        "name": "Rotting Zombie",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [
+            "DEPARTED"
+        ],
+        "effects": [
+            {
+                "type": "LAST_WORDS",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Rotting Zombie",
+                    "remove Last Words from it"
+                ]
+            }
+        ],
+        "raw_effects_text": "Last Words: Summon a Rotting Zombie and remove Last Words from it.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD"
+        ]
+    },
+    "Mimi, Right Paw Hellhound": {
+        "card_id": "Mimi, Right Paw Hellhound",
+        "name": "Mimi, Right Paw Hellhound",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 2,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "RUSH"
+            },
+            {
+                "type": "LAST_WORDS",
+                "target": "OPPONENT_LEADER",
+                "proeccs": "DEAL_DAMAGE",
+                "value": 2
+            }
+        ],
+        "raw_effects_text": "Rush\nLast Words: Deal 2 damage to the enemy leader.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Coco, Left Paw Hellhound": {
+        "card_id": "Coco, Left Paw Hellhound",
+        "name": "Coco, Left Paw Hellhound",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 1,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "RUSH"
+            },
+            {
+                "type": "LAST_WORDS",
+                "target": "OWN_LEADER",
+                "proeccs": "HEAL",
+                "value": 2
+            }
+        ],
+        "raw_effects_text": "Rush\nLast Words: Restore 2 defense to your leader.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "One-Tailed Fox": {
+        "card_id": "One-Tailed Fox",
+        "name": "One-Tailed Fox",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 2,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "RUSH"
+            },
+            {
+                "type": "WARD"
+            },
+            {
+                "type": "LAST_WORDS",
+                "raw_target_text": "a random allied Ginsetsu & Yuzuki, Twin Calamities on the field",
+                "process": "STAT_BUFF",
+                "value": [
+                    1,
+                    0
+                ]
+            }
+        ],
+        "raw_effects_text": "Rush\nWard\nLast Words: Give a random allied Ginsetsu & Yuzuki, Twin Calamities on the field +1/+0.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD"
+        ]
+    },
+    "Holy Falcon": {
+        "card_id": "Holy Falcon",
+        "name": "Holy Falcon",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "STORM"
+            }
+        ],
+        "raw_effects_text": "Storm",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Holyflame Tiger": {
+        "card_id": "Holyflame Tiger",
+        "name": "Holyflame Tiger",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 4,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "RUSH"
+            }
+        ],
+        "raw_effects_text": "Rush",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Regal Falcon": {
+        "card_id": "Regal Falcon",
+        "name": "Regal Falcon",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 4,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "STORM"
+            }
+        ],
+        "raw_effects_text": "Storm",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Holy Cavalier": {
+        "card_id": "Holy Cavalier",
+        "name": "Holy Cavalier",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 1,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "WARD"
+            }
+        ],
+        "raw_effects_text": "Ward",
+        "required_listeners": []
+    },
+    "Puppet": {
+        "card_id": "Puppet",
+        "name": "Puppet",
+        "cost": 0,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [
+            "PUPPETRY"
+        ],
+        "effects": [
+            {
+                "type": "RUSH"
+            },
+            {
+                "type": "ON_OPPONENTS_TURN_END",
+                "target": "SELF",
+                "process": "DESTROY"
+            }
+        ],
+        "raw_effects_text": "Rush\nAt the end of your opponent's turn, destroy this card.",
+        "required_listeners": [
+            "TURN_END"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Enhanced Puppet": {
+        "card_id": "Enhanced Puppet",
+        "name": "Enhanced Puppet",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [
+            "PUPPETRY"
+        ],
+        "effects": [
+            {
+                "type": "RUSH"
+            },
+            {
+                "type": "ON_OPPONENTS_TURN_END",
+                "target": "SELF",
+                "process": "DESTROY"
+            }
+        ],
+        "raw_effects_text": "Rush\nAt the end of your opponent's turn, destroy this card.",
+        "required_listeners": [
+            "TURN_END"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Gear of Ambition": {
+        "card_id": "Gear of Ambition",
+        "name": "Gear of Ambition",
+        "cost": 1,
+        "card_type": "AMULET",
+        "class_type": "PORTALCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [
+            "ARTIFACT"
+        ],
+        "effects": [
+            {
+                "raw_effect_text": "Fuse: Artifact amulets"
+            },
+            {
+                "raw_effect_text": "When you Fuse to this card, transform it into a Striker Artifact."
+            },
+            {
+                "raw_effect_text": "Can't be played."
+            }
+        ],
+        "raw_effects_text": "Fuse: Artifact amulets\nWhen you Fuse to this card, transform it into a Striker Artifact.\nCan't be played.",
+        "required_listeners": []
+    },
+    "Gear of Remembrance": {
+        "card_id": "Gear of Remembrance",
+        "name": "Gear of Remembrance",
+        "cost": 1,
+        "card_type": "AMULET",
+        "class_type": "PORTALCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [
+            "ARTIFACT"
+        ],
+        "effects": [
+            {
+                "raw_effect_text": "Fuse: Artifact amulets"
+            },
+            {
+                "raw_effect_text": "When you Fuse to this card, transform it into a Fortifier Artifact."
+            },
+            {
+                "raw_effect_text": "Can't be played."
+            }
+        ],
+        "raw_effects_text": "Fuse: Artifact amulets\nWhen you Fuse to this card, transform it into a Fortifier Artifact.\nCan't be played.",
+        "required_listeners": []
+    },
+    "Striker Artifact": {
+        "card_id": "Striker Artifact",
+        "name": "Striker Artifact",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 5,
+        "defense": 1,
+        "tribes": [
+            "ARTIFACT"
+        ],
+        "effects": [
+            {
+                "raw_effect_text": "Fuse: Artifact cards"
+            },
+            {
+                "raw_effect_text": "When you Fuse to this card, transform it based on the total cost of the cards fused."
+            },
+            {
+                "raw_effect_text": "1: Ominous Artifact α"
+            },
+            {
+                "raw_effect_text": "2: Ominous Artifact β"
+            },
+            {
+                "raw_effect_text": "3 or more: Ominous Artifact γ"
+            },
+            {
+                "type": "RUSH"
+            }
+        ],
+        "raw_effects_text": "Fuse: Artifact cards\nWhen you Fuse to this card, transform it based on the total cost of the cards fused.\n1: Ominous Artifact α\n2: Ominous Artifact β\n3 or more: Ominous Artifact γ\nRush",
+        "required_listeners": []
+    },
+    "Fortifier Artifact": {
+        "card_id": "Fortifier Artifact",
+        "name": "Fortifier Artifact",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 1,
+        "defense": 5,
+        "tribes": [
+            "ARTIFACT"
+        ],
+        "effects": [
+            {
+                "raw_effect_text": "Fuse: Artifact cards"
+            },
+            {
+                "raw_effect_text": "When you Fuse to this card, transform it based on the total cost of the cards fused."
+            },
+            {
+                "raw_effect_text": "1: Ominous Artifact α"
+            },
+            {
+                "raw_effect_text": "2: Ominous Artifact β"
+            },
+            {
+                "raw_effect_text": "3 or more: Ominous Artifact γ"
+            },
+            {
+                "type": "WARD"
+            }
+        ],
+        "raw_effects_text": "Fuse: Artifact cards\nWhen you Fuse to this card, transform it based on the total cost of the cards fused.\n1: Ominous Artifact α\n2: Ominous Artifact β\n3 or more: Ominous Artifact γ\nWard",
+        "required_listeners": []
+    },
+    "Doll Slayer": {
+        "card_id": "Doll Slayer",
+        "name": "Doll Slayer",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [
+            "PUPPETRY"
+        ],
+        "effects": [
+            {
+                "type": "AMBUSH"
+            },
+            {
+                "type": "LAST_WORDS",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Vier",
+                    "Heart Slayer"
+                ]
+            }
+        ],
+        "raw_effects_text": "Ambush\nLast Words: Summon a Vier, Heart Slayer.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD"
+        ]
+    },
+    "Ominous Artifact α": {
+        "card_id": "Ominous Artifact α",
+        "name": "Ominous Artifact α",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 3,
+        "defense": 5,
+        "tribes": [
+            "ARTIFACT"
+        ],
+        "effects": [
+            {
+                "raw_effect_text": "Fuse: Ominous Artifact β and Ominous Artifact γ"
+            },
+            {
+                "raw_effect_text": "When you've Fused both to this card, transform it into a Masterwork Artifact Ω."
+            },
+            {
+                "type": "ON_MY_TURN_END",
+                "raw_action_text": "restore 3 defense to your leader."
+            }
+        ],
+        "raw_effects_text": "Fuse: Ominous Artifact β and Ominous Artifact γ\nWhen you've Fused both to this card, transform it into a Masterwork Artifact Ω.\nAt the end of your turn, restore 3 defense to your leader.",
+        "required_listeners": [
+            "TURN_END"
+        ]
+    },
+    "Ominous Artifact β": {
+        "card_id": "Ominous Artifact β",
+        "name": "Ominous Artifact β",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 4,
+        "defense": 4,
+        "tribes": [
+            "ARTIFACT"
+        ],
+        "effects": [
+            {
+                "type": "ON_MY_TURN_END",
+                "target": "OPPONENT_LEADER",
+                "process": "DEAL_DAMAGE",
+                "value": 3
+            }
+        ],
+        "raw_effects_text": "At the end of your turn, deal 3 damage to the enemy leader.",
+        "required_listeners": [
+            "TURN_END"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Ominous Artifact γ": {
+        "card_id": "Ominous Artifact γ",
+        "name": "Ominous Artifact γ",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 5,
+        "defense": 3,
+        "tribes": [
+            "ARTIFACT"
+        ],
+        "effects": [
+            {
+                "type": "ON_MY_TURN_END",
+                "target": "ALL_OPPONENT_FOLLOWER",
+                "process": "DEAL_DAMAGE",
+                "value": 3
+            }
+        ],
+        "raw_effects_text": "At the end of your turn, deal 3 damage to all enemy followers.",
+        "required_listeners": [
+            "TURN_END"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Masterwork Artifact Ω": {
+        "card_id": "Masterwork Artifact Ω",
+        "name": "Masterwork Artifact Ω",
+        "cost": 10,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 10,
+        "defense": 10,
+        "tribes": [
+            "ARTIFACT"
+        ],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "target": "ALL_OPPONENT_FOLLOWER",
+                "process": "DEAL_DAMAGE",
+                "value": 5
+            },
+            {
+                "type": "FANFARE",
+                "target": "OWN_LEADER",
+                "process": "HEAL",
+                "value": 5
+            },
+            {
+                "type": "STORM"
+            },
+            {
+                "type": "WARD"
+            },
+            {
+                "type": "AURA"
+            }
+        ],
+        "raw_effects_text": "Fanfare: Deal 5 damage to all enemy followers. Restore 5 defense to your leader.\nStorm\nWard\nAura",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Lloyd": {
+        "card_id": "Lloyd",
+        "name": "Lloyd",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 1,
+        "defense": 6,
+        "tribes": [
+            "PUPPETRY"
+        ],
+        "effects": [
+            {
+                "type": "WARD"
+            },
+            {
+                "raw_effect_text": "Your opponent can't select any cards other than this one for abilities."
+            }
+        ],
+        "raw_effects_text": "Ward\nYour opponent can't select any cards other than this one for abilities.",
+        "required_listeners": []
+    },
+    "Victoria": {
+        "card_id": "Victoria",
+        "name": "Victoria",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 6,
+        "defense": 1,
+        "tribes": [
+            "PUPPETRY"
+        ],
+        "effects": [
+            {
+                "type": "RUSH"
+            },
+            {
+                "raw_effect_text": "Follower Strike: Deal X damage to the opposing follower. X is this follower's attack."
+            }
+        ],
+        "raw_effects_text": "Rush\nFollower Strike: Deal X damage to the opposing follower. X is this follower's attack.",
+        "required_listeners": []
+    }
+}
