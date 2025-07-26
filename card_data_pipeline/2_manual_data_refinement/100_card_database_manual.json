@@ -424,15 +424,26 @@
         "defense": 0,
         "tribes": [],
         "effects": [
-            {
-                "raw_effect_text": "Select a card in your hand and return it to deck. Draw 2 Swordcraft followers.",
-                "type": "SPELL"
-            }
+            [
+                {
+                    "type": "FANFARE",
+                    "target": "OWN_HAND_CHOICE",
+                    "process": "RETURN_TO_DECK"
+                },
+                {
+                    "type": "FANFARE",
+                    "target": "OWN_LEADER",
+                    "process": "DRAW",
+                    "value": 2,
+                    "condition": "CLASS_TYPE_SWORDCRAFT"
+                }
+            ]
         ],
         "raw_effects_text": "Select a card in your hand and return it to deck. Draw 2 Swordcraft followers.",
         "required_listeners": [
             "CARD_PLAYED"
-        ]
+        ],
+        "_manual_review_status": "Completed"
     },
     "Royal Coachwoman": {
         "card_id": "Royal Coachwoman",
@@ -468,7 +479,11 @@
         "tribes": [],
         "effects": [
             {
-                "raw_effect_text": "Super-Evolve: Draw all copies of Rusty, Luxcard Trickster and give them Storm."
+                "type": "ON_SUPER_EVOLVE",
+                "target": "OWN_LEADER",
+                "process": "DRAW",
+                "value": 0,
+                "condition": "NAME_Rusty, Luxcard Trickster"
             }
         ],
         "raw_effects_text": "Super-Evolve: Draw all copies of Rusty, Luxcard Trickster and give them Storm.",
