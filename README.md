@@ -1,4 +1,4 @@
-# SVsim: Shadowverse Game Engine
+# SVsim: Shadowverse Simulation Engine
 
 
 ## 1. About The Project
