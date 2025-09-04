@@ -1,8 +1,10 @@
 import json
+import os
 from collections import Counter
 
 
 def analyze_effect_texts(file_path):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
     set_ids = ["100", "101", "102", "900"]
 
     raw_effect_starters = Counter()
@@ -11,7 +13,7 @@ def analyze_effect_texts(file_path):
 
     for set_id in set_ids:
         try:
-            full_path = f"../../card_database/3_parsed_database/{set_id}{file_path}"
+            full_path = os.path.normpath(os.path.join(script_dir, f"../../card_database/3_parsed_database/{set_id}{file_path}"))
             with open(full_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
         except FileNotFoundError:

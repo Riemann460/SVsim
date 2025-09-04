@@ -153,3 +153,5 @@ cython_debug/
 # Custom
 final_database.py
 .gemini/
+card_database/2_kor_database/
+card_database/3_parsed_database/

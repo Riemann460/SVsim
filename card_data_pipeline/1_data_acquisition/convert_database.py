@@ -1,8 +1,9 @@
 import json
+import os
 from enum import Enum
 
 from enums import CardType, ClassType, TribeType, EffectType, ProcessType, TargetType
-from parse_script import parse_effect_text, get_required_listeners  # Import Effect class for type checking
+from .parse_script import parse_effect_text, get_required_listeners  # Import Effect class for type checking
 from effect import Effect
 
 
@@ -95,9 +96,10 @@ def convert_json_to_class_script(json_file_path, output_json_path):
 
 
 if __name__ == "__main__":
+    script_dir = os.path.dirname(os.path.abspath(__file__))
     set_ids = ["100", "101", "102", "900"]
     for set_id in set_ids:
         convert_json_to_class_script(
-            json_file_path=f"../../card_database/1_raw_database/{set_id}_card_database_raw.json",
-            output_json_path=f"../../card_database/3_parsed_database/{set_id}_card_database_parsed.json"
+            json_file_path=os.path.normpath(os.path.join(script_dir, f"../../card_database/2_kor_database/{set_id}_card_database_kor_added.json")),
+            output_json_path=os.path.normpath(os.path.join(script_dir, f"../../card_database/3_parsed_database/{set_id}_card_database_parsed.json"))
         )
