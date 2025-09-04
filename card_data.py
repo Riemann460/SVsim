@@ -186,7 +186,7 @@ def resolve_card_references(card_db: Dict[str, CardData], global_card_db: Dict[s
                     print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name})에 예기치 않은 스트링 입력 '{effect.value}'.")
 
 
-def load_card_databases(json_path: str = 'card_database/parsed_database/card_database_parsed.json'):
+def load_card_databases(json_path: str = 'card_database/3_parsed_database/card_database_parsed.json'):
     """JSON 파일에서 모든 카드 데이터베이스를 로드합니다."""
     global BASIC_CARD_DATABASE, LEGENDS_RISE_CARD_DATABASE, TOKEN_CARD_DATABASE
     with open(json_path, 'r', encoding='utf-8') as f:

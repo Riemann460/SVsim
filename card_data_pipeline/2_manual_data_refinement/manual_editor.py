@@ -266,7 +266,7 @@ class CardEditorApp:
         
         # Save the entire database to the output file
         try:
-            output_path = f"../../card_database/manual_database/{self.set_id}{self.output_file}"
+            source_path = f"../../card_database/3_parsed_database/{self.set_id}{self.source_file}"
             with open(output_path, 'w', encoding='utf-8') as f:
                 json.dump(self.card_data, f, indent=4, ensure_ascii=False)
             messagebox.showinfo("Success", f"Changes for '{card_record['Card Name']}' saved successfully.")

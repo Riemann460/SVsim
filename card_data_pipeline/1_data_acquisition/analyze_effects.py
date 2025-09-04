@@ -11,7 +11,7 @@ def analyze_effect_texts(file_path):
 
     for set_id in set_ids:
         try:
-            full_path = f"../../card_database/parsed_database/{set_id}{file_path}"
+            full_path = f"../../card_database/3_parsed_database/{set_id}{file_path}"
             with open(full_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
         except FileNotFoundError:
