@@ -98,6 +98,6 @@ if __name__ == "__main__":
     set_ids = ["100", "101", "102", "900"]
     for set_id in set_ids:
         convert_json_to_class_script(
-            json_file_path=f"{set_id}_card_database_raw.json",  # 변경된 부분
-            output_json_path=f"{set_id}_card_database_parsed.json"
+            json_file_path=f"../../card_database/raw_database/{set_id}_card_database_raw.json",
+            output_json_path=f"../../card_database/parsed_database/{set_id}_card_database_parsed.json"
         )

@@ -1,0 +1,373 @@
+{
+  "BASIC_CARD_DATABASE": {
+    "Indomitable Fighter": {
+      "card_id": "Indomitable Fighter",
+      "name": "불굴의 파이터",
+      "cost": 2,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 2,
+      "defense": 2,
+      "tribes": [],
+      "effects": [
+        {
+          "type": "ENHANCE",
+          "target": "SELF",
+          "enhance_cost": 4,
+          "process": "STAT_BUFF",
+          "value": [3, 3]
+        }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
+      ]
+    },
+    "Leah, Bellringer Angel": {
+      "card_id": "Leah, Bellringer Angel",
+      "name": "종소리의 천사 리아",
+      "cost": 2,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 0,
+      "defense": 2,
+      "tribes": [],
+      "effects": [
+        { "type": "WARD" },
+        { "type": "LAST_WORDS", "target": "OWN_LEADER", "process": "DRAW", "value": 1 },
+        { "type": "ON_EVOLVE", "target": "OWN_LEADER", "process": "DRAW", "value": 1 }
+      ],
+      "required_listeners": [
+        "DESTROYED_ON_FIELD",
+        "FOLLOWER_EVOLVED",
+        "FOLLOWER_SUPER_EVOLVED"
+      ]
+    },
+    "Quake Goliath": {
+      "card_id": "Quake Goliath",
+      "name": "격진의 골리앗",
+      "cost": 4,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 4,
+      "defense": 5,
+      "tribes": [],
+      "effects": [
+        { "type": "WARD" }
+      ],
+      "required_listeners": []
+    },
+    "Detective's Lens": {
+      "card_id": "Detective's Lens",
+      "name": "탐정의 돋보기",
+      "cost": 2,
+      "card_type": "AMULET",
+      "class_type": "NEUTRAL",
+      "attack": 0,
+      "defense": 0,
+      "tribes": [],
+      "effects": [
+        { "type": "ACTIVATE", "target": "SELF", "process": "DESTROY" },
+        { "type": "ACTIVATE", "target": "OPPONENT_FOLLOWER_CHOICE", "process": "REMOVE_KEYWORD", "value": "WARD" }
+      ],
+      "required_listeners": [
+        "AMULET_ACTIVATED"
+      ]
+    },
+    "Arriet, Luxminstrel": {
+      "card_id": "Arriet, Luxminstrel",
+      "name": "빛의 연주자 앙리에트",
+      "cost": 3,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 3,
+      "defense": 3,
+      "tribes": [],
+      "effects": [
+        { "type": "ON_EVOLVE", "target": "OWN_LEADER", "process": "HEAL", "value": 2 },
+        { "type": "ON_SUPER_EVOLVE", "target": "OWN_LEADER", "process": "HEAL", "value": 4 }
+      ],
+      "required_listeners": [
+        "FOLLOWER_EVOLVED",
+        "FOLLOWER_SUPER_EVOLVED"
+      ]
+    },
+    "Caravan Mammoth": {
+      "card_id": "Caravan Mammoth",
+      "name": "캐러밴 맘모스",
+      "cost": 7,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 10,
+      "defense": 10,
+      "tribes": [],
+      "effects": [],
+      "required_listeners": []
+    },
+    "Adventurers' Guild": {
+      "card_id": "Adventurers' Guild",
+      "name": "모험가 길드",
+      "cost": 3,
+      "card_type": "AMULET",
+      "class_type": "NEUTRAL",
+      "attack": 0,
+      "defense": 0,
+      "tribes": [],
+      "effects": [
+        { "type": "FANFARE", "target": "OWN_LEADER", "process": "DRAW", "value": 1, "condition": "CARD_TYPE_FOLLOWER" },
+        { "type": "ACTIVATE", "target": "SELF", "process": "DESTROY" },
+        { "type": "ACTIVATE", "target": "ALLY_FOLLOWER_CHOICE", "process": "ADD_EFFECT", "value": { "type": "RUSH" } }
+      ],
+      "required_listeners": [
+        "AMULET_ACTIVATED",
+        "CARD_PLAYED"
+      ]
+    },
+    "Goblin": {
+      "card_id": "Goblin",
+      "name": "고블린",
+      "cost": 1,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 1,
+      "defense": 2,
+      "tribes": [],
+      "effects": [],
+      "required_listeners": []
+    },
+    "Silent Rider": {
+      "card_id": "Silent Rider",
+      "name": "침묵의 마왕",
+      "cost": 6,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 10,
+      "defense": 10,
+      "tribes": [],
+      "effects": [
+        { "type": "STORM" }
+      ],
+      "required_listeners": []
+    },
+    "Servant of Cocytus": {
+      "card_id": "Servant of Cocytus",
+      "name": "사탄의 하수인",
+      "cost": 1,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 13,
+      "defense": 13,
+      "tribes": [],
+      "effects": [],
+      "required_listeners": []
+    },
+    "Demon of Purgatory": {
+      "card_id": "Demon of Purgatory",
+      "name": "변옥의 악귀",
+      "cost": 5,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 9,
+      "defense": 6,
+      "tribes": [],
+      "effects": [
+        { "type": "FANFARE", "target": "OPPONENT_FOLLOWER_CHOICE2", "process": "DEAL_DAMAGE", "value": 6 },
+        { "type": "FANFARE", "target": "OPPONENT_LEADER", "process": "DEAL_DAMAGE", "value": 6 }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
+      ]
+    },
+    "Astaroth's Reckoning": {
+      "card_id": "Astaroth's Reckoning",
+      "name": "아스타로트의 선고",
+      "cost": 10,
+      "card_type": "SPELL",
+      "class_type": "NEUTRAL",
+      "attack": 0,
+      "defense": 0,
+      "tribes": [],
+      "effects": [
+        { "type": "SPELL", "target": "OPPONENT_LEADER", "process": "SET_MAX_HEALTH", "value": 1 }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
+      ]
+    }
+  },
+  "LEGENDS_RISE_CARD_DATABASE": {
+    "Ruby, Greedy Cherub": {
+      "card_id": "Ruby, Greedy Cherub",
+      "name": "욕심쟁이 지천사 루비",
+      "cost": 2,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 2,
+      "defense": 2,
+      "tribes": [],
+      "effects": [
+        { "type": "FANFARE", "target": "OWN_HAND_CHOICE", "process": "RETURN_TO_DECK" },
+        { "type": "FANFARE", "target": "OWN_LEADER", "process": "DRAW", "value": 1 }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
+      ]
+    },
+    "Vigilant Detective": {
+      "card_id": "Vigilant Detective",
+      "name": "관찰하는 탐정",
+      "cost": 3,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 3,
+      "defense": 3,
+      "tribes": [],
+      "effects": [
+        { "type": "LAST_WORDS", "target": "OWN_LEADER", "process": "ADD_CARD_TO_HAND", "value": "Detective's Lens" }
+      ],
+      "required_listeners": [
+        "DESTROYED_ON_FIELD"
+      ]
+    },
+    "Goblin Foray": {
+      "card_id": "Goblin Foray",
+      "name": "고블린의 습격",
+      "cost": 5,
+      "card_type": "SPELL",
+      "class_type": "NEUTRAL",
+      "attack": 0,
+      "defense": 0,
+      "tribes": [],
+      "effects": [
+        { "type": "SPELL", "target": "OWN_LEADER", "process": "SUMMON", "value": "Goblin" },
+        { "type": "SPELL", "target": "OWN_LEADER", "process": "SUMMON", "value": "Goblin" },
+        { "type": "SPELL", "target": "OWN_LEADER", "process": "SUMMON", "value": "Goblin" },
+        { "type": "SPELL", "target": "OWN_LEADER", "process": "SUMMON", "value": "Goblin" },
+        { "type": "SPELL", "target": "OWN_LEADER", "process": "SUMMON", "value": "Goblin" }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
+      ]
+    },
+    "Apollo, Heaven's Envoy": {
+      "card_id": "Apollo, Heaven's Envoy",
+      "name": "세찬 광명 아폴론",
+      "cost": 3,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 1,
+      "defense": 2,
+      "tribes": [],
+      "effects": [
+        { "type": "FANFARE", "target": "ALL_OPPONENT_FOLLOWERS", "process": "DEAL_DAMAGE", "value": 1 },
+        { "type": "ON_EVOLVE", "target": "SELF", "process": "TRIGGER_EFFECT", "value": "FANFARE" }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED",
+        "FOLLOWER_EVOLVED",
+        "FOLLOWER_SUPER_EVOLVED"
+      ]
+    },
+    "Seraphic Tidings": {
+      "card_id": "Seraphic Tidings",
+      "name": "치천사의 복음",
+      "cost": 3,
+      "card_type": "SPELL",
+      "class_type": "NEUTRAL",
+      "attack": 0,
+      "defense": 0,
+      "tribes": [],
+      "effects": [
+        { "type": "SPELL", "target": "OWN_LEADER", "process": "DRAW", "value": 2 }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
+      ]
+    },
+    "Phildau, Lionheart Ward": {
+      "card_id": "Phildau, Lionheart Ward",
+      "name": "낙랑의 천궁 필도어",
+      "cost": 2,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 2,
+      "defense": 2,
+      "tribes": [],
+      "effects": [
+        { "type": "ON_EVOLVE", "target": "OPPONENT_FOLLOWER_CHOICE", "process": "DESTROY" }
+      ],
+      "required_listeners": [
+        "FOLLOWER_EVOLVED",
+        "FOLLOWER_SUPER_EVOLVED"
+      ]
+    },
+    "Divine Thunder": {
+      "card_id": "Divine Thunder",
+      "name": "신의 뇌정",
+      "cost": 4,
+      "card_type": "SPELL",
+      "class_type": "NEUTRAL",
+      "attack": 0,
+      "defense": 0,
+      "tribes": [],
+      "effects": [
+        { "type": "SPELL", "target": "OPPONENT_FOLLOWER_MAX_ATTACK_RANDOM", "process": "DESTROY" },
+        { "type": "SPELL", "target": "ALL_OPPONENT_FOLLOWERS", "process": "DEAL_DAMAGE", "value": 1 }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
+      ]
+    },
+    "Olivia, Heroic Dark Angel": {
+      "card_id": "Olivia, Heroic Dark Angel",
+      "name": "기백의 타천사 올리비에",
+      "cost": 7,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 4,
+      "defense": 4,
+      "tribes": [],
+      "effects": [
+        { "type": "FANFARE", "target": "OWN_LEADER", "process": "DRAW", "value": 2 },
+        { "type": "FANFARE", "target": "OWN_LEADER", "process": "HEAL", "value": 2 },
+        { "type": "FANFARE", "target": "OWN_LEADER", "process": "RECOVER_PP", "value": 2 },
+        { "type": "ON_SUPER_EVOLVE", "target": "ALLY_FOLLOWER_CHOICE_UNEVOLVED", "process": "SUPER_EVOLVE" }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED",
+        "FOLLOWER_SUPER_EVOLVED"
+      ]
+    },
+    "Ruler of Cocytus": {
+      "card_id": "Ruler of Cocytus",
+      "name": "종막의 죄 사탄",
+      "cost": 10,
+      "card_type": "FOLLOWER",
+      "class_type": "NEUTRAL",
+      "attack": 10,
+      "defense": 10,
+      "tribes": [],
+      "effects": [
+        {
+          "type": "FANFARE",
+          "target": "OWN_LEADER",
+          "process": "REPLACE_DECK",
+          "value": [
+            "Silent Rider",
+            "Silent Rider",
+            "Silent Rider",
+            "Servant of Cocytus",
+            "Servant of Cocytus",
+            "Servant of Cocytus",
+            "Demon of Purgatory",
+            "Demon of Purgatory",
+            "Demon of Purgatory",
+            "Astaroth's Reckoning"
+          ]
+        }
+      ],
+      "required_listeners": [
+        "CARD_PLAYED"
+      ]
+    }
+  }
+}

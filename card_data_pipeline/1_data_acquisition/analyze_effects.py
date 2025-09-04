@@ -11,10 +11,11 @@ def analyze_effect_texts(file_path):
 
     for set_id in set_ids:
         try:
-            with open(set_id+file_path, 'r', encoding='utf-8') as f:
+            full_path = f"../../card_database/parsed_database/{set_id}{file_path}"
+            with open(full_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
         except FileNotFoundError:
-            print(f"Error: Could not find the file at {file_path}")
+            print(f"Error: Could not find the file at {full_path}")
             return
         for card_name, card_details in data.items():
             if 'effects' in card_details and isinstance(card_details['effects'], list):

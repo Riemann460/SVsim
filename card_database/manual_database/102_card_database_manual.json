@@ -1,0 +1,1993 @@
+{
+    "Twinblade Goblin": {
+        "card_id": "Twinblade Goblin",
+        "name": "Twinblade Goblin",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_target_text": "If there's a super-evolved allied follower on the field, select an enemy follower on the field",
+                "process": "DEAL_DAMAGE",
+                "value": 4
+            }
+        ],
+        "raw_effects_text": "Fanfare: If there's a super-evolved allied follower on the field, select an enemy follower on the field and deal it 4 damage.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Dark Side": {
+        "card_id": "Dark Side",
+        "name": "Dark Side",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "NEUTRAL",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "raw_action_text": "Select a follower on the field and give it +2/-2."
+            }
+        ],
+        "raw_effects_text": "Select a follower on the field and give it +2/-2.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Cheretta, Angelic Maid": {
+        "card_id": "Cheretta, Angelic Maid",
+        "name": "Cheretta, Angelic Maid",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "If you've unlocked super-evolution, give this follower +0/+3."
+            },
+            {
+                "type": "WARD"
+            }
+        ],
+        "raw_effects_text": "Fanfare: If you've unlocked super-evolution, give this follower +0/+3.\nWard",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Reina, Angelic Partner": {
+        "card_id": "Reina, Angelic Partner",
+        "name": "Reina, Angelic Partner",
+        "cost": 7,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 5,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "ON_EVOLVE",
+                "raw_action_text": "Evolve all unevolved allied followers on the field."
+            }
+        ],
+        "raw_effects_text": "Evolve: Evolve all unevolved allied followers on the field.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
+        ]
+    },
+    "Hnikar & Jafnhar, Firestorm Duo": {
+        "card_id": "Hnikar & Jafnhar, Firestorm Duo",
+        "name": "Hnikar & Jafnhar, Firestorm Duo",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "ENHANCE",
+                "raw_action_text": "Evolve this follower.",
+                "enhance_cost": 5
+            },
+            {
+                "type": "LAST_WORDS",
+                "raw_action_text": "If this follower is evolved, deal 4 damage to a random enemy follower."
+            }
+        ],
+        "raw_effects_text": "Enhance (5): Evolve this follower.\nLast Words: If this follower is evolved, deal 4 damage to a random enemy follower.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD",
+            "CARD_PLAYED"
+        ]
+    },
+    "Odin, Twilit Fate": {
+        "card_id": "Odin, Twilit Fate",
+        "name": "Odin, Twilit Fate",
+        "cost": 7,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 4,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Select an enemy card on the field and banish it."
+            },
+            {
+                "type": "STORM"
+            }
+        ],
+        "raw_effects_text": "Fanfare: Select an enemy card on the field and banish it.\nStorm",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Grimnir, Heavenly Gale": {
+        "card_id": "Grimnir, Heavenly Gale",
+        "name": "Grimnir, Heavenly Gale",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 2,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Gain Crest: Grimnir, Heavenly Gale."
+            },
+            {
+                "type": "WARD"
+            }
+        ],
+        "raw_effects_text": "Fanfare: Gain Crest: Grimnir, Heavenly Gale.\nWard",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Wildheart": {
+        "card_id": "Wildheart",
+        "name": "Wildheart",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "RUSH"
+            }
+        ],
+        "raw_effects_text": "Rush",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Dwarven Malletman": {
+        "card_id": "Dwarven Malletman",
+        "name": "Dwarven Malletman",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 5,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "target": "OPPONENT_FOLLOWER_CHOICE",
+                "process": "DEAL_DAMAGE",
+                "value": 4
+            }
+        ],
+        "raw_effects_text": "Fanfare: Select an enemy follower on the field and deal it 4 damage. Combo (3) - Deal damage to all enemy followers instead.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Woodwalkers": {
+        "card_id": "Woodwalkers",
+        "name": "Woodwalkers",
+        "cost": 7,
+        "card_type": "SPELL",
+        "class_type": "FORESTCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Gentle Treant",
+                    "Gentle Treant",
+                    "Gentle Treant"
+                ]
+            }
+        ],
+        "raw_effects_text": "Summon 3 copies of Gentle Treant.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Lionel, Ardent Elf": {
+        "card_id": "Lionel, Ardent Elf",
+        "name": "Lionel, Ardent Elf",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 6,
+        "defense": 6,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Baby Carbuncle",
+                    "Baby Carbuncle"
+                ]
+            },
+            {
+                "type": "WARD"
+            }
+        ],
+        "raw_effects_text": "Fanfare: Summon 2 copies of Baby Carbuncle.\nWard",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Fairy Fencer": {
+        "card_id": "Fairy Fencer",
+        "name": "Fairy Fencer",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "raw_effect_text": "Activates in hand. Whenever an allied follower super-evolves, set the cost of this card to 1."
+            },
+            {
+                "type": "FANFARE",
+                "process": "ADD_CARD_TO_HAND",
+                "target": "OWN_LEADER",
+                "value": "Fairy"
+            }
+        ],
+        "raw_effects_text": "Activates in hand. Whenever an allied follower super-evolves, set the cost of this card to 1.\nFanfare: Add a Fairy to your hand.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Ambush from Above": {
+        "card_id": "Ambush from Above",
+        "name": "Ambush from Above",
+        "cost": 1,
+        "card_type": "SPELL",
+        "class_type": "FORESTCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "process": "DEAL_DAMAGE",
+                "value": 2
+            }
+        ],
+        "raw_effects_text": "Do this 1 time: \"Deal 2 damage to a random enemy follower.\" Combo (3) - Do it 2 times instead.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Cynthia, Chivalrous Elf": {
+        "card_id": "Cynthia, Chivalrous Elf",
+        "name": "Cynthia, Chivalrous Elf",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 4,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Fairy",
+                    "Fairy"
+                ]
+            },
+            {
+                "type": "ON_EVOLVE",
+                "raw_target_text": "all allied Pixie followers on the field",
+                "process": "STAT_BUFF",
+                "value": [
+                    1,
+                    0
+                ]
+            }
+        ],
+        "raw_effects_text": "Fanfare: Summon 2 copies of Fairy.\nEvolve: Give all allied Pixie followers on the field +1/+0.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Garden's Allure": {
+        "card_id": "Garden's Allure",
+        "name": "Garden's Allure",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "FORESTCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "raw_action_text": "Fuse: Forestcraft cards"
+            },
+            {
+                "type": "SPELL",
+                "process": "DRAW",
+                "target": "OWN_LEADER",
+                "value": 1
+            }
+        ],
+        "raw_effects_text": "Fuse: Forestcraft cards\nDraw a card. If you've Fused to this card, draw 2 instead.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Titania, Queen of Fairies": {
+        "card_id": "Titania, Queen of Fairies",
+        "name": "Titania, Queen of Fairies",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": "Fairy"
+            },
+            {
+                "type": "FANFARE",
+                "process": "ADD_EFFECT",
+                "target": "OWN_LEADER",
+                "raw_action_text": "Crest: Titania, Queen of Fairies"
+            },
+            {
+                "type": "ON_EVOLVE",
+                "raw_action_text": "Select an enemy follower on the field and transform it into a Fairy."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Summon a Fairy. Gain Crest: Titania, Queen of Fairies.\nEvolve: Select an enemy follower on the field and transform it into a Fairy.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Lymaga, Untamed Wild": {
+        "card_id": "Lymaga, Untamed Wild",
+        "name": "Lymaga, Untamed Wild",
+        "cost": 7,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 7,
+        "defense": 7,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Select 2 enemy followers on the field and give them \"Can't attack followers or leaders\" until the end of your opponent's turn."
+            },
+            {
+                "type": "ON_SUPER_EVOLVE",
+                "raw_action_text": "Select 2 enemy followers on the field and give them \"At the end of each turn, deal 1 damage to your leader and 2 damage to this follower.\""
+            }
+        ],
+        "raw_effects_text": "Fanfare: Select 2 enemy followers on the field and give them \"Can't attack followers or leaders\" until the end of your opponent's turn.\nSuper-Evolve: Select 2 enemy followers on the field and give them \"At the end of each turn, deal 1 damage to your leader and 2 damage to this follower.\"",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Seria, Gunslinger Maid": {
+        "card_id": "Seria, Gunslinger Maid",
+        "name": "Seria, Gunslinger Maid",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 2,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_target_text": "2 random enemy followers.",
+                "process": "DEAL_DAMAGE",
+                "value": 1
+            }
+        ],
+        "raw_effects_text": "Fanfare: Deal 1 damage to 2 random enemy followers.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Nightshadow Ninja Master": {
+        "card_id": "Nightshadow Ninja Master",
+        "name": "Nightshadow Ninja Master",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 4,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "AMBUSH"
+            }
+        ],
+        "raw_effects_text": "Ambush",
+        "required_listeners": [],
+        "_manual_review_status": "Completed"
+    },
+    "Lucrative Deal": {
+        "card_id": "Lucrative Deal",
+        "name": "Lucrative Deal",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "SWORDCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "process": "DRAW",
+                "target": "OWN_LEADER",
+                "value": 2
+            },
+            {
+                "type": "SPELL",
+                "process": "DRAW",
+                "target": "OPPONENT_LEADER",
+                "value": 1
+            }
+        ],
+        "raw_effects_text": "Draw 2 cards. Your opponent draws a card.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Gelt, Intrepid Vice-Captain": {
+        "card_id": "Gelt, Intrepid Vice-Captain",
+        "name": "Gelt, Intrepid Vice-Captain",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "WARD"
+            },
+            {
+                "type": "ON_MY_TURN_END",
+                "raw_action_text": "if there's a super-evolved allied follower on the field, give all allied followers on the field +1/+1."
+            }
+        ],
+        "raw_effects_text": "Ward\nAt the end of your turn, if there's a super-evolved allied follower on the field, give all allied followers on the field +1/+1.",
+        "required_listeners": [
+            "TURN_END"
+        ]
+    },
+    "Rackhir, Ordinary Knight": {
+        "card_id": "Rackhir, Ordinary Knight",
+        "name": "Rackhir, Ordinary Knight",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Draw a spell."
+            },
+            {
+                "type": "ON_EVOLVE",
+                "raw_action_text": "Recover 2 play points."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Draw a spell.\nEvolve: Recover 2 play points.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Band of Battle Princesses": {
+        "card_id": "Band of Battle Princesses",
+        "name": "Band of Battle Princesses",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "SWORDCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "process": "DEAL_DAMAGE",
+                "value": 4
+            },
+            {
+                "type": "SPELL",
+                "raw_action_text": "Enhance (4): Deal damage to 3 random enemy followers instead."
+            }
+        ],
+        "raw_effects_text": "Deal 4 damage to a random enemy follower.\nEnhance (4): Deal damage to 3 random enemy followers instead.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Rosé, Princess Knight": {
+        "card_id": "Rosé, Princess Knight",
+        "name": "Rosé, Princess Knight",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 3,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "ENHANCE",
+                "raw_action_text": "Draw a Swordcraft follower that costs 2 or less and set its cost to 0.",
+                "enhance_cost": 5
+            },
+            {
+                "type": "RUSH"
+            },
+            {
+                "raw_effect_text": "Follower Strike: If the opposing follower is damaged, destroy it."
+            }
+        ],
+        "raw_effects_text": "Enhance (5): Draw a Swordcraft follower that costs 2 or less and set its cost to 0.\nRush\nFollower Strike: If the opposing follower is damaged, destroy it.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Prim, Princess's Picnic": {
+        "card_id": "Prim, Princess's Picnic",
+        "name": "Prim, Princess's Picnic",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "ADD_CARD_TO_HAND",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Nonja",
+                    "Silent Maid"
+                ]
+            },
+            {
+                "type": "AMBUSH"
+            },
+            {
+                "type": "ON_SUPER_EVOLVE",
+                "target": "ALL_OTHER_ALLY_FOLLOWERS",
+                "process": "STAT_BUFF",
+                "value": [
+                    1,
+                    1
+                ]
+            }
+        ],
+        "raw_effects_text": "Fanfare: Add a Nonja, Silent Maid to your hand.\nAmbush\nSuper-Evolve: Give all other allied followers on the field +1/+1.",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Gildaria, Anathema of Peace": {
+        "card_id": "Gildaria, Anathema of Peace",
+        "name": "Gildaria, Anathema of Peace",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 4,
+        "defense": 4,
+        "tribes": [
+            "ANATHEMA"
+        ],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Rally (20) - Super-evolve this follower."
+            },
+            {
+                "raw_effect_text": "Whenever another allied follower enters the field, deal 1 damage to all enemy followers."
+            },
+            {
+                "type": "EVOLVED",
+                "raw_action_text": "summon 2 copies of Steelclad Knight and give them Rush."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Rally (20) - Super-evolve this follower.\nWhenever another allied follower enters the field, deal 1 damage to all enemy followers.\nWhen this follower evolves, summon 2 copies of Steelclad Knight and give them Rush.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Yurius, Levin Authority": {
+        "card_id": "Yurius, Levin Authority",
+        "name": "Yurius, Levin Authority",
+        "cost": 8,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 5,
+        "defense": 7,
+        "tribes": [
+            "LEVIN"
+        ],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OPPONENT_LEADER",
+                "value": [
+                    "Knight",
+                    "Knight"
+                ]
+            },
+            {
+                "raw_effect_text": "Whenever an enemy follower enters the field, give it \"Can't attack followers or leaders\" until the end of your opponent's turn, deal 1 damage to the enemy leader, and restore 1 defense to your leader."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Summon 2 enemy copies of Knight.\nWhenever an enemy follower enters the field, give it \"Can't attack followers or leaders\" until the end of your opponent's turn, deal 1 damage to the enemy leader, and restore 1 defense to your leader.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Melvie, Adoring Witch": {
+        "card_id": "Melvie, Adoring Witch",
+        "name": "Melvie, Adoring Witch",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "ADD_CARD_TO_HAND",
+                "target": "OWN_LEADER",
+                "value": "Witch's New Brew"
+            },
+            {
+                "raw_effect_text": "If there's a super-evolved allied follower on the field, gain 2 earth sigils."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Add a Witch's New Brew to your hand.\nIf there's a super-evolved allied follower on the field, gain 2 earth sigils.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Arcane Archivist": {
+        "card_id": "Arcane Archivist",
+        "name": "Arcane Archivist",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Select a card in your hand and return it to deck. Draw a spell."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Select a card in your hand and return it to deck. Draw a spell.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Glacial Crash": {
+        "card_id": "Glacial Crash",
+        "name": "Glacial Crash",
+        "cost": 4,
+        "card_type": "SPELL",
+        "class_type": "RUNECRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "target": "OPPONENT_LEADER",
+                "process": "DEAL_DAMAGE",
+                "value": 2
+            }
+        ],
+        "raw_effects_text": "Select an enemy follower on the field and destroy it. Earth Rite (1) - Deal 2 damage to the enemy leader.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Bergent, Rejected Artes": {
+        "card_id": "Bergent, Rejected Artes",
+        "name": "Bergent, Rejected Artes",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 4,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Onion Patch",
+                    "Onion Patch"
+                ]
+            },
+            {
+                "type": "ON_EVOLVE",
+                "raw_action_text": "Gain Crest: Bergent, Rejected Artes."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Summon 2 copies of Onion Patch.\nEvolve: Gain Crest: Bergent, Rejected Artes.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Enchanting Perfumer": {
+        "card_id": "Enchanting Perfumer",
+        "name": "Enchanting Perfumer",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "target": "OPPONENT_FOLLOWER_CHOICE",
+                "process": "DEAL_DAMAGE",
+                "value": 3
+            },
+            {
+                "type": "ON_EVOLVE",
+                "process": "TRIGGER_EFFECT",
+                "value": "FANFARE"
+            }
+        ],
+        "raw_effects_text": "Fanfare: Select an enemy follower on the field and deal it 3 damage. Gain an earth sigil.\nEvolve: Replicate the effects of this card's Fanfare ability.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Flames of Chaos": {
+        "card_id": "Flames of Chaos",
+        "name": "Flames of Chaos",
+        "cost": 3,
+        "card_type": "SPELL",
+        "class_type": "RUNECRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "raw_action_text": "X starts at 0."
+            },
+            {
+                "type": "SPELL",
+                "raw_action_text": "On Spellboost: Increase X by 1."
+            },
+            {
+                "type": "SPELL",
+                "raw_action_text": "Deal X damage split between all enemy followers."
+            }
+        ],
+        "raw_effects_text": "X starts at 0.\nOn Spellboost: Increase X by 1.\nDeal X damage split between all enemy followers.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Owen, Mysterian Swordsman": {
+        "card_id": "Owen, Mysterian Swordsman",
+        "name": "Owen, Mysterian Swordsman",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [
+            "MYSTERIA"
+        ],
+        "effects": [
+            {
+                "type": "WARD"
+            },
+            {
+                "raw_effect_text": "Clash: Spellboost your hand."
+            },
+            {
+                "type": "ON_EVOLVE",
+                "raw_action_text": "Draw 2 followers."
+            }
+        ],
+        "raw_effects_text": "Ward\nClash: Spellboost your hand.\nEvolve: Draw 2 followers.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
+        ]
+    },
+    "Pascale's Dance": {
+        "card_id": "Pascale's Dance",
+        "name": "Pascale's Dance",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "RUNECRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "raw_action_text": "Gain an earth sigil. Gain Crest: Pascale's Dance."
+            }
+        ],
+        "raw_effects_text": "Gain an earth sigil. Gain Crest: Pascale's Dance.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Lilanthim, Anathema of Edacity": {
+        "card_id": "Lilanthim, Anathema of Edacity",
+        "name": "Lilanthim, Anathema of Edacity",
+        "cost": 8,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 5,
+        "defense": 5,
+        "tribes": [
+            "ANATHEMA"
+        ],
+        "effects": [
+            {
+                "type": "AURA"
+            },
+            {
+                "type": "LAST_WORDS",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Earth Rite (2) - a Lilanthim",
+                    "Anathema of Edacity"
+                ]
+            },
+            {
+                "type": "ON_SUPER_EVOLVE",
+                "raw_action_text": "Select 2 enemy followers on the field and destroy them."
+            }
+        ],
+        "raw_effects_text": "Aura\nLast Words: Earth Rite (2) - Summon a Lilanthim, Anathema of Edacity.\nSuper-Evolve: Select 2 enemy followers on the field and destroy them.",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "DESTROYED_ON_FIELD"
+        ]
+    },
+    "Norman, Adamant Alchemist": {
+        "card_id": "Norman, Adamant Alchemist",
+        "name": "Norman, Adamant Alchemist",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 5,
+        "defense": 5,
+        "tribes": [
+            "MYSTERIA"
+        ],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Earth Rite (1) - Select a Mode to activate."
+            },
+            {
+                "raw_effect_text": "1. Summon a Guardian Golem and give it Barrier."
+            },
+            {
+                "raw_effect_text": "2. Draw 3 cards."
+            },
+            {
+                "raw_effect_text": "3. Restore 4 defense to your leader."
+            },
+            {
+                "type": "ON_EVOLVE",
+                "process": "TRIGGER_EFFECT",
+                "value": "FANFARE"
+            }
+        ],
+        "raw_effects_text": "Fanfare: Earth Rite (1) - Select a Mode to activate.\n1. Summon a Guardian Golem and give it Barrier.\n2. Draw 3 cards.\n3. Restore 4 defense to your leader.\nEvolve: Replicate the effects of this card's Fanfare ability.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Wise Guardian Dragon": {
+        "card_id": "Wise Guardian Dragon",
+        "name": "Wise Guardian Dragon",
+        "cost": 10,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 4,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "raw_effect_text": "Activates in hand. Whenever an allied follower super-evolves, reduce the cost of this card by 3."
+            },
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": "Vastwing Dragon"
+            }
+        ],
+        "raw_effects_text": "Activates in hand. Whenever an allied follower super-evolves, reduce the cost of this card by 3.\nFanfare: Summon a Vastwing Dragon.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Soaring Ivory Dragon": {
+        "card_id": "Soaring Ivory Dragon",
+        "name": "Soaring Ivory Dragon",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "If you're in Overflow, draw a card."
+            },
+            {
+                "type": "RUSH"
+            }
+        ],
+        "raw_effects_text": "Fanfare: If you're in Overflow, draw a card.\nRush",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Call of the Megalorca": {
+        "card_id": "Call of the Megalorca",
+        "name": "Call of the Megalorca",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "DRAGONCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Majestic Megalorca If you're in Overflow",
+                    "draw a Call of the Megalorca"
+                ]
+            }
+        ],
+        "raw_effects_text": "Summon a Majestic Megalorca. If you're in Overflow, draw a Call of the Megalorca.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Intent Dragonewt Princess": {
+        "card_id": "Intent Dragonewt Princess",
+        "name": "Intent Dragonewt Princess",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "If there's a super-evolved allied follower on the field, draw 2 cards."
+            }
+        ],
+        "raw_effects_text": "Fanfare: If there's a super-evolved allied follower on the field, draw 2 cards.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Seasoned Merman": {
+        "card_id": "Seasoned Merman",
+        "name": "Seasoned Merman",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Majestic Megalorca",
+                    "Majestic Megalorca"
+                ]
+            },
+            {
+                "type": "ON_EVOLVE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": "Majestic Megalorca"
+            }
+        ],
+        "raw_effects_text": "Fanfare: Summon 2 copies of Majestic Megalorca.\nEvolve: Summon a Majestic Megalorca.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Pyrewyrm Blade": {
+        "card_id": "Pyrewyrm Blade",
+        "name": "Pyrewyrm Blade",
+        "cost": 1,
+        "card_type": "AMULET",
+        "class_type": "DRAGONCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "ACTIVATE",
+                "process": "STAT_BUFF",
+                "target": "ALLY_FOLLOWER_CHOICE",
+                "value": [
+                    1,
+                    1
+                ],
+                "cost": 1
+            },
+            {
+                "type": "ACTIVATE",
+                "process": "DESTROY",
+                "target": "SELF"
+            },
+            {
+                "type": "LAST_WORD",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": "Pyrewyrm Blade"
+            }
+        ],
+        "raw_effects_text": "Engage (1): Destroy this card. Select an allied follower on the field and give it +1/+1 and \"Last Words: Summon a Pyrewyrm Blade.\"",
+        "required_listeners": [
+            "AMULET_ACTIVATED",
+            "DESTROYED_ON_FIELD"
+        ],
+        "_manual_review_status": "Completed"
+    },
+    "Neptune, Arbiter of Tides": {
+        "card_id": "Neptune, Arbiter of Tides",
+        "name": "Neptune, Arbiter of Tides",
+        "cost": 7,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 5,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Majestic Megalorca",
+                    "Majestic Megalorca"
+                ]
+            },
+            {
+                "type": "WARD"
+            },
+            {
+                "type": "ON_SUPER_EVOLVE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Majestic Megalorca",
+                    "Majestic Megalorca"
+                ]
+            }
+        ],
+        "raw_effects_text": "Fanfare: Gain Crest: Neptune, Arbiter of Tides. Summon 2 copies of Majestic Megalorca.\nWard\nSuper-Evolve: Summon 2 copies of Majestic Megalorca.",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Draconic Strike": {
+        "card_id": "Draconic Strike",
+        "name": "Draconic Strike",
+        "cost": 6,
+        "card_type": "SPELL",
+        "class_type": "DRAGONCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "target": "ALL_OPPONENT_FOLLOWERS",
+                "process": "DEAL_DAMAGE",
+                "value": 3
+            }
+        ],
+        "raw_effects_text": "Select a card in your hand and reduce its cost by 2. Deal 3 damage to all enemy followers.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Filene, Whitefrost Bloom": {
+        "card_id": "Filene, Whitefrost Bloom",
+        "name": "Filene, Whitefrost Bloom",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "If you're in Overflow, add a Whitefrost Whisper to your hand."
+            },
+            {
+                "type": "BANE"
+            },
+            {
+                "type": "ON_EVOLVE",
+                "target": "ALL_OPPONENT_FOLLOWERS",
+                "process": "DEAL_DAMAGE",
+                "value": 1
+            }
+        ],
+        "raw_effects_text": "Fanfare: If you're in Overflow, add a Whitefrost Whisper to your hand.\nBane\nEvolve: Deal 1 damage to all enemy followers.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Fennie, Prismatic Phoenix": {
+        "card_id": "Fennie, Prismatic Phoenix",
+        "name": "Fennie, Prismatic Phoenix",
+        "cost": 8,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 4,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Halve the cost of all cards in your deck."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Halve the cost of all cards in your deck.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Rayvn, the Silver Bullet": {
+        "card_id": "Rayvn, the Silver Bullet",
+        "name": "Rayvn, the Silver Bullet",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 3,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "BANE"
+            },
+            {
+                "type": "ON_EVOLVE",
+                "target": "OWN_LEADER",
+                "process": "DEAL_DAMAGE",
+                "value": 2
+            }
+        ],
+        "raw_effects_text": "Bane\nEvolve: Select 2 enemy followers on the field and destroy them. Deal 2 damage to your leader.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
+        ]
+    },
+    "Cultivator of Malice": {
+        "card_id": "Cultivator of Malice",
+        "name": "Cultivator of Malice",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "LAST_WORDS",
+                "process": "ADD_CARD_TO_HAND",
+                "target": "OWN_LEADER",
+                "value": "Ghost"
+            }
+        ],
+        "raw_effects_text": "Last Words: Add a Ghost to your hand.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD"
+        ]
+    },
+    "Ghastly Soiree": {
+        "card_id": "Ghastly Soiree",
+        "name": "Ghastly Soiree",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "ABYSSCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "process": "ADD_CARD_TO_HAND",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Ghost",
+                    "Skeleton",
+                    "d Rotting Zombie"
+                ]
+            }
+        ],
+        "raw_effects_text": "Add a Ghost, Skeleton, and Rotting Zombie to your hand.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Vuella, the Blastwing": {
+        "card_id": "Vuella, the Blastwing",
+        "name": "Vuella, the Blastwing",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 2,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "RUSH"
+            },
+            {
+                "raw_effect_text": "Whenever another allied follower super-evolves, give it and this follower +2/+0."
+            }
+        ],
+        "raw_effects_text": "Rush\nWhenever another allied follower super-evolves, give it and this follower +2/+0.",
+        "required_listeners": []
+    },
+    "Undead Soldier": {
+        "card_id": "Undead Soldier",
+        "name": "Undead Soldier",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Rotting Zombie",
+                    "Rotting Zombie"
+                ]
+            }
+        ],
+        "raw_effects_text": "Fanfare: Summon 2 copies of Rotting Zombie.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Winged Servants": {
+        "card_id": "Winged Servants",
+        "name": "Winged Servants",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "ABYSSCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Bat",
+                    "Bat"
+                ]
+            }
+        ],
+        "raw_effects_text": "Summon 2 copies of Bat.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Laura, Cruel Commander": {
+        "card_id": "Laura, Cruel Commander",
+        "name": "Laura, Cruel Commander",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 3,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Select another allied follower on the field and give it Bane."
+            },
+            {
+                "type": "ON_SUPER_EVOLVE",
+                "raw_action_text": "Select another allied follower on the field and give it Storm."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Select another allied follower on the field and give it Bane.\nSuper-Evolve: Select another allied follower on the field and give it Storm.",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Exella, Nocturnal General": {
+        "card_id": "Exella, Nocturnal General",
+        "name": "Exella, Nocturnal General",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 1,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "target": "OWN_LEADER",
+                "process": "DEAL_DAMAGE",
+                "value": 2
+            },
+            {
+                "type": "STORM"
+            }
+        ],
+        "raw_effects_text": "Fanfare: Give this follower +X/+0. X is the number of other allied followers on the field. Deal 2 damage to your leader.\nStorm",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Ginsetsu & Yuzuki, Twin Calamities": {
+        "card_id": "Ginsetsu & Yuzuki, Twin Calamities",
+        "name": "Ginsetsu & Yuzuki, Twin Calamities",
+        "cost": 9,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 5,
+        "defense": 9,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Select a Mode to activate."
+            },
+            {
+                "raw_effect_text": "1. Summon 4 copies of One-Tailed Fox."
+            },
+            {
+                "raw_effect_text": "2. Destroy 4 random enemy followers. Restore 4 defense to your leader."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Select a Mode to activate.\n1. Summon 4 copies of One-Tailed Fox.\n2. Destroy 4 random enemy followers. Restore 4 defense to your leader.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Charon, Stygian Oarswoman": {
+        "card_id": "Charon, Stygian Oarswoman",
+        "name": "Charon, Stygian Oarswoman",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 4,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Reanimate (2) and Reanimate (1)."
+            },
+            {
+                "raw_effect_text": "Whenever an allied Departed follower enters the field, give it Ward."
+            },
+            {
+                "type": "ON_SUPER_EVOLVE",
+                "raw_action_text": "Gain Crest: Charon, Stygian Oarswoman."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Reanimate (2) and Reanimate (1).\nWhenever an allied Departed follower enters the field, give it Ward.\nSuper-Evolve: Gain Crest: Charon, Stygian Oarswoman.",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Cleric of Crushing": {
+        "card_id": "Cleric of Crushing",
+        "name": "Cleric of Crushing",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 2,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "WARD"
+            },
+            {
+                "type": "ON_EVOLVE",
+                "raw_target_text": "Select a super-evolved enemy follower on the field",
+                "process": "DESTROY"
+            }
+        ],
+        "raw_effects_text": "Ward\nEvolve: Select a super-evolved enemy follower on the field and destroy it.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
+        ]
+    },
+    "Damus, Oracle of Malice": {
+        "card_id": "Damus, Oracle of Malice",
+        "name": "Damus, Oracle of Malice",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Select an enemy follower on the field and give it \"At the end of your turn, destroy this card.\""
+            }
+        ],
+        "raw_effects_text": "Fanfare: Select an enemy follower on the field and give it \"At the end of your turn, destroy this card.\"",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Luminous Censer": {
+        "card_id": "Luminous Censer",
+        "name": "Luminous Censer",
+        "cost": 2,
+        "card_type": "AMULET",
+        "class_type": "HAVENCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "ACTIVATE",
+                "target": "OWN_LEADER",
+                "process": "HEAL",
+                "value": 4,
+                "cost": 1
+            }
+        ],
+        "raw_effects_text": "Engage (1): Destroy this card. Restore 4 defense to your leader.",
+        "required_listeners": [
+            "AMULET_ACTIVATED"
+        ]
+    },
+    "Colette, Barrage Exorcist": {
+        "card_id": "Colette, Barrage Exorcist",
+        "name": "Colette, Barrage Exorcist",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "process": "DEAL_DAMAGE",
+                "value": 2
+            }
+        ],
+        "raw_effects_text": "Fanfare: Do this 1 time: \"Deal 2 damage to a random enemy follower.\" If there are at least 2 allied amulets on the field, do it 2 times instead.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Immaculate Adjudicator": {
+        "card_id": "Immaculate Adjudicator",
+        "name": "Immaculate Adjudicator",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 4,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Select an enemy follower on the field and banish it."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Select an enemy follower on the field and banish it.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Divine Guard": {
+        "card_id": "Divine Guard",
+        "name": "Divine Guard",
+        "cost": 1,
+        "card_type": "SPELL",
+        "class_type": "HAVENCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "target": "ALLY_FOLLOWER_CHOICE",
+                "process": "STAT_BUFF",
+                "value": [
+                    0,
+                    1
+                ]
+            }
+        ],
+        "raw_effects_text": "Select an allied follower on the field with Ward and give it +0/+1. Deal X damage to a random enemy follower. X is the selected follower's defense.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Agnes, the Swiftblade": {
+        "card_id": "Agnes, the Swiftblade",
+        "name": "Agnes, the Swiftblade",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 3,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "STORM"
+            },
+            {
+                "raw_effect_text": "Strike: If there are at least 2 allied amulets on the field, destroy a random enemy follower other than the opposing one."
+            }
+        ],
+        "raw_effects_text": "Storm\nStrike: If there are at least 2 allied amulets on the field, destroy a random enemy follower other than the opposing one.",
+        "required_listeners": []
+    },
+    "Maddening Benison": {
+        "card_id": "Maddening Benison",
+        "name": "Maddening Benison",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "HAVENCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "target": "OWN_LEADER",
+                "process": "HEAL",
+                "value": 10
+            }
+        ],
+        "raw_effects_text": "Restore 10 defense to your leader. Gain Crest: Maddening Benison.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Aether, Empyrean Guardian": {
+        "card_id": "Aether, Empyrean Guardian",
+        "name": "Aether, Empyrean Guardian",
+        "cost": 7,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 2,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": "3 random differently named followers that cost 3 or less from your deck"
+            },
+            {
+                "type": "WARD"
+            },
+            {
+                "type": "ON_SUPER_EVOLVE",
+                "target": "ALL_OTHER_ALLY_FOLLOWERS",
+                "process": "STAT_BUFF",
+                "value": [
+                    0,
+                    2
+                ]
+            }
+        ],
+        "raw_effects_text": "Fanfare: Summon 3 random differently named followers that cost 3 or less from your deck.\nWard\nSuper-Evolve: Give all other allied followers on the field +0/+2 and Aura.",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Wilbert, Desolate Paladin": {
+        "card_id": "Wilbert, Desolate Paladin",
+        "name": "Wilbert, Desolate Paladin",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 4,
+        "defense": 6,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "WARD"
+            },
+            {
+                "type": "LAST_WORDS",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Holy Cavalier",
+                    "Holy Cavalier"
+                ]
+            },
+            {
+                "type": "ON_EVOLVE",
+                "raw_action_text": "Gain Crest: Wilbert, Desolate Paladin."
+            }
+        ],
+        "raw_effects_text": "Ward\nLast Words: Summon 2 copies of Holy Cavalier.\nEvolve: Gain Crest: Wilbert, Desolate Paladin.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "DESTROYED_ON_FIELD"
+        ]
+    },
+    "Engineblade Maven": {
+        "card_id": "Engineblade Maven",
+        "name": "Engineblade Maven",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 4,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": "Striker Artifact Add a Gear of Remembrance to your hand"
+            },
+            {
+                "type": "ON_EVOLVE",
+                "process": "TRIGGER_EFFECT",
+                "value": "FANFARE"
+            }
+        ],
+        "raw_effects_text": "Fanfare: Summon a Striker Artifact. Add a Gear of Remembrance to your hand.\nEvolve: Replicate the effects of this card's Fanfare ability.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Puppet Cat": {
+        "card_id": "Puppet Cat",
+        "name": "Puppet Cat",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_target_text": "If there's a super-evolved allied follower on the field, add a Puppet to your hand",
+                "process": "STAT_BUFF",
+                "value": [
+                    3,
+                    0
+                ]
+            }
+        ],
+        "raw_effects_text": "Fanfare: If there's a super-evolved allied follower on the field, add a Puppet to your hand and give it +3/+0.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Artifact Catapult": {
+        "card_id": "Artifact Catapult",
+        "name": "Artifact Catapult",
+        "cost": 2,
+        "card_type": "AMULET",
+        "class_type": "PORTALCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "ADD_CARD_TO_HAND",
+                "target": "OWN_LEADER",
+                "value": "Gear of Ambition"
+            },
+            {
+                "type": "ACTIVATE",
+                "raw_action_text": "Destroy this card. Select an Artifact follower in your hand that costs 5 or less, summon an exact copy of it, and give the exact copy \"At the end of your opponent's turn, destroy this card.\"",
+                "cost": 3
+            }
+        ],
+        "raw_effects_text": "Fanfare: Add a Gear of Ambition to your hand.\nEngage (3): Destroy this card. Select an Artifact follower in your hand that costs 5 or less, summon an exact copy of it, and give the exact copy \"At the end of your opponent's turn, destroy this card.\"",
+        "required_listeners": [
+            "AMULET_ACTIVATED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Vier, Heart Slayer": {
+        "card_id": "Vier, Heart Slayer",
+        "name": "Vier, Heart Slayer",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Select a Puppetry follower in your hand and transform it into a Doll Slayer."
+            },
+            {
+                "type": "BANE"
+            }
+        ],
+        "raw_effects_text": "Fanfare: Select a Puppetry follower in your hand and transform it into a Doll Slayer.\nBane",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Achim, Lord of Despair": {
+        "card_id": "Achim, Lord of Despair",
+        "name": "Achim, Lord of Despair",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "ON_EVOLVE",
+                "raw_action_text": "Select an enemy follower on the field with 4 attack or less, banish it, and summon an exact copy of it."
+            }
+        ],
+        "raw_effects_text": "Evolve: Select an enemy follower on the field with 4 attack or less, banish it, and summon an exact copy of it.",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
+        ]
+    },
+    "Flight of Icarus": {
+        "card_id": "Flight of Icarus",
+        "name": "Flight of Icarus",
+        "cost": 1,
+        "card_type": "SPELL",
+        "class_type": "PORTALCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "process": "DRAW",
+                "target": "OWN_LEADER",
+                "value": 1
+            }
+        ],
+        "raw_effects_text": "Select an Artifact follower in your hand and give it Rush and \"Last Words: Draw a card.\"",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Carnelia, Ember of Darkness": {
+        "card_id": "Carnelia, Ember of Darkness",
+        "name": "Carnelia, Ember of Darkness",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "ADD_CARD_TO_HAND",
+                "target": "OWN_LEADER",
+                "value": "Gear of Remembrance"
+            },
+            {
+                "type": "ON_EVOLVE",
+                "raw_action_text": "Select an Artifact follower in your hand and give it Ward and \"Can't be destroyed by abilities.\""
+            }
+        ],
+        "raw_effects_text": "Fanfare: Add a Gear of Remembrance to your hand.\nEvolve: Select an Artifact follower in your hand and give it Ward and \"Can't be destroyed by abilities.\"",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "Synchronous Hearts": {
+        "card_id": "Synchronous Hearts",
+        "name": "Synchronous Hearts",
+        "cost": 6,
+        "card_type": "SPELL",
+        "class_type": "PORTALCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Lloyd",
+                    "Victoria"
+                ]
+            }
+        ],
+        "raw_effects_text": "Summon a Lloyd and Victoria.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Zwei, Symphonic Heart": {
+        "card_id": "Zwei, Symphonic Heart",
+        "name": "Zwei, Symphonic Heart",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": "Victoria"
+            },
+            {
+                "raw_effect_text": "Whenever an allied Puppetry follower enters the field, give it Ward."
+            }
+        ],
+        "raw_effects_text": "Fanfare: Summon a Victoria.\nWhenever an allied Puppetry follower enters the field, give it Ward.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "Karula, Eternal Arts": {
+        "card_id": "Karula, Eternal Arts",
+        "name": "Karula, Eternal Arts",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 5,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Select an Artifact follower in your hand that costs 5 or less and summon an exact copy of it."
+            },
+            {
+                "type": "ON_SUPER_EVOLVE",
+                "raw_action_text": "Give this follower \"Can attack 2 times per turn.\""
+            }
+        ],
+        "raw_effects_text": "Fanfare: Select an Artifact follower in your hand that costs 5 or less and summon an exact copy of it.\nSuper-Evolve: Give this follower \"Can attack 2 times per turn.\"",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    }
+}

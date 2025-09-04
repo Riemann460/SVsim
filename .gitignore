@@ -1,4 +1,3 @@
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -152,7 +151,5 @@ cython_debug/
 .idea/
 
 # Custom
-card_database_parsed.json
 final_database.py
-card_data_pipeline/1_data_acquisition/*.json
-card_data_pipeline/2_manual_data_refinement/*.json
+.gemini/
