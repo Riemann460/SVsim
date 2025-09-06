@@ -97,7 +97,7 @@ def convert_json_to_class_script(json_file_path, output_json_path):
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    set_ids = ["100", "101", "102", "900"]
+    set_ids = ["100", "101", "102", "103", "900"]
     for set_id in set_ids:
         convert_json_to_class_script(
             json_file_path=os.path.normpath(os.path.join(script_dir, f"../../card_database/2_kor_database/{set_id}_card_database_kor_added.json")),

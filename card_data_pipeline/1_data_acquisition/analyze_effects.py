@@ -5,7 +5,7 @@ from collections import Counter
 
 def analyze_effect_texts(file_path):
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    set_ids = ["100", "101", "102", "900"]
+    set_ids = ["100", "101", "102", "103", "900"]
 
     raw_effect_starters = Counter()
     raw_action_starters = Counter()

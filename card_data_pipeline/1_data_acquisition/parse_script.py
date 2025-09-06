@@ -45,273 +45,161 @@ def parse_effect_text(description: str, card_type_enum):
     return parsed_effects
 
 
+# 패턴과 해당 효과를 매핑하는 데이터 구조
+EFFECT_PATTERNS = [
+    {'regex': r"Enhance \((\d+)\): (.*)", 'type': EffectType.ENHANCE, 'groups': ['enhance_cost', 'action_text']},
+    {'regex': r"Evolve: (.*)", 'type': EffectType.ON_EVOLVE, 'groups': ['action_text']},
+    {'regex': r"Super-Evolve: (.*)", 'type': EffectType.ON_SUPER_EVOLVE, 'groups': ['action_text']},
+    {'regex': r"Fanfare: (.*)", 'type': EffectType.FANFARE, 'groups': ['action_text']},
+    {'regex': r"Engage: (.*)", 'type': EffectType.ACTIVATE, 'groups': ['action_text']},
+    {'regex': r"Engage \((\d+)\): (.*)", 'type': EffectType.ACTIVATE, 'groups': ['cost', 'action_text']},
+    {'regex': r"Last Words: (.*)", 'type': EffectType.LAST_WORDS, 'groups': ['action_text']},
+    {'regex': r"At the end of your turn, (.*)", 'type': EffectType.ON_MY_TURN_END, 'groups': ['action_text']},
+    {'regex': r"At the end of your opponent's turn, (.*)", 'type': EffectType.ON_OPPONENTS_TURN_END, 'groups': ['action_text']},
+    {'regex': r"When this follower evolves, (.*)", 'type': EffectType.EVOLVED, 'groups': ['action_text']},
+    {'regex': r"On Spellboost: (.*)", 'type': EffectType.SPELLBOOST, 'groups': ['action_text']},
+    {'regex': r"Countdown \((\d+)\)", 'type': EffectType.COUNTDOWN, 'groups': ['value']},
+]
+
+SIMPLE_KEYWORD_EFFECTS = {
+    "Ward": EffectType.WARD, "Storm": EffectType.STORM, "Rush": EffectType.RUSH,
+    "Bane": EffectType.BANE, "Drain": EffectType.DRAIN, "Barrier": EffectType.BARRIER,
+    "Ambush": EffectType.AMBUSH, "Intimidate": EffectType.INTIMIDATE, "Aura": EffectType.AURA
+}
+
+
 def _parse_single_effect(text: str):
-    simple_keywords = {
-        "Ward": EffectType.WARD, "Storm": EffectType.STORM, "Rush": EffectType.RUSH,
-        "Bane": EffectType.BANE, "Drain": EffectType.DRAIN, "Barrier": EffectType.BARRIER,
-        "Ambush": EffectType.AMBUSH, "Intimidate": EffectType.INTIMIDATE, "Aura": EffectType.AURA
-    }
-    if text in simple_keywords:
-        return Effect(type=simple_keywords[text])
+    """
+    효과 텍스트 한 줄을 파싱하여 Effect 객체로 변환합니다.
+    - 단순 키워드 효과를 먼저 확인합니다.
+    - 정규식 패턴 목록을 순회하며 복잡한 효과를 파싱합니다.
+    """
+    # 1. 단순 키워드 효과 처리
+    if text in SIMPLE_KEYWORD_EFFECTS:
+        return Effect(type=SIMPLE_KEYWORD_EFFECTS[text])
 
-    enhance_match = re.match(r"Enhance \((\d+)\): (.*)", text)
-    if enhance_match:
-        cost, sub_text = enhance_match.groups()
-        effect_attrs = parse_action(sub_text)
-        effect = Effect(**effect_attrs)
-        effect.update(type=EffectType.ENHANCE, enhance_cost=int(cost))
-        return effect
+    # 2. 데이터 기반으로 복잡한 효과 패턴 처리
+    for pattern in EFFECT_PATTERNS:
+        match = re.match(pattern['regex'], text)
+        if match:
+            # 정규식 그룹과 그룹 이름을 매핑하여 딕셔너리 생성
+            extracted_data = dict(zip(pattern['groups'], match.groups()))
 
-    evolve_match = re.match(r"Evolve: (.*)", text)
-    if evolve_match:
-        sub_text = evolve_match.group(1)
-        effect_attrs = parse_action(sub_text)
-        effect = Effect(**effect_attrs)
-        effect.update(type=EffectType.ON_EVOLVE)
-        return effect
+            # 숫자 값은 정수형으로 변환 시도
+            for key, value in extracted_data.items():
+                if key != 'action_text':
+                    try:
+                        extracted_data[key] = int(value)
+                    except ValueError:
+                        pass  # 변환 실패 시 문자열 유지
 
-    super_evolve_match = re.match(r"Super-Evolve: (.*)", text)
-    if super_evolve_match:
-        sub_text = super_evolve_match.group(1)
-        effect_attrs = parse_action(sub_text)
-        effect = Effect(**effect_attrs)
-        effect.update(type=EffectType.ON_SUPER_EVOLVE)
-        return effect
+            # 파싱할 액션 텍스트가 있으면 parse_action 호출
+            if 'action_text' in extracted_data:
+                action_attrs = parse_action(extracted_data.pop('action_text'))
+                extracted_data.update(action_attrs)
 
-    fanfare_match = re.match(r"Fanfare: (.*)", text)
-    if fanfare_match:
-        sub_text = fanfare_match.group(1)
-        effect_attrs = parse_action(sub_text)
-        effect = Effect(**effect_attrs)
-        effect.update(type=EffectType.FANFARE)
-        return effect
+            # 최종 Effect 객체 생성
+            effect = Effect(**extracted_data)
+            effect.update(type=pattern['type'])
+            return effect
 
-    engage_without_cost_match = re.match(r"Engage: (.*)", text)
-    if engage_without_cost_match:
-        sub_text = engage_without_cost_match.group(1)
-        effect_attrs = parse_action(sub_text)
-        effect = Effect(**effect_attrs)
-        effect.update(type=EffectType.ACTIVATE)
-        return effect
-
-    engage_with_cost_match = re.match(r"Engage \((\d+)\): (.*)", text)
-    if engage_with_cost_match:
-        cost, sub_text = engage_with_cost_match.groups()
-        effect_attrs = parse_action(sub_text)
-        effect = Effect(**effect_attrs)
-        effect.update(type=EffectType.ACTIVATE, cost=int(cost))
-        return effect
-
-    last_words_match = re.match(r"Last Words: (.*)", text)
-    if last_words_match:
-        sub_text = last_words_match.group(1)
-        effect_attrs = parse_action(sub_text)
-        effect = Effect(**effect_attrs)
-        effect.update(type=EffectType.LAST_WORDS)
-        return effect
-
-    at_end_of_turn_match = re.search(r"At the end of your turn, (.*)", text)
-    if at_end_of_turn_match:
-        sub_text = at_end_of_turn_match.group(1)
-        effect_attrs = parse_action(sub_text)
-        effect = Effect(**effect_attrs)
-        effect.update(type=EffectType.ON_MY_TURN_END)
-        return effect
-
-    at_end_of_opponent_turn_match = re.search(r"At the end of your opponent's turn, (.*)", text)
-    if at_end_of_opponent_turn_match:
-        sub_text = at_end_of_opponent_turn_match.group(1)
-        effect_attrs = parse_action(sub_text)
-        effect = Effect(**effect_attrs)
-        effect.update(type=EffectType.ON_OPPONENTS_TURN_END)
-        return effect
-
-    evovled_match = re.search(r"When this follower evolves, (.*)", text)
-    if evovled_match:
-        sub_text = evovled_match.group(1)
-        effect_attrs = parse_action(sub_text)
-        effect = Effect(**effect_attrs)
-        effect.update(type=EffectType.EVOLVED)
-        return effect
-
-    spellboost_match = re.search(r"On Spellboost: (.*)", text)
-    if spellboost_match:
-        sub_text = spellboost_match.group(1)
-        effect_attrs = parse_action(sub_text)
-        effect = Effect(**effect_attrs)
-        effect.update(type=EffectType.SPELLBOOST)
-        return effect
-
-    countdown_match = re.search(r"Countdown \((\d+)\)", text)
-    if countdown_match:
-        turns = countdown_match.group(1)
-        effect = Effect(type=EffectType.COUNTDOWN, value=turns)
-        return effect
-
+    # 3. 어떤 패턴에도 해당하지 않으면 원본 텍스트를 그대로 반환
     return Effect(raw_effect_text=text)
 
 
+# 대상 파싱을 위한 패턴 목록
+TARGET_PATTERNS = [
+    {'regex': r"this follower", 'target': TargetType.SELF},
+    {'regex': r"your leader", 'target': TargetType.OWN_LEADER},
+    {'regex': r"the enemy leader", 'target': TargetType.OPPONENT_LEADER},
+    {'regex': r"all enemy followers", 'target': TargetType.ALL_OPPONENT_FOLLOWERS},
+    {'regex': r"a random enemy follower", 'target': TargetType.OPPONENT_FOLLOWER_RANDOM},
+    {'regex': r"Select an enemy follower on the field", 'target': TargetType.OPPONENT_FOLLOWER_CHOICE},
+    {'regex': r"Select another allied follower on the field", 'target': TargetType.ANOTHER_ALLY_FOLLOWER_CHOICE},
+    {'regex': r"Select an allied follower on the field", 'target': TargetType.ALLY_FOLLOWER_CHOICE},
+    {'regex': r"all other allied followers on the field", 'target': TargetType.ALL_OTHER_ALLY_FOLLOWERS},
+]
+
+# 액션 파싱을 위한 패턴 목록
+ACTION_PATTERNS = [
+    # 소환
+    {'regex': r"Summon (\d+) copies of (.*)", 'process': ProcessType.SUMMON, 'groups': ['value', 'card_name'], 'target': TargetType.OWN_LEADER},
+    {'regex': r"Summon (.*)", 'process': ProcessType.SUMMON, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
+    # 패로 가져오기
+    {'regex': r"Add (\d+) copies of (.*) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['value', 'card_name'], 'target': TargetType.OWN_LEADER},
+    {'regex': r"Add (.*) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
+    # 스탯 버프
+    {'regex': r"Give (.*) \+(\d+)\/\+(\d+)", 'process': ProcessType.STAT_BUFF, 'groups': ['target_text', 'value', 'value2']},
+    {'regex': r"(.*) and give it \+(\d+)\/\+(\d+)", 'process': ProcessType.STAT_BUFF, 'groups': ['target_text', 'value', 'value2']},
+    # 데미지
+    {'regex': r"Deal (\d+) damage to (.*)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text']},
+    {'regex': r"(.*) and deal it (\d+) damage", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['target_text', 'value']},
+    # 파괴
+    {'regex': r"(.*) and destroy it", 'process': ProcessType.DESTROY, 'groups': ['target_text']},
+    # 드로우
+    {'regex': r"Draw (\d+) cards", 'process': ProcessType.DRAW, 'groups': ['value'], 'target': TargetType.OWN_LEADER},
+    {'regex': r"Draw a card", 'process': ProcessType.DRAW, 'groups': [], 'value': 1, 'target': TargetType.OWN_LEADER},
+    # 회복
+    {'regex': r"Restore (\d+) defense (.*)", 'process': ProcessType.HEAL, 'groups': ['value', 'target_text']},
+    # 효과 발동
+    {'regex': r"Replicate the effects of this card's Fanfare ability", 'process': ProcessType.TRIGGER_EFFECT, 'groups': [], 'value': EffectType.FANFARE},
+]
+
+
 def parse_target(text: str) -> Dict:
-    target = {}
-    self_match = re.search("this follower", text)
-    if self_match:
-        target['target'] = TargetType.SELF
-        return target
-
-    own_leader_match = re.search("your leader", text)
-    if own_leader_match:
-        target['target'] = TargetType.OWN_LEADER
-        return target
-
-    opponent_leader_match = re.search("the enemy leader", text)
-    if opponent_leader_match:
-        target['target'] = TargetType.OPPONENT_LEADER
-        return target
-
-    all_opponent_follower_match = re.search("all enemy followers", text)
-    if all_opponent_follower_match:
-        target['target'] = TargetType.ALL_OPPONENT_FOLLOWERS
-        return target
-
-    random_opponent_follower_match = re.search("a random enemy follower", text)
-    if random_opponent_follower_match:
-        target['target'] = TargetType.OPPONENT_FOLLOWER_RANDOM
-        return target
-
-    opponent_follower_choice_match = re.search("Select an enemy follower on the field", text)
-    if opponent_follower_choice_match:
-        target['target'] = TargetType.OPPONENT_FOLLOWER_CHOICE
-        return target
-
-    another_ally_follower_choice = re.search("Select another allied follower on the field", text)
-    if another_ally_follower_choice:
-        target['target'] = TargetType.ANOTHER_ALLY_FOLLOWER_CHOICE
-        return target
-
-    ally_follower_choice = re.search("Select an allied follower on the field", text)
-    if ally_follower_choice:
-        target['target'] = TargetType.ALLY_FOLLOWER_CHOICE
-        return target
-
-    all_other_ally_follower_match = re.search("all other allied followers on the field", text)
-    if all_other_ally_follower_match:
-        target['target'] = TargetType.ALL_OTHER_ALLY_FOLLOWERS
-        return target
-
-    target['raw_target_text'] = text
-    return target
+    """
+    대상 텍스트를 파싱하여 대상 정보를 담은 딕셔너리를 반환합니다.
+    """
+    for pattern in TARGET_PATTERNS:
+        if re.search(pattern['regex'], text):
+            return {'target': pattern['target']}
+    return {'raw_target_text': text}
 
 
 def parse_action(text: str):
-    action = {}
+    """
+    액션 텍스트를 파싱하여 액션 정보를 담은 딕셔너리를 반환합니다.
+    """
+    for pattern in ACTION_PATTERNS:
+        match = re.search(pattern['regex'], text)
+        if match:
+            action = {'process': pattern['process']}
+            groups = dict(zip(pattern.get('groups', []), match.groups()))
 
-    summon_match = re.search(r"Summon (.*)", text)
-    if summon_match:
-        summon_copies_match = re.search(r"Summon (\d+) copies of (.*)", text)
-        if summon_copies_match:
-            count = int(summon_copies_match.group(1))
-            card_name = summon_copies_match.group(2).strip().replace('.', '')
-            action['process'] = ProcessType.SUMMON
-            action['target'] = TargetType.OWN_LEADER
-            action['value'] = [card_name] * count
+            # target_text가 있으면 parse_target 호출
+            if 'target_text' in groups:
+                action.update(parse_target(groups['target_text']))
+
+            # value, value2 처리
+            if 'value' in groups:
+                try:
+                    action['value'] = int(groups['value'])
+                except ValueError:
+                    action['value'] = groups['value'] # 숫자 변환 실패 시 문자열
+            if 'value2' in groups:
+                action['value'] = (action.get('value', 0), int(groups['value2']))
+
+            # 고정 value, target 처리
+            if 'value' in pattern:
+                action['value'] = pattern['value']
+            if 'target' in pattern:
+                action['target'] = pattern['target']
+
+            # 카드 이름 처리 (단일/복수)
+            if 'card_name' in groups:
+                count = int(groups.get('value', 1))
+                card_name = groups['card_name'].strip().replace('.', '')
+                action['value'] = [card_name] * count
+            elif 'card_names' in groups:
+                card_list_str = groups['card_names']
+                cards = re.split(r'\s+and\s+|\s*,\s*an?\s*|\s*,\s*', card_list_str)
+                card_names = [re.sub(r'^an?\s+', '', card).strip().replace('.', '') for card in cards if card.strip()]
+                if card_names:
+                    action['value'] = card_names[0] if len(card_names) == 1 else card_names
+
             return action
 
-        card_list_str = text.replace("Summon ", "")
-        cards = re.split(r'\s+and\s+|\s*,\s*an?\s*|\s*,\s*', card_list_str)
-        card_names = [re.sub(r'^an?\s+', '', card).strip().replace('.', '') for card in cards if card.strip()]
-
-        if card_names:
-            action['process'] = ProcessType.SUMMON
-            action['target'] = TargetType.OWN_LEADER
-            # 카드가 하나면 문자열, 여러 개면 리스트로 저장
-            action['value'] = card_names[0] if len(card_names) == 1 else card_names
-            return action
-
-    add_match = re.search(r"Add (.*) to your hand", text)
-    if add_match:
-        add_copies_match = re.search(r"Add (\d+) copies of (.*) to your hand", text)
-        if add_copies_match:
-            count = int(add_copies_match.group(1))
-            card_name = add_copies_match.group(2).strip().replace('.', '')
-            action['process'] = ProcessType.ADD_CARD_TO_HAND
-            action['target'] = TargetType.OWN_LEADER
-            action['value'] = [card_name] * count
-            return action
-
-        card_list_str = text.replace("Add ", "").replace(" to your hand.", "")
-        cards = re.split(r'\s+and\s+|\s*,\s*an?\s*|\s*,\s*', card_list_str)
-        card_names = [re.sub(r'^an?\s+', '', card).strip().replace('.', '') for card in cards if card.strip()]
-
-        if card_names:
-            action['process'] = ProcessType.ADD_CARD_TO_HAND
-            action['target'] = TargetType.OWN_LEADER
-            # 카드가 하나면 문자열, 여러 개면 리스트로 저장
-            action['value'] = card_names[0] if len(card_names) == 1 else card_names
-            return action
-
-    buff_match = re.search(r"Give (.*) \+(\d+)\/\+(\d+)", text)
-    if buff_match:
-        action = parse_target(buff_match.group(1))
-        action['process'] = ProcessType.STAT_BUFF
-        action['value'] = (int(buff_match.group(2)), int(buff_match.group(3)))
-        return action
-
-    buff_match_2 = re.search(r"(.*) and give it \+(\d+)\/\+(\d+)", text)
-    if buff_match_2:
-        action = parse_target(buff_match_2.group(1))
-        action['process'] = ProcessType.STAT_BUFF
-        action['value'] = (int(buff_match_2.group(2)), int(buff_match_2.group(3)))
-        return action
-
-    deal_damage_match = re.search(r"(.*) and deal it (\d+) damage", text)
-    if deal_damage_match:
-        action = parse_target(deal_damage_match.group(1))
-        action['process'] = ProcessType.DEAL_DAMAGE
-        action['value'] = int(deal_damage_match.group(2))
-        return action
-
-    deal_damage_match_2 = re.search(r"Deal (\d+) damage to (.*)", text)
-    if deal_damage_match_2:
-        action = parse_target(deal_damage_match_2.group(2))
-        action['process'] = ProcessType.DEAL_DAMAGE
-        action['value'] = int(deal_damage_match_2.group(1))
-        return action
-
-    destroy_match = re.search(r"(.*) and destroy it", text)
-    if destroy_match:
-        action = parse_target(destroy_match.group(1))
-        action['process'] = ProcessType.DESTROY
-        return action
-
-    replicate_fanfare_match = re.search(r"Replicate the effects of this card's Fanfare ability", text)
-    if replicate_fanfare_match:
-        action['process'] = ProcessType.TRIGGER_EFFECT
-        action['value'] = EffectType.FANFARE
-        return action
-
-    draw_single_match = re.search(r"Draw a card", text)
-    if draw_single_match:
-        action['process'] = ProcessType.DRAW
-        action['target'] = TargetType.OWN_LEADER
-        action['value'] = 1
-        return action
-
-    draw_multiple_match = re.search(r"Draw (\d+) cards", text)
-    if draw_multiple_match:
-        action['process'] = ProcessType.DRAW
-        action['target'] = TargetType.OWN_LEADER
-        action['value'] = int(draw_multiple_match.group(1))
-        return action
-
-    heal_match = re.search(r"Restore (\d+) defense (.*)", text)
-    if heal_match:
-        action = parse_target(heal_match.group(2))
-        action['process'] = ProcessType.HEAL
-        action['value'] = int(heal_match.group(1))
-        return action
-
-    action['raw_action_text'] = text
-    return action
+    return {'raw_action_text': text}
 
 def get_required_listeners(effects: List[Effect]) -> List:
     """효과 목록을 기반으로 필요한 이벤트 리스너 목록을 결정합니다."""
