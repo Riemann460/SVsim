@@ -122,6 +122,13 @@ TARGET_PATTERNS = [
 
 # 액션 파싱을 위한 패턴 목록
 ACTION_PATTERNS = [
+    # 대상 지정 + 단일 행동 (구체적인 패턴을 먼저 확인)
+    {'regex': r"Select an enemy follower on the field and destroy it", 'process': ProcessType.DESTROY, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
+    {'regex': r"Select an enemy follower on the field and banish it", 'process': ProcessType.BANISH, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
+    {'regex': r"Select an enemy follower on the field and return it to hand", 'process': ProcessType.RETURN_TO_HAND, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
+    {'regex': r"Select an enemy follower on the field and set its defense to (\d+)", 'process': ProcessType.SET_DEFENSE, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': ['value']},
+    {'regex': r"Select an enemy follower on the field and give it -0\/-(\d+)", 'process': ProcessType.STAT_BUFF, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': ['value'], 'special_handling': 'neg_def_buff'},
+
     # 소환
     {'regex': r"Summon (\d+) copies of (.*)", 'process': ProcessType.SUMMON, 'groups': ['value', 'card_name'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Summon (.*)", 'process': ProcessType.SUMMON, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
@@ -134,7 +141,7 @@ ACTION_PATTERNS = [
     # 데미지
     {'regex': r"Deal (\d+) damage to (.*)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text']},
     {'regex': r"(.*) and deal it (\d+) damage", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['target_text', 'value']},
-    # 파괴
+    # 파괴 (일반)
     {'regex': r"(.*) and destroy it", 'process': ProcessType.DESTROY, 'groups': ['target_text']},
     # 드로우
     {'regex': r"Draw (\d+) cards", 'process': ProcessType.DRAW, 'groups': ['value'], 'target': TargetType.OWN_LEADER},
@@ -184,6 +191,10 @@ def parse_action(text: str):
                 action['value'] = pattern['value']
             if 'target' in pattern:
                 action['target'] = pattern['target']
+
+            # 특수 핸들링 로직
+            if pattern.get('special_handling') == 'neg_def_buff':
+                action['value'] = (0, -int(groups['value']))
 
             # 카드 이름 처리 (단일/복수)
             if 'card_name' in groups:
