@@ -1,28 +1,12 @@
-# Shadowverse Clone
+# Shadowverse Simulator
 
-This project is a Python-based implementation of the card game "Shadowverse". It includes a game engine, card data management, and a simple text-based UI.
+This project is a Python-based implementation of the card game "Shadowverse".
 
-## Features
+## Development Philosophy
 
-*   Card game logic (playing cards, attacking, evolving, etc.)
-*   Card data pipeline for crawling card information from `shadowverse.gg`.
-*   Effect system with an event manager.
-*   Text-based GUI for user interaction.
+This project was developed with the following principles in mind:
 
-## How to Run
-
-To run the game, execute the following command in your terminal:
-
-```bash
-python main.py
-```
-
-## Project Structure
-
-*   `main.py`: Main entry point of the game.
-*   `main_game_logic.py`: Contains the core game logic.
-*   `card.py`, `deck.py`, `player.py`, etc.: Core components of the game.
-*   `card_data.py`: Loads and manages card data.
-*   `card_data_pipeline/`: A data pipeline to crawl and process card data.
-    *   `1_data_acquisition/card_data_crawl.py`: Crawls card data from `shadowverse.gg`.
-*   `card_database/`: Contains the card data in JSON format.
+*   **Modularity and Extensibility:** The code is designed to be modular and extensible. The core game logic, card data, and effects are separated to make it easy to add new cards, effects, and features in the future.
+*   **Event-Driven Architecture:** The game uses an event-driven architecture to handle complex interactions between cards and effects. This makes the code more maintainable and easier to debug.
+*   **Data-Driven Design:** Card data is stored in JSON files, making it easy to manage and update without changing the core game logic. The `card_data_pipeline` is designed to automate the process of collecting and processing card data.
+*   **Readability and Maintainability:** The code is written to be as readable and maintainable as possible. Clear naming conventions and comments are used to make the code easy to understand and modify.
