@@ -66,6 +66,39 @@ class Game:
         """사용자에게 선택을 요청하고 그 결과를 반환합니다."""
         return self.gui.get_user_choice(prompt, choices)
 
+    def process_player_choice(self):
+        """플레이어의 모드 선택을 처리합니다."""
+        if not self.game_state_manager.is_awaiting_choice:
+            return
+
+        player_id = self.game_state_manager.player_awaiting_choice
+        pending_effect = self.game_state_manager.pending_choice
+        
+        # 선택지 텍스트를 생성
+        choices = {effect.get('raw_action_text', f"효과 {i+1}"): i 
+                   for i, effect in enumerate(pending_effect.choices)}
+
+        # GUI를 통해 플레이어의 선택을 받음
+        prompt = f"{player_id}, 효과를 선택하세요:"
+        chosen_index_str = self.gui.get_user_choice(prompt, choices)
+
+        if chosen_index_str is not None and chosen_index_str != '':
+            chosen_index = int(chosen_index_str)
+            # 선택된 효과를 가져옴
+            chosen_effect = pending_effect.choices[chosen_index]
+            
+            # 상태 초기화
+            self.game_state_manager.is_awaiting_choice = False
+            self.game_state_manager.pending_choice = None
+            self.game_state_manager.player_awaiting_choice = None
+
+            # 선택된 효과 실행
+            # CHOOSE 효과를 발동시킨 원래 카드를 caster_id로 사용해야 함
+            caster_id = pending_effect.get('caster_id') 
+            self.effect_processor.resolve_effect(chosen_effect, caster_id, self.game_state_manager, None)
+            
+            self.gui.update()
+
     def resolve_effects_type(self, caster_card_id: str, effect_type: EffectType, target_id: str):
         """특정 카드에 대해 지정된 타입의 모든 효과를 해결합니다."""
         effect_list = self.game_state_manager.get_card_effects(caster_card_id, effect_type)

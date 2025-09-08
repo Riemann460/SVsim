@@ -32,6 +32,7 @@ def parse_effect_text(description: str, card_type_enum):
 
     lines = [line.strip() for line in description.strip().split('\n') if line.strip()]
     parsed_effects = []
+
     if card_type_enum == "SPELL":
         for line in lines:
             effect_attrs = parse_action(line)
@@ -40,9 +41,32 @@ def parse_effect_text(description: str, card_type_enum):
             parsed_effects.append(effect)
         return parsed_effects
 
-    for line in lines:
-        parsed_effects.append(_parse_single_effect(line))
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+
+        # "Select a Mode" 구문이 포함된 라인 찾기
+        if "Select a Mode" in line:
+            # 트리거 효과(예: Fanfare)와 선택지(choices)를 함께 파싱
+            trigger_effect = _parse_single_effect(line)
+            trigger_effect.update(process=ProcessType.CHOOSE, choices=[])
+
+            i += 1
+            # 다음 줄부터 숫자(1., 2.)로 시작하는 선택지들을 파싱
+            while i < len(lines) and re.match(r"^\d\.", lines[i]):
+                choice_text = re.sub(r"^\d\.\s*", "", lines[i])
+                action_attrs = parse_action(choice_text)
+                trigger_effect.choices.append(Effect(**action_attrs))
+                i += 1
+
+            parsed_effects.append(trigger_effect)
+        else:
+            # 일반 효과 처리
+            parsed_effects.append(_parse_single_effect(line))
+            i += 1
+
     return parsed_effects
+
 
 
 # 패턴과 해당 효과를 매핑하는 데이터 구조
@@ -59,6 +83,7 @@ EFFECT_PATTERNS = [
     {'regex': r"When this follower evolves, (.*)", 'type': EffectType.EVOLVED, 'groups': ['action_text']},
     {'regex': r"On Spellboost: (.*)", 'type': EffectType.SPELLBOOST, 'groups': ['action_text']},
     {'regex': r"Countdown \((\d+)\)", 'type': EffectType.COUNTDOWN, 'groups': ['value']},
+    {'regex': r"Whenever (.*) enters the field, (.*)", 'type': EffectType.ON_FOLLOWER_ENTER_FIELD, 'groups': ['condition_text', 'action_text']},
 ]
 
 SIMPLE_KEYWORD_EFFECTS = {
@@ -95,8 +120,15 @@ def _parse_single_effect(text: str):
 
             # 파싱할 액션 텍스트가 있으면 parse_action 호출
             if 'action_text' in extracted_data:
-                action_attrs = parse_action(extracted_data.pop('action_text'))
-                extracted_data.update(action_attrs)
+                action_text = extracted_data.pop('action_text')
+                # 만약 action_text가 모드 선택이라면, process를 CHOOSE로 설정
+                if "Select a Mode" in action_text:
+                    extracted_data['process'] = ProcessType.CHOOSE
+                    # choices는 parse_effect_text에서 채워줄 것이므로 여기서는 비워둠
+                    extracted_data['choices'] = []
+                else:
+                    action_attrs = parse_action(action_text)
+                    extracted_data.update(action_attrs)
 
             # 최종 Effect 객체 생성
             effect = Effect(**extracted_data)

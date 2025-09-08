@@ -13,6 +13,9 @@ if __name__ == "__main__":
     for turn_num in range(1, 21):  # 20턴까지 진행 예시
 
         while True:
+            # '선택 대기' 상태이면 선택부터 처리
+            game.process_player_choice()
+
             # 게임 상태 출력
             current_pp, max_pp, player_field_card_ids, opponent_field_card_ids = game.get_start_turn_ifo(current_player)
 

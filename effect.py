@@ -10,6 +10,14 @@ class Effect:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+        # 'CHOOSE' 타입에 대한 유효성 검사 추가
+        if self.get('type') and self.get('type').name == 'CHOOSE':
+            if 'choices' not in self.attributes or not isinstance(self.attributes['choices'], list):
+                raise ValueError("CHOOSE effect must have a 'choices' list.")
+            for choice in self.attributes['choices']:
+                if not isinstance(choice, Effect):
+                    raise TypeError("All items in 'choices' must be Effect objects.")
+
     def __repr__(self):
         """Effect 객체를 대표하는 문자열을 반환합니다."""
         parts = []
@@ -34,21 +42,21 @@ class Effect:
             setattr(self, key, value)
 
     def to_dict(self) -> Dict[str, Any]:
-        """효과를 딕셔너리 형태로 변환 (필요시 사용)"""
-        keys = self.attributes.keys()
+        """효과를 딕셔너리 형태로 재귀적으로 변환합니다."""
         data = {}
-
-        if 'type' in self.attributes.keys():
-            data['type'] = self.type.name
-            keys = [key for key in self.attributes.keys() if key != 'type']
-
-        for key in keys:
-            value = self.attributes[key]
+        for key, value in self.attributes.items():
             if isinstance(value, Enum):
                 data[key] = value.name
+            elif isinstance(value, Effect):
+                data[key] = value.to_dict()  # 재귀 호출
+            elif isinstance(value, list):
+                # 리스트 내의 Effect 객체들도 변환
+                data[key] = [
+                    item.to_dict() if isinstance(item, Effect) else item
+                    for item in value
+                ]
             else:
                 data[key] = value
-
         return data
 
     def get(self, key: str, default: Any = None) -> Any:

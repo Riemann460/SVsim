@@ -20,6 +20,9 @@ class GameStateManager:
         self.cards = []
         self._next_card_instance_id = 0
         self.game = None # Game 인스턴스를 참조하기 위한 필드 추가
+        self.is_awaiting_choice: bool = False
+        self.pending_choice: Optional[Effect] = None
+        self.player_awaiting_choice: Optional[str] = None
 
     def create_card_instance(self, card_data, owner_id):
         """새로운 카드 인스턴스를 생성하고 게임에 추가합니다."""

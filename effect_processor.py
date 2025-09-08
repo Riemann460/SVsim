@@ -416,7 +416,15 @@ class EffectProcessor:
         if not caster_card:
             print(f"[ERROR] resolve_effect - caster card with id {caster_id} not found.")
             return
-        
+
+        if effect_data.get('process') == ProcessType.CHOOSE:
+            effect_data.update(caster_id=caster_id)  # caster_id를 Effect 객체에 저장
+            game_state_manager.is_awaiting_choice = True
+            game_state_manager.pending_choice = effect_data
+            game_state_manager.player_awaiting_choice = caster_card.owner_id
+            print(f"[LOG] {caster_card.owner_id}의 선택 대기. 선택지: {effect_data.choices}")
+            return  # 여기서 처리를 중단하고 플레이어의 입력을 기다림
+
         effect_type = effect_data.type
         process_type = effect_data.process
         handler = self.process_handlers.get(process_type)

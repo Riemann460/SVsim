@@ -62,6 +62,7 @@ class GamePhase(Enum):
 
 class EffectType(Enum):
     """카드의 키워드 종류를 정의"""
+    CHOOSE = "모드 선택"
     SPELLBOOST = "주문 증폭"
     AURA = "오라"
     CLASH = "교전시"
@@ -91,6 +92,7 @@ class EffectType(Enum):
 
 class ProcessType(Enum):
     """효과의 처리 방식을 정의"""
+    CHOOSE = "모드 선택"
     STAT_BUFF = "스탯 버프"
     DRAW = "카드 드로우"
     HEAL = "체력 회복"
