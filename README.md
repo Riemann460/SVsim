@@ -37,4 +37,4 @@ This project is a Python-based implementation of the card game "Shadowverse".
 
 ## Card Data Pipeline
 
-The project includes a data pipeline (`card_data_pipeline/`) responsible for building and maintaining the game's card database. It automates crawling data from external sources, processing it through various refinement stages, and producing the final JSON database used by the game engine.
+The project includes a data pipeline (`card_data_pipeline/`) responsible for building and maintaining the game's card database. It automates crawling data from external sources, processing it through various refinement stages, and producing the final JSON database used by the game engine..
