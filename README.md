@@ -20,7 +20,7 @@ This project is a Python-based implementation of the card game "Shadowverse".
 *   **Evolution System:** Both standard **Evolution** (using EP) and **Super Evolution** (using SEP) mechanics are functional.
 *   **Card Effects & Keywords:** A robust, event-driven `EffectProcessor` handles a wide variety of effects:
     - **Triggers:** Fanfare, Last Words, On-Evolve, On-Super-Evolve, Turn End triggers, etc.
-    - **Keywords:** `Aura`, `Ambush`, `Bane`, `Drain`, `Barrier`, `Countdown`, `Spellboost`.
+    - **Keywords:** `Aura`, `Ambush`, `Bane`, `Drain`, `Barrier`, `Countdown`, `Spellboost`, etc.
     - **Targeting:** Supports complex targeting (choice, random, conditional) and player choices for "Choose" effects.
 *   **Functional GUI:** A `tkinter`-based GUI provides a visual representation of the game state, including each player's hand, field, and stats. It also facilitates user interactions like mulligan and effect choices.
 
