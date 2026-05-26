@@ -1,33 +1,34 @@
-# PRD: 더미 파일 정리 및 시뮬레이터 기능 검증 (Follow-up)
+# PRD: 문장 효과(Crest) 및 미구현 키워드 도입과 DB 분석
 
 ## 1. 개요
-- **목적**: 깃허브 잔디 심기용 일일 더미 커밋 관련 파일을 완전히 삭제하여 저장소를 정리하고, 현재까지 구현된 Shadowverse Simulator (`SVsim`)의 기능을 분석 및 검증(Follow-up)한다.
+- **목적**: Shadowverse Simulator (`SVsim`)에 문장 효과(Crest) 메커니즘과 미구현 키워드들을 구현하고, 103 셋을 포함한 모든 카드를 활성 DB에 추가하고 추가 키워드 분석을 완료한다.
 - **대상 프로젝트**: `SVsim`
 
 ## 2. 요구사항
-- **더미 파일 제거**:
-  - `dummy.txt`, `update_dummy.py`, `test_update_dummy.py`, `test_git_stage.py`, `test_git_commit.py` 파일을 로컬 및 Git 저장소에서 완전히 삭제한다.
-  - 삭제 이력을 Git에 반영한다 (커밋 메시지: `chore: remove daily dummy commit files and tests`).
-- **기능 검증 (Follow-up)**:
-  - 현재 시뮬레이터의 구현 구조를 파악하고, 핵심 동작(턴 진행, PP/EP/SEP 관리, 카드 드로우, 플레이, 진화/초진화, 전투, 카드 효과 트리거 등)의 정상 작동 여부를 검증한다.
-  - 시뮬레이터 실행 파일(`main.py`)이 오류 없이 정상 작동하는지 확인한다.
+- **DB 병합 및 미구현 키워드 리스트업 (완료)**:
+  - 100, 101, 102, 103, 900 셋을 병합하여 전체 420장의 카드 데이터베이스를 구축하고 검증한다.
+  - 이펙트 분석 스크립트를 통해 미구현된 키워드와 액션 프로세스를 정의하고 리스트업한다.
+- **문장 효과(Crest) 메커니즘 구현**:
+  - `Player` 클래스에 문장(Crest)을 관리할 수 있는 컬렉션 필드를 설계한다.
+  - `GAIN_CREST` 프로세스를 도입하여 추종자 진화/초진화 혹은 출격(Fanfare) 시 플레이어에게 문장을 부여한다.
+  - 문장 부여 시 플레이어에게 지속적인 효과(예: 드로우, 피해량 가감 등)가 적용될 수 있도록 이벤트 리스너를 매핑한다.
+- **추가 미구현 핵심 키워드(융합/Fuse, 버리기/Discard) 구현**:
+  - 데이터 분석 결과를 기반으로 융합(Fuse) 및 버리기(Discard) 프로세스를 지원할 수 있는 기초 이벤트를 구현한다.
 
 ## 3. 상세 사양
-- **삭제 대상 목록**:
-  - `SVsim/dummy.txt` [DELETE]
-  - `SVsim/update_dummy.py` [DELETE]
-  - `SVsim/test_update_dummy.py` [DELETE]
-  - `SVsim/test_git_stage.py` [DELETE]
-  - `SVsim/test_git_commit.py` [DELETE]
-- **기능 분석 및 문서화**:
-  - 현재 구현된 아키텍처 및 메커니즘을 파악하여 분석 보고서 형식으로 작성하거나 가이드한다.
+- **문장 효과(Crest) 상태 관리**:
+  - `Player` 객체 생성 시 `self.crests = []` 혹은 문장 인스턴스 리스트를 추가한다.
+  - `EffectProcessor`에 `_process_gain_crest` 메서드를 추가하여 지정한 플레이어에게 문장을 추가하고 필요한 전역 리스너를 바인딩한다.
+- **Enums 확장**:
+  - `enums.py`에 `ProcessType.GAIN_CREST` 및 `ProcessType.DISCARD`, `ProcessType.FUSE` 등을 추가 정의한다.
 
 ## 4. 예상 난관 및 논리적 대응
-- **난관**: `dummy.txt`가 이미 Git에 추적되고 있어 단순 파일 삭제 시 Git status 상에 변동이 남아있게 됨.
-  - **대응**: `git rm` 명령을 사용하거나 로컬 파일 삭제 후 `git add -A` 및 `git commit`을 진행하여 완전히 반영함.
-- **난관**: `tkinter` 기반 GUI가 환경 요인(예: GUI 환경 미지원 등)으로 인해 테스트/실행 단계에서 차단될 수 있음.
-  - **대응**: GUI 실행이 불가한 경우를 대비하여, GUI를 Mocking하거나 게임 엔진 자체의 단위 테스트 또는 콘솔 실행 스크립트를 통해 코어 로직의 정상 여부를 검증함.
+- **난관**: 문장은 전장(Zone.FIELD)에 존재하는 카드가 아니므로, 카드가 묘지로 이동하더라도 효과 리스너가 해제되지 않고 게임 종료 시까지 지속되어야 함.
+  - **대응**: 문장 효과 리스너를 전역(Global) 이벤트 리스너로 등록하고, 해제 시점을 카드의 전장 퇴장이 아닌 플레이어의 소멸 시점(혹은 게임 종료)으로 독립 관리함.
+- **난관**: `Fuse(융합)` 프로세스는 패의 특정 카드를 대상 카드에 합치는 복잡한 유저 인터랙션을 수반함.
+  - **대응**: GUI의 직접적인 융합 창 구현은 후순위로 미루고, 코어 엔진의 데이터 처리 로직(`game.fuse_cards`)과 검증 유닛 테스트를 우선적으로 구현함.
 
 ## 5. 진행 상황
-- [x] 1. Delete Dummy Files and Commit (2026-05-26 완료)
-- [x] 2. Core Game Logic and GUI Follow-up Verification (2026-05-26 완료)
+- [x] 1. DB Merge and Unimplemented Keywords Listing (2026-05-26 완료)
+- [ ] 2. Crest Mechanism Implementation and Verification
+- [ ] 3. Fuse and Discard Core Mechanics Implementation

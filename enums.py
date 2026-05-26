@@ -23,6 +23,8 @@ class EventType(Enum):
     DAMAGE_DEALT_BY_COMBAT = "데미지_입힘"  # 흡혈 능력 발동
     TURN_END = "턴_종료"  # 턴 종료시 발동
     FOLLOWER_ENTER_FIELD = "추종자_전장_소환됨"  # 추종자 소환시 능력 발동
+    CARD_DISCARDED = "카드_버려짐"  # 카드 버려짐
+    FUSE_DECLARED = "융합_선언됨"  # 융합 발동
 #    PP_GAINED = "PP_획득됨"
 #    HEALED = "회복됨"
 #    PP_SPENT = "PP_소모됨"
@@ -111,6 +113,9 @@ class ProcessType(Enum):
     RETURN_TO_DECK = "카드를 덱으로 되돌림"
     RETURN_TO_HAND = "카드를 패로 되돌림"
     TRIGGER_EFFECT = "다른 효과 발동"
+    GAIN_CREST = "문장 획득"
+    FUSE = "융합"
+    DISCARD = "버리기"
 
 
 class TargetType(Enum):
