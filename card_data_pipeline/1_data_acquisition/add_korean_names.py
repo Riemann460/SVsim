@@ -1,101 +1,111 @@
+# -*- coding: utf-8 -*-
+# 이 파일은 공식 덱포탈 API를 호출하여 전체 한글 카드 명칭을 획득하고 로컬 DB에 추가합니다.
+
 import json
-import time
 import os
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+import urllib.request
+import time
 
-# --- 설정 ---
+# 설정값들입니다.
+API_URL_TEMPLATE = "https://shadowverse-wb.com/web/CardList/cardList?offset={offset}"
+TARGET_EXPANSIONS = ["104", "105", "106", "107", "900"]
 WORKING_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-TARGET_EXPANSION = '103'
-INPUT_FILENAME = os.path.join(WORKING_DIRECTORY, f'{TARGET_EXPANSION}_card_database_raw.json')
-OUTPUT_FILENAME = os.path.join(WORKING_DIRECTORY, f'{TARGET_EXPANSION}_card_database_kor_added.json')
-BASE_URL = "https://shadowverse-wb.com/ko/deck/cardslist/card/?card_id="
 
-def get_korean_card_name(driver, card_id):
-    """
-    주어진 card_id에 대해 selenium을 사용하여 한글 카드 이름을 가져옵니다.
-    """
-    url = f"{BASE_URL}{card_id}"
-    try:
-        driver.get(url)
-        # 페이지의 한글 이름 태그가 나타날 때까지 최대 10초간 기다립니다.
-        wait = WebDriverWait(driver, 10)
-        name_element = wait.until(
-            EC.visibility_of_element_located((By.CLASS_NAME, "category-title"))
-        )
-        return name_element.text.strip()
-    except TimeoutException:
-        print(f"  -> URL 로딩 시간 초과 또는 이름 요소를 찾을 수 없습니다: {url}")
-        return None
-    except Exception as e:
-        print(f"  -> Selenium 처리 중 예기치 않은 오류 발생: {e}")
-        return None
 
-def main():
-    """
-    raw 데이터 파일을 읽어 각 카드에 한글 이름을 추가하고,
-    파싱된 데이터 파일로 저장합니다.
-    """
+def fetch_all_korean_names() -> dict:
+    """공식 API를 20개 단위의 offset 루프로 호출하여 전체 한글 카드명 매핑 테이블을 생성합니다."""
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "lang": "ko",
+        "Referer": "https://shadowverse-wb.com/ko/deck/cardslist/"
+    }
+    
+    korean_names = {}
+    offset = 0
+    total_count = 999  # 초기값으로 큰 수를 세팅하고 첫 응답에서 업데이트합니다.
+    
+    print("[INFO] 공식 API로부터 한글 카드명 수집을 시작합니다.")
+    
+    while offset < total_count:
+        url = API_URL_TEMPLATE.format(offset=offset)
+        print(f"  -> Offset {offset} 데이터 수집 중...")
+        req = urllib.request.Request(url, headers=headers)
+        
+        try:
+            with urllib.request.urlopen(req, timeout=10.0) as response:
+                res_data = json.loads(response.read().decode("utf-8"))
+            
+            data = res_data.get("data", {})
+            total_count = data.get("count", 999)
+            details = data.get("card_details", {})
+            
+            if not details:
+                print("  -> 더 이상 디테일 정보가 없어 루프를 탈출합니다.")
+                break
+                
+            for card_id_str, val in details.items():
+                common = val.get("common", {})
+                name_ko = common.get("name")
+                if name_ko:
+                    korean_names[card_id_str] = name_ko
+                    
+            offset += 20
+            time.sleep(0.05)
+            
+        except Exception as e:
+            print(f"  [ERROR] Offset {offset} 수집 중 에러 발생 {e}")
+            break
+            
+    print(f"[INFO] 수집 완료. 총 {len(korean_names)}개의 한글 카드명을 확보했습니다.")
+    return korean_names
+
+
+def process_expansion(korean_names: dict, expansion_id: str):
+    """지정한 카드팩에 대해 한글 카드명을 로컬 DB에 추가하고 새 경로에 저장합니다."""
+    input_dir = os.path.normpath(os.path.join(WORKING_DIRECTORY, "../../card_database/1_raw_database"))
+    output_dir = os.path.normpath(os.path.join(WORKING_DIRECTORY, "../../card_database/2_kor_database"))
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    input_filename = os.path.join(input_dir, f"{expansion_id}_card_database_raw.json")
+    output_filename = os.path.join(output_dir, f"{expansion_id}_card_database_kor_added.json")
+
     try:
-        with open(INPUT_FILENAME, 'r', encoding='utf-8') as f:
+        with open(input_filename, 'r', encoding='utf-8') as f:
             card_database = json.load(f)
     except FileNotFoundError:
-        print(f"오류: 입력 파일 '{INPUT_FILENAME}'을(를) 찾을 수 없습니다.")
-        return
-    except json.JSONDecodeError:
-        print(f"오류: '{INPUT_FILENAME}' 파일이 올바른 JSON 형식이 아닙니다.")
+        print(f"오류. 입력 파일 '{input_filename}'이 존재하지 않아 건너뜁니다.")
         return
 
-    print(f"'{INPUT_FILENAME}'에서 {len(card_database)}개의 카드 데이터를 로드했습니다.")
-
-    # --- Selenium WebDriver 설정 ---
-    options = Options()
-    options.add_argument("--headless")  # 브라우저 창을 띄우지 않음
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-    # 이미지 로딩 비활성화로 속도 향상
-    prefs = {"profile.managed_default_content_settings.images": 2}
-    options.add_experimental_option("prefs", prefs)
-    driver = webdriver.Chrome(options=options)
-
-    print("한글 카드 이름 추가 작업을 시작합니다...")
     updated_card_database = {}
+    matched_count = 0
 
-    try:
-        for i, (card_id, card_data) in enumerate(card_database.items()):
-            if card_data.get('카드 이름 (한글)') and card_data.get('카드 이름 (한글)') is not None:
-                print(f"[{i+1}/{len(card_database)}] 카드 ID: {card_id} (이미 처리됨, 건너뜁니다)")
-                updated_card_database[card_id] = card_data
-                continue
+    for card_id, card_data in card_database.items():
+        name_ko = korean_names.get(card_id)
+        if name_ko:
+            card_data['카드 이름 (한글)'] = name_ko
+            matched_count += 1
+        else:
+            card_data['카드 이름 (한글)'] = None
 
-            print(f"[{i+1}/{len(card_database)}] 카드 ID: {card_id} 처리 중...")
-            korean_name = get_korean_card_name(driver, card_id)
+        updated_card_database[card_id] = card_data
 
-            if korean_name:
-                card_data['카드 이름 (한글)'] = korean_name
-                print(f"  -> 찾은 이름: {korean_name}")
-            else:
-                card_data['카드 이름 (한글)'] = None
-                print("  -> 한글 이름을 찾지 못했습니다.")
+    with open(output_filename, 'w', encoding='utf-8') as f:
+        json.dump(updated_card_database, f, ensure_ascii=False, indent=4)
+    print(f"[COMPLETE] {expansion_id} 한글 카드명 저장 완료. 매칭된 카드 {matched_count}개 중 {len(card_database)}개.")
 
-            updated_card_database[card_id] = card_data
 
-    finally:
-        # 작업이 끝나거나 오류 발생 시 브라우저 종료
-        driver.quit()
+def main():
+    """전체 한국어 카드명 사전을 로드하고 익스팬션별 처리를 대리 실행합니다."""
+    korean_names = fetch_all_korean_names()
+    if not korean_names:
+        print("[ERROR] 한글 카드명을 가져오지 못해 처리를 종료합니다.")
+        return
+        
+    for exp_id in TARGET_EXPANSIONS:
+        process_expansion(korean_names, exp_id)
 
-    # 업데이트된 데이터베이스를 새 파일에 저장
-    try:
-        with open(OUTPUT_FILENAME, 'w', encoding='utf-8') as f:
-            json.dump(updated_card_database, f, ensure_ascii=False, indent=4)
-        print(f"\n작업 완료. {len(updated_card_database)}개의 업데이트된 카드 데이터가 '{OUTPUT_FILENAME}'에 저장되었습니다.")
-    except IOError as e:
-        print(f"\n오류: 파일 '{OUTPUT_FILENAME}' 저장 중 문제가 발생했습니다: {e}")
 
 if __name__ == "__main__":
     main()
