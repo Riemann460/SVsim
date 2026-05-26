@@ -1,5 +1,3 @@
-
-
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import json
@@ -13,9 +11,14 @@ class CardEditorApp:
         self.root.geometry("1200x850") # Adjusted height for new buttons
 
         # File Paths
+        import os
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        self.parsed_dir = os.path.normpath(os.path.join(script_dir, "../../card_database/3_parsed_database"))
+        self.manual_dir = os.path.normpath(os.path.join(script_dir, "../../card_database/4_manual_database"))
+        
         self.source_file = '_card_database_parsed.json'
         self.output_file = '_card_database_manual.json'
-        self.set_id = None # Will be set by switch_dataset
+        self.set_id = None  # Will be set by switch_dataset
 
         # Setup card pack selection buttons first
         self.setup_set_selection_buttons()
@@ -50,6 +53,11 @@ class CardEditorApp:
             "BASIC": "100",
             "LEGENDS RISE": "101",
             "INFINITY EVOLVED": "102",
+            "HEIRS OF THE OMEN": "103",
+            "SKYBOUND DRAGONS": "104",
+            "BLOSSOMING FATE": "105",
+            "APOCALYPSE PACT": "106",
+            "ANATHEMA'S GAMBIT": "107",
             "TOKEN": "900"
         }
 
@@ -143,17 +151,20 @@ class CardEditorApp:
         self.save_button.pack(side=tk.RIGHT, padx=10)
 
     def load_data(self):
+        import os
+        parsed_path = os.path.join(self.parsed_dir, f"{self.set_id}{self.source_file}")
         try:
-            with open(self.set_id + self.source_file, 'r', encoding='utf-8') as f:
+            with open(parsed_path, 'r', encoding='utf-8') as f:
                 self.parsed_card_data = json.load(f)
         except FileNotFoundError:
-            messagebox.showerror("Error", f"{self.set_id + self.source_file} not found.")
+            messagebox.showerror("Error", f"{parsed_path} 파일을 찾을 수 없습니다.")
             self.parsed_card_data = {}
             self.card_data = {}
             return
 
+        manual_path = os.path.join(self.manual_dir, f"{self.set_id}{self.output_file}")
         try:
-            with open(self.set_id + self.output_file, 'r', encoding='utf-8') as f:
+            with open(manual_path, 'r', encoding='utf-8') as f:
                 manual_data = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
             manual_data = {}
@@ -266,7 +277,9 @@ class CardEditorApp:
         
         # Save the entire database to the output file
         try:
-            source_path = f"../../card_database/3_parsed_database/{self.set_id}{self.source_file}"
+            import os
+            output_path = os.path.join(self.manual_dir, f"{self.set_id}{self.output_file}")
+            os.makedirs(self.manual_dir, exist_ok=True)
             with open(output_path, 'w', encoding='utf-8') as f:
                 json.dump(self.card_data, f, indent=4, ensure_ascii=False)
             messagebox.showinfo("Success", f"Changes for '{card_record['Card Name']}' saved successfully.")
@@ -314,10 +327,6 @@ if __name__ == "__main__":
         exit()
         
     root = tk.Tk()
-    app = CardEditorApp(root)
-    root.mainloop()
-
-tk.Tk()
     app = CardEditorApp(root)
     root.mainloop()
 
