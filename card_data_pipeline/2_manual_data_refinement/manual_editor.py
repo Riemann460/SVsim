@@ -4,6 +4,18 @@ import json
 import pandas as pd
 import copy
 
+def is_fully_parsed(card_info: dict) -> bool:
+    """자동 파싱 성공 여부를 확인합니다."""
+    effects = card_info.get('effects', [])
+    if not effects:
+        return True
+    for effect in effects:
+        if not isinstance(effect, dict):
+            continue
+        if 'raw_effect_text' in effect or 'raw_action_text' in effect:
+            return False
+    return True
+
 class CardEditorApp:
     def __init__(self, root):
         self.root = root
@@ -95,11 +107,11 @@ class CardEditorApp:
         tree_frame.pack(fill=tk.BOTH, expand=True)
 
         # Treeview for displaying cards
-        cols = ("Card Name", "Class", "Status")
+        cols = ("Card Name", "Class", "Parsing", "Status")
         self.tree = ttk.Treeview(tree_frame, columns=cols, show='headings')
         for col in cols:
             self.tree.heading(col, text=col)
-            self.tree.column(col, width=150)
+            self.tree.column(col, width=120)
 
         # Scrollbar
         scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
@@ -187,10 +199,12 @@ class CardEditorApp:
             return pd.DataFrame()
         records = []
         for card_id, card_info in self.card_data.items():
+            fully_parsed = is_fully_parsed(card_info)
             records.append({
                 'card_id': card_id,
                 'Card Name': card_info.get('name', card_id),
                 'Class': card_info.get('class_type', 'N/A'),
+                'Parsing': 'Parsed' if fully_parsed else 'Raw Text',
                 'Status': card_info.get('_manual_review_status', 'Pending')
             })
         return pd.DataFrame(records)
@@ -202,10 +216,19 @@ class CardEditorApp:
         if not self.df.empty:
             for index, row in self.df.iterrows():
                 status = row['Status']
-                tag = 'completed' if status == 'Completed' else 'pending'
-                self.tree.insert("", "end", iid=index, values=(row["Card Name"], row["Class"], status), tags=(tag,))
+                parsing = row['Parsing']
+                
+                if status == 'Completed':
+                    tag = 'completed'
+                elif parsing == 'Parsed':
+                    tag = 'auto_parsed'
+                else:
+                    tag = 'raw_text'
+                self.tree.insert("", "end", iid=index, values=(row["Card Name"], row["Class"], parsing, status), tags=(tag,))
             
-            self.tree.tag_configure('completed', background='lightgreen')
+            self.tree.tag_configure('completed', background='#d4edda')
+            self.tree.tag_configure('auto_parsed', background='#d1ecf1')
+            self.tree.tag_configure('raw_text', background='#f8d7da')
         self.update_status_label()
 
     def on_card_select(self, event):
@@ -301,9 +324,16 @@ class CardEditorApp:
         self.df.loc[selected_index, 'Status'] = new_status
         
         # Update Treeview
-        self.tree.item(selected_items[0], values=(self.df.loc[selected_index, "Card Name"], self.df.loc[selected_index, "Class"], new_status))
-        self.tree.tag_configure('completed', background='lightgreen')
-        self.tree.item(selected_items[0], tags=('completed' if new_status == 'Completed' else 'pending',))
+        parsing = self.df.loc[selected_index, 'Parsing']
+        self.tree.item(selected_items[0], values=(self.df.loc[selected_index, "Card Name"], self.df.loc[selected_index, "Class"], parsing, new_status))
+        
+        if new_status == 'Completed':
+            tag = 'completed'
+        elif parsing == 'Parsed':
+            tag = 'auto_parsed'
+        else:
+            tag = 'raw_text'
+        self.tree.item(selected_items[0], tags=(tag,))
 
         # Update main data object
         card_record = self.df.loc[selected_index]
@@ -315,7 +345,10 @@ class CardEditorApp:
     def update_status_label(self):
         total_cards = len(self.df)
         completed_cards = len(self.df[self.df['Status'] == 'Completed'])
-        self.status_label.config(text=f"Progress: {completed_cards} / {total_cards} cards completed.")
+        raw_cards = len(self.df[(self.df['Status'] != 'Completed') & (self.df['Parsing'] == 'Raw Text')])
+        auto_parsed_cards = len(self.df[(self.df['Status'] != 'Completed') & (self.df['Parsing'] == 'Parsed')])
+        
+        self.status_label.config(text=f"Total: {total_cards} | Completed: {completed_cards} | Needs Review (Raw): {raw_cards} | Auto-Parsed: {auto_parsed_cards}")
 
 
 if __name__ == "__main__":
