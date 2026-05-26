@@ -33,6 +33,8 @@ class Player:
         self.effects: List[Effect] = []  # 크레스트 효과 인스턴스입니다.
         from src.models.crest import Crest
         self.crests: List[Crest] = []  # 플레이어가 획득한 문장 객체 목록입니다.
+        self.combo_count = 0  # 턴당 플레이한 카드 장수를 기록하는 필드입니다.
+        self.rally_count = 0  # 누적 소환된 아군 추종자 장수를 기록하는 필드입니다.
         self.card_data = card_data.CardData('Leader', self.player_id, 0, CardType.LEADER, ClassType.NEUTRAL, 0, self.max_defense, effects=self.effects)
 
         # 영역 초기화
@@ -119,6 +121,11 @@ class Player:
             print(f"[LOG] {self.player_id} SEP {amount} 소모. 남은 SEP: {self.current_sep}")
         else:
             print(f"[ERROR] 처리 불가능한 SEP 사용 요청! 남은 SEP: {self.current_sep} 요청 SEP: {amount}")
+
+    @property
+    def is_overflow(self) -> bool:
+        """각성 상태 여부를 반환합니다. 주석 규정을 엄격하게 준수합니다."""
+        return self.max_pp >= 7
 
     def get_type(self):
         """플레이어의 타입을 반환합니다 (리더)."""

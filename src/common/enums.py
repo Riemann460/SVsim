@@ -25,13 +25,15 @@ class EventType(Enum):
     FOLLOWER_ENTER_FIELD = "추종자_전장_소환됨"  # 추종자 소환시 능력 발동
     CARD_DISCARDED = "카드_버려짐"  # 카드 버려짐
     FUSE_DECLARED = "융합_선언됨"  # 융합 발동
-#    PP_GAINED = "PP_획득됨"
-#    HEALED = "회복됨"
-#    PP_SPENT = "PP_소모됨"
-#    GAME_START = "게임_시작"
-#    EXTRA_PP_USED = "엑스트라_PP_사용됨"
-#    CARD_DRAWN = "카드_드로우됨"
-#    CARD_MOVED_TO_GRAVEYARD = "카드_묘지로_이동됨"
+
+    # 미구현 이벤트 정의.
+    PP_GAINED = "PP_획득됨"
+    HEALED = "회복됨"
+    PP_SPENT = "PP_소모됨"
+    GAME_START = "게임_시작"
+    EXTRA_PP_USED = "엑스트라_PP_사용됨"
+    CARD_DRAWN = "카드_드로우됨"
+    CARD_MOVED_TO_GRAVEYARD = "카드_묘지로_이동됨"
 
 
 class ClassType(Enum):
@@ -92,16 +94,16 @@ class EffectType(Enum):
     BANE = "필살"
 
     # 미구현 키워드 정의.
-    COMBO = "콤보"  # 콤보 효과.
-    EARTH_RITE = "흙의 비술"  # 흙의 비술 효과.
-    EARTH_SIGIL = "비술 마법진"  # 비술 마법진 효과.
-    NECROMANCY = "사령술"  # 사령술 효과.
-    REANIMATE = "사령 재생"  # 사령 재생 효과.
-    OVERFLOW = "각성"  # 각성 효과.
-    RALLY = "연계"  # 연계 효과.
-    SKYBOUND_ART = "오의"  # 오의 효과.
-    SUPER_SKYBOUND_ART = "해방오의"  # 해방오의 효과.
-    INVOKE = "직접소환"  # 직접소환 효과.
+    COMBO = "콤보"
+    EARTH_RITE = "흙의 비술"
+    EARTH_SIGIL = "비술 마법진"
+    NECROMANCY = "사령술"
+    REANIMATE = "사령 재생"
+    OVERFLOW = "각성"
+    RALLY = "연계"
+    SKYBOUND_ART = "오의"
+    SUPER_SKYBOUND_ART = "해방오의"
+    INVOKE = "직접소환"
 
 
 class ProcessType(Enum):
@@ -128,29 +130,29 @@ class ProcessType(Enum):
     GAIN_CREST = "문장 획득"
     FUSE = "융합"
     DISCARD = "버리기"
+    REDUCE_COST = "코스트 감소"
+    INCREASE_COST = "코스트 증가"
+    SET_COST = "코스트 설정"
+    SET_ATTACK = "공격력 설정"
+    ADVANCE_CREST = "문장 카운트 증가"
+    DESTROY_CREST = "문장 파괴"
+    RECOVER_EP = "EP 회복"
+    HEAL_LINKED = "연계 회복"
 
     # 미구현 프로세스 정의.
-    INCREASE_COMBO = "콤보 증가"  # 콤보 증가 프로세스.
-    GAIN_EARTH_SIGIL = "비술 마법진 획득"  # 비술 마법진 획득 프로세스.
-    REDUCE_COST = "코스트 감소"  # 코스트 감소 프로세스.
-    ADVANCE_COUNTDOWN = "카운트다운 진행"  # 카운트다운 진행 프로세스.
-    SPELLBOOST_HAND = "패 주문 증폭"  # 패 주문 증폭 프로세스.
-    DEFINE_VARIABLE = "변수 정의"  # 변수 정의 프로세스.
-    MULTI_ATTACK = "다중 공격"  # 다중 공격 프로세스.
-    GAIN_MAX_PP = "최대 PP 증가"  # 최대 PP 증가 프로세스.
-    CONDITIONAL_EFFECT = "조건부 효과"  # 조건부 효과 프로세스.
-    IMMUNITY = "면역"  # 면역 프로세스.
-    GAIN_SHADOW = "묘지 수 증가"  # 묘지 수 증가 프로세스.
-    TRANSFORM = "변신"  # 변신 프로세스.
-    REANIMATE = "사령 재생"  # 사령 재생 프로세스.
-    INCREASE_COST = "코스트 증가"  # 코스트 증가 프로세스.
-    SET_COST = "코스트 설정"  # 코스트 설정 프로세스.
-    SET_ATTACK = "공격력 설정"  # 공격력 설정 프로세스.
-    SELECT = "선택"  # 선택 프로세스.
-    ADVANCE_CREST = "문장 카운트 증가"  # 문장 카운트 증가 프로세스.
-    DESTROY_CREST = "문장 파괴"  # 문장 파괴 프로세스.
-    RECOVER_EP = "EP 회복"  # EP 회복 프로세스.
-    HEAL_LINKED = "연계 회복"  # 연계 회복 프로세스.
+    INCREASE_COMBO = "콤보 증가"
+    GAIN_EARTH_SIGIL = "비술 마법진 획득"
+    ADVANCE_COUNTDOWN = "카운트다운 진행"
+    SPELLBOOST_HAND = "패 주문 증폭"
+    DEFINE_VARIABLE = "변수 정의"
+    MULTI_ATTACK = "다중 공격"
+    GAIN_MAX_PP = "최대 PP 증가"
+    CONDITIONAL_EFFECT = "조건부 효과"
+    IMMUNITY = "면역"
+    GAIN_SHADOW = "묘지 수 증가"
+    TRANSFORM = "변신"
+    REANIMATE = "사령 재생"
+    SELECT = "선택"
 
 
 
@@ -172,21 +174,21 @@ class TargetType(Enum):
     ALLY_FOLLOWER_CHOICE_UNEVOLVED = "진화하지 않은 아군 추종자 단일 선택"
 
     # 미구현 타겟 정의.
-    ALL_FOLLOWERS = "모든 추종자 전체"  # 모든 추종자 전체 타겟.
-    ANOTHER_ALLY_FOLLOWER_RANDOM = "자신 제외 아군 추종자 중 랜덤"  # 자신 제외 아군 추종자 중 랜덤 타겟.
-    ALL_OPPONENTS = "상대 전체"  # 상대 전체 타겟.
-    VARIABLE = "변수"  # 변수 타겟.
-    OWN_DECK = "자신 덱"  # 자신 덱 타겟.
-    OPPONENT_FIELD = "상대 필드"  # 상대 필드 타겟.
-    ALL_OPPONENT_FOLLOWERS_DAMAGED = "피해를 입은 상대 추종자 전체"  # 피해를 입은 상대 추종자 전체 타겟.
-    ALL_LEADERS_MAX_DEFENSE = "가장 체력이 높은 리더 전체"  # 가장 체력이 높은 리더 전체 타겟.
-    ALL_FOLLOWERS_MAX_DEFENSE = "가장 체력이 높은 추종자 전체"  # 가장 체력이 높은 추종자 전체 타겟.
-    ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED_NO_ATTACK = "자신 제외 공격하지 않은 진화전 아군 추종자 중 랜덤"  # 자신 제외 공격하지 않은 진화전 아군 추종자 중 랜덤 타겟.
-    ALLY_FOLLOWER_RANDOM_SUPER_EVOLVED = "아군 초진화 추종자 중 랜덤"  # 아군 초진화 추종자 중 랜덤 타겟.
-    ALL_LEADERS_MIN_DEFENSE = "가장 체력이 낮은 리더 전체"  # 가장 체력이 낮은 리더 전체 타겟.
-    ALL_FOLLOWERS_MIN_DEFENSE = "가장 체력이 낮은 추종자 전체"  # 가장 체력이 낮은 추종자 전체 타겟.
-    ALL_NON_ENCROACHER_FOLLOWERS = "Encroacher가 아닌 추종자 전체"  # Encroacher가 아닌 추종자 전체 타겟.
-    ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED = "자신 제외 아군 진화전 추종자 중 랜덤"  # 자신 제외 아군 진화전 추종자 중 랜덤 타겟.
+    ALL_FOLLOWERS = "모든 추종자 전체"
+    ANOTHER_ALLY_FOLLOWER_RANDOM = "자신 제외 아군 추종자 중 랜덤"
+    ALL_OPPONENTS = "상대 전체"
+    VARIABLE = "변수"
+    OWN_DECK = "자신 덱"
+    OPPONENT_FIELD = "상대 필드"
+    ALL_OPPONENT_FOLLOWERS_DAMAGED = "피해를 입은 상대 추종자 전체"
+    ALL_LEADERS_MAX_DEFENSE = "가장 체력이 높은 리더 전체"
+    ALL_FOLLOWERS_MAX_DEFENSE = "가장 체력이 높은 추종자 전체"
+    ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED_NO_ATTACK = "자신 제외 공격하지 않은 진화전 아군 추종자 중 랜덤"
+    ALLY_FOLLOWER_RANDOM_SUPER_EVOLVED = "아군 초진화 추종자 중 랜덤"
+    ALL_LEADERS_MIN_DEFENSE = "가장 체력이 낮은 리더 전체"
+    ALL_FOLLOWERS_MIN_DEFENSE = "가장 체력이 낮은 추종자 전체"
+    ALL_NON_ENCROACHER_FOLLOWERS = "Encroacher가 아닌 추종자 전체"
+    ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED = "자신 제외 아군 진화전 추종자 중 랜덤"
 
 
 class TribeType(Enum):

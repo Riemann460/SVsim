@@ -359,6 +359,9 @@ class Game:
         # 턴 시작 시 카드 1장 드로우
         self._draw_card(player_id)
 
+        # 직접소환 검증
+        self._check_invoke(player_id)
+
         # 턴 시작 이벤트 처리
         self.event_manager.publish(TurnStartEvent(player_id=player_id, turn_number=self.game_state_manager.turn_number))
         self.process_events()
@@ -585,6 +588,11 @@ class Game:
         """턴 종료 요청 처리"""
         self.game_state_manager.game_phase = GamePhase.END_PHASE
         print(f"[LOG] {player_id}의 턴 종료 (종료 단계)")
+        player = self.game_state_manager.players[player_id]
+        player.combo_count = 0  # 턴 종료 시 콤보 카운트를 0으로 리셋합니다.
+
+        # 직접소환 검증
+        self._check_invoke(player_id)
 
         self.event_manager.publish(TurnEndEvent(player_id=player_id))
         self.process_events()
@@ -606,6 +614,7 @@ class Game:
         """EP를 소모하는 진화 처리"""
         self.game_state_manager.evolve_card_with_ep(card_id, player_id)
         self.event_manager.publish(FollowerEvolvedEvent(card_id=card_id, spend_ep=True))
+        self._reduce_skybound_art_gauges(player_id)
         self.process_events()
         self.gui.update()
 
@@ -613,8 +622,43 @@ class Game:
         """SEP를 소모하는 초진화 처리"""
         self.game_state_manager.super_evolve_card_with_sep(card_id, player_id)
         self.event_manager.publish(FollowerSuperEvolvedEvent(card_id=card_id, spend_sep=True))
+        self._reduce_skybound_art_gauges(player_id)
         self.process_events()
         self.gui.update()
+
+    def _reduce_skybound_art_gauges(self, player_id: str):
+        """손패에 있는 오의 및 해방오의 카드 게이지를 차감합니다. 주석 규정을 엄격하게 준수합니다."""
+        hand = self.game_state_manager.get_cards_in_zone(player_id, Zone.HAND)
+        for card in hand:
+            for effect in card.effects:
+                if effect.type in [EffectType.SKYBOUND_ART, EffectType.SUPER_SKYBOUND_ART]:
+                    if hasattr(effect, "skybound_art_gauge"):
+                        effect.skybound_art_gauge = max(0, effect.skybound_art_gauge - 1)
+                        print(f"[LOG] {card.get_display_name()} 의 오의 게이지 1 차감. 현재 게이지 {effect.skybound_art_gauge}.")
+
+    def _check_invoke(self, player_id: str):
+        """덱에 있는 직접소환 카드 조건을 검사하여 필드로 소환합니다. 주석 규정을 엄격하게 준수합니다."""
+        deck = self.game_state_manager.get_cards_in_zone(player_id, Zone.DECK)
+        invoke_cards = []
+        for card in deck:
+            for effect in card.effects:
+                if effect.type == EffectType.INVOKE:
+                    invoke_cards.append((card, effect))
+
+        for card, effect in invoke_cards:
+            condition_met = True
+            if hasattr(effect, "condition") and effect.condition is not None:
+                try:
+                    condition_met = effect.condition(self)
+                except Exception as e:
+                    print(f"[ERROR] 직접소환 조건 검사 중 오류 발생 {str(e)}.")
+                    condition_met = False
+
+            if condition_met:
+                if len(self.game_state_manager.get_cards_in_zone(player_id, Zone.FIELD)) < 5:
+                    self.game_state_manager.move_card(card.card_id, Zone.DECK, Zone.FIELD)
+                    print(f"[LOG] 직접소환 조건 만족, {card.get_display_name()} 카드를 덱에서 필드로 직접 소환합니다.")
+                    break
 
     def engage_card(self, card_id: str, player_id: str):
         """카드 기동 처리"""

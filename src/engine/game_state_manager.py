@@ -70,6 +70,7 @@ class GameStateManager:
                 self.game._register_card_listeners(card)
                 if card.get_type() == CardType.FOLLOWER:
                     self.game.event_manager.publish(FollowerEnterFieldEvent(card_id=card.card_id, player_id=card.owner_id))
+                    player.rally_count += 1
             
             print(f"[LOG] 카드 {card.get_display_name()} (ID: {card_id})이(가) {from_zone.value}에서 {to_zone.value}로 이동됨.")
 
@@ -89,6 +90,7 @@ class GameStateManager:
                 self.game._register_card_listeners(card)
                 if card.get_type() == CardType.FOLLOWER:
                     self.game.event_manager.publish(FollowerEnterFieldEvent(card_id=card.card_id, player_id=card.owner_id))
+                    player.rally_count += 1
 
             print(f"[LOG] 카드 {card.get_display_name()} (ID: {card.card_id})이(가) {to_zone.value}로 추가됨.")
 
@@ -133,6 +135,7 @@ class GameStateManager:
     def play_card(self, player_id, card_id, enhanced_cost=0):
         """지정 카드를 사용"""
         player = self.players[player_id]
+        player.combo_count += 1
         card = self.get_entity_by_id(card_id, Zone.HAND)
         if not card:
             print(f"[ERROR] play_card - card with id {card_id} not found.")

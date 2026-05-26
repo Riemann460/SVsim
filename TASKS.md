@@ -1,24 +1,39 @@
-# TASKS: 문장 효과(Crest) 및 미구현 키워드 도입과 DB 분석
+# TASKS: 미구현 Enum 및 메커니즘 엔진 구현
 
-## 1. DB Merge and Unimplemented Keywords Listing
-- [x] 1.1 현재 구현된 키워드와 미구현 키워드 분류를 검증하는 실패하는 테스트 코드 작성 (e.g. `test_keyword_analysis.py`)
-- [x] 1.2 전체 셋 데이터베이스 병합 실행 및 미구현 추가 키워드 목록 리포트 작성
-- [x] 1.3 `enums.py`에 문장(`GAIN_CREST`), 융합(`FUSE`), 버리기(`DISCARD`) 관련 프로세스 및 이벤트 추가 정의
-- [x] 1.4 분석 및 Enums 연동 테스트(`test_keyword_analysis.py`) 통과 확인 및 테스트 파일 정리
+## 1. TDD Fail Tests Environment Setup
+- [x] 1.1 각 미구현 메커니즘의 실패 조건과 연동을 검증할 단위 테스트 코드 작성 (e.g. `tests/test_unimplemented_enums.py`)
+- [x] 1.2 테스트 실행하여 실패 확인
 
-## 2. Crest Mechanism Implementation and Verification
-- [x] 2.1 문장 획득 및 리스너 작동을 검증하는 실패하는 테스트 코드 작성 (e.g. `test_crest.py`)
-- [x] 2.2 `Player` 모델에 `crests` 상태 추가 및 `EffectProcessor`에 `GAIN_CREST` 핸들러 구현
-- [x] 2.3 `test_crest.py` 통과 확인 및 테스트 파일 정리
+## 2. Combo and Rally Implementation
+- [x] 2.1 `Player` 모델에 `combo_count` 및 `rally_count` 속성 추가
+- [x] 2.2 카드가 손패에서 플레이될 때 `combo_count` 증가 및 턴 종료 시 `0`으로 초기화 연동
+- [x] 2.3 추종자가 필드에 진입할 때 `rally_count` 증가 연동
+- [x] 2.4 단위 테스트로 콤보 및 연계 작동 검증
 
-## 3. Card Parsing Rate Optimization (Success rate >= 90%)
-- [x] 3.1 파싱 성공률 측정 환경(check_parsing_rate.py) 구축 및 전체 데이터베이스(100~107, 900 팩) 대상 Baseline 통계 측정
-- [x] 3.2 parse_script.py 내 전처리 로직 고도화 (HTML 태그 및 특수문자 제거 필터, 마침표 및 세미콜론 기준 문장 정밀 분할기 구현)
-- [x] 3.3 미구현/미파싱 문장에 매칭되는 정규식 패턴 추가 (EFFECT_PATTERNS 및 ACTION_PATTERNS 추가)
-- [x] 3.4 파싱 중 포착된 미구현 Action 및 Target 명칭을 수집하여 enums.py에 추가 정의하고 ADR-006 준수 주석 작성
-- [x] 3.5 최종 데이터베이스 일괄 빌드 및 check_parsing_rate.py를 통한 최종 성공률 96.89% 검증 완료
+## 3. Necromancy and Reanimate Implementation
+- [x] 3.1 `Graveyard` 모델에 `shadows_count` 속성 추가 및 카드가 묘지로 갈 때 1씩 증가 처리
+- [x] 3.2 `EffectProcessor`에 `ProcessType.GAIN_SHADOW` (묘지 카운트 증가) 구현
+- [x] 3.3 `EffectProcessor`에 사령술(Necromancy) 처리를 위한 `_process_necromancy` (또는 조건 판별 및 묘지 소모) 연동
+- [x] 3.4 `EffectProcessor`에 `ProcessType.REANIMATE` 구현 (묘지 내 비용 X 이하 최고 비용 추종자 무작위 소환)
+- [x] 3.5 단위 테스트로 사령술 및 사령 재생 작동 검증
 
-## 4. Implementation of Unimplemented Enum Processors
-- [ ] 4.1 추가 정의된 미구현 프로세스들(REDUCE_COST, INCREASE_COST, SET_COST, SET_ATTACK, ADVANCE_CREST, DESTROY_CREST, RECOVER_EP, HEAL_LINKED 등)의 작동을 검증하는 실패하는 테스트 코드 작성 (e.g. `test_unimplemented_processors.py`)
-- [ ] 4.2 `effect_processor.py` 및 `main_game_logic.py` 내에 해당 효과들의 처리 핸들러 순차 구현
-- [ ] 4.3 유닛 테스트 통과 검증 및 데이터 연동 완료
+## 4. Earth Rite and Overflow Implementation
+- [x] 4.1 `EffectProcessor`에 `ProcessType.GAIN_EARTH_SIGIL` 구현 및 `EARTH_SIGIL` 마법진 파괴 기능 구현
+- [x] 4.2 `Player` 모델에 각성(Overflow) 상태 판별 프로퍼티 `is_overflow` 추가
+- [x] 4.3 `EffectProcessor`에서 흙의 비술 작동 시 필드에 먼저 소환된 `EARTH_SIGIL` 마법진 파괴 처리 연동
+- [x] 4.4 단위 테스트로 흙의 비술 및 각성 작동 검증
+
+## 5. Skybound Art and Invoke Implementation
+- [x] 5.1 오의 및 해방오의 카드를 위한 게이지 속성을 `Card` 모델에 설계 및 진화/초진화 시 게이지 차감 로직 연동
+- [x] 5.2 `main_game_logic.py` 내의 턴 시작(`TURN_START`) 및 턴 종료(`TURN_END`) 시점에 직접소환(`INVOKE`) 검사 및 자동 소환 수행 로직 연동
+- [x] 5.3 단위 테스트로 오의 및 직접소환 작동 검증
+
+## 6. Transform, Conditional Effect and Target Types Implementation
+- [x] 6.1 `EffectProcessor`에 `ProcessType.TRANSFORM` 구현 (파괴 유언 발동 없이 대상 카드를 지정 카드로 필드 교체)
+- [x] 6.2 `EffectProcessor`에 `ProcessType.CONDITIONAL_EFFECT` 및 조건 분기 판별 로직 구현
+- [x] 6.3 미구현 TargetType 핸들러(e.g., `ALL_FOLLOWERS`, `ALL_OPPONENTS`, `ANOTHER_ALLY_FOLLOWER_RANDOM` 등)들을 `effect_processor.py`에 구현 및 연동
+- [x] 6.4 단위 테스트로 변신, 조건부 효과, 신규 타겟 작동 검증
+
+## 7. Integration and Validation
+- [x] 7.1 전체 테스트 실행 및 오류 디버깅
+- [x] 7.2 최종 PRD 및 TASKS 진행 상황 완료 마크 최신화

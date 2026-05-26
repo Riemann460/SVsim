@@ -23,6 +23,15 @@ class Card:
         self.current_zone = None  # 현재 카드 위치 (Zone Enum)
         self.effects: List[Effect] = copy.deepcopy(card_data.get("effects", []))  # 카드 효과 인스턴스
 
+        # 오의/해방오의 게이지 초기화.
+        for effect in self.effects:
+            if effect.type == EffectType.SKYBOUND_ART:
+                if not hasattr(effect, "skybound_art_gauge"):
+                    effect.skybound_art_gauge = 10
+            elif effect.type == EffectType.SUPER_SKYBOUND_ART:
+                if not hasattr(effect, "skybound_art_gauge"):
+                    effect.skybound_art_gauge = 15
+
         # 키워드별 추가 상태
         self.countdown_value = card_data.get("countdown", None)  # 카운트다운 마법진용
         self.spellboost_stacks = 0  # 주문 증폭용

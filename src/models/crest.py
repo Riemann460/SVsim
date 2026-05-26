@@ -10,6 +10,7 @@ class Crest:
         self.name = name
         self.owner_id = owner_id
         self.listeners: List[Tuple[EventType, str]] = []  # 등록된 전역 리스너 정보 목록입니다.
+        self.count = 0  # 문장의 카운트를 관리하는 필드입니다.
 
     def register_listeners(self, game):
         """문장의 지속 효과를 처리하는 리스너들을 등록합니다."""
