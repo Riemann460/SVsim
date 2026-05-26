@@ -1,12 +1,29 @@
 import json
 from typing import List, Any, Dict
-from enums import CardType, EffectType, TargetType, ProcessType, ClassType, TribeType, EventType
-from effect import Effect
+from src.common.enums import CardType, EffectType, TargetType, ProcessType, ClassType, TribeType, EventType
+from src.common.effect import Effect
+
+class CardDatabase(dict):
+    """card_id와 name 모두로 검색이 가능한 데이터베이스 클래스입니다."""
+    def __getitem__(self, key):
+        if key in self:
+            return super().__getitem__(key)
+        for card_data_obj in self.values():
+            if card_data_obj.name == key:
+                return card_data_obj
+        raise KeyError(key)
+
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
 
 # 전역 변수
-BASIC_CARD_DATABASE: Dict[str, 'CardData'] = {}
-LEGENDS_RISE_CARD_DATABASE: Dict[str, 'CardData'] = {}
-TOKEN_CARD_DATABASE: Dict[str, 'CardData'] = {}
+BASIC_CARD_DATABASE = CardDatabase()
+LEGENDS_RISE_CARD_DATABASE = CardDatabase()
+TOKEN_CARD_DATABASE = CardDatabase()
 
 
 class CardData:
@@ -60,14 +77,16 @@ def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
     for key, value in effect_dict.items():
         if isinstance(value, dict):
             attrs[key] = _load_effect_from_dict(value)
+        elif isinstance(value, list) and key == "choices":
+            attrs[key] = [_load_effect_from_dict(item) for item in value if isinstance(item, dict)]
 
     # REMOVE_KEYWORD와 TRIGGER_EFFECT의 EffectType enum value 처리
-    if "process" in effect_dict and (attrs["process"] in [ProcessType.REMOVE_KEYWORD, ProcessType.TRIGGER_EFFECT]) and isinstance(effect_dict["value"], str):
+    if "process" in effect_dict and (attrs["process"] in [ProcessType.REMOVE_KEYWORD, ProcessType.TRIGGER_EFFECT]) and "value" in effect_dict and isinstance(effect_dict["value"], str):
         try:
-            attrs["value"] = EffectType[effect_dict["value"]]
+            attrs["value"] = EffectType[effect_dict["value"].upper()]
         except KeyError:
-            print(f"[WARNING] EffectType '{value}' not found for {process_type.name} effect.")
-            pass # Keep as string if not found, will cause error later if not handled
+            print(f"[WARNING] EffectType '{effect_dict['value']}' not found for {attrs['process'].name} effect.")
+            pass  # 찾지 못한 경우 문자열을 유지합니다.
 
     # condition 처리
     condition = effect_dict.get("condition")
@@ -131,7 +150,7 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
         EffectType.CLASH: EventType.COMBAT_INITIATED,
         EffectType.ON_EVOLVE: EventType.FOLLOWER_EVOLVED,
         EffectType.EVOLVED: EventType.FOLLOWER_EVOLVED,
-        EffectType.ACTIVATE: EventType.AMULET_ACTIVATED,
+        EffectType.ENGAGE: EventType.CARD_ENGAGED,
         EffectType.ON_FOLLOWER_ENTER_FIELD: EventType.FOLLOWER_ENTER_FIELD,
         EffectType.ON_SUPER_EVOLVE: EventType.FOLLOWER_SUPER_EVOLVED,
         EffectType.SUPER_EVOLVED: EventType.FOLLOWER_SUPER_EVOLVED,

@@ -2,8 +2,8 @@ import copy
 import uuid
 from typing import List, Dict, Any
 
-from enums import TargetType, EffectType, CardType
-from effect import Effect
+from src.common.enums import TargetType, EffectType, CardType
+from src.common.effect import Effect
 
 
 class Card:
@@ -19,7 +19,6 @@ class Card:
         self.is_evolved = False  # 진화 여부
         self.is_super_evolved = False  # 초진화 여부
         self.is_engaged = False  # 공격 완료 여부
-        self.is_activated = False  # 공격 완료 여부
         self.is_summoned = True  # 현재 턴 소환 여부
         self.current_zone = None  # 현재 카드 위치 (Zone Enum)
         self.effects: List[Effect] = copy.deepcopy(card_data.get("effects", []))  # 카드 효과 인스턴스

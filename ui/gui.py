@@ -3,9 +3,9 @@ from tkinter import ttk
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from game_state_manager import GameStateManager
-    from card import Card
-    from enums import CardType
+    from src.engine.game_state_manager import GameStateManager
+    from src.models.card import Card
+    from src.common.enums import CardType
 
 class GameGUI:
     def __init__(self, game_state_manager: 'GameStateManager'):
@@ -107,7 +107,7 @@ class GameGUI:
 
     def _update_zone_frame(self, frame, cards: list['Card'], is_field: bool):
         """특정 영역(패 또는 필드)의 카드 표시를 업데이트합니다."""
-        from enums import CardType
+        from src.common.enums import CardType
         for widget in frame.winfo_children():
             widget.destroy()
 

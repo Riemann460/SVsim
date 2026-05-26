@@ -2,7 +2,7 @@
 # 이 파일은 플레이어가 획득하는 문장 효과를 객체 단위로 정의하고 관리합니다.
 
 from typing import List, Tuple
-from enums import EventType
+from src.common.enums import EventType
 
 class Crest:
     """플레이어가 획득하는 문장 효과의 기본 클래스입니다."""
@@ -37,8 +37,8 @@ class MjerrabaineCrest(Crest):
                 return
             
             import random
-            from enums import Zone, CardType
-            from event import DestroyedOnFieldEvent
+            from src.common.enums import Zone, CardType
+            from src.common.event import DestroyedOnFieldEvent
             
             player = game.game_state_manager.players[self.owner_id]
             opponent_id = game.opponent_id[self.owner_id]
@@ -63,7 +63,7 @@ class MjerrabaineCrest(Crest):
                         game.event_manager.publish(DestroyedOnFieldEvent(target_follower.card_id))
                         game.process_events()
 
-        from listener import Listener
+        from src.common.listener import Listener
         game.event_manager.subscribe(Listener(listener_id, EventType.TURN_END, on_turn_end))
         self.listeners.append((EventType.TURN_END, listener_id))
 

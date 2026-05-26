@@ -1,6 +1,6 @@
 from typing import List
-from card import Card # 상대 경로 임포트
-from graveyard import Graveyard # 상대 경로 임포트 (순환 참조 주의, 인스턴스 전달)
+from src.models.card import Card # 상대 경로 임포트
+from src.models.graveyard import Graveyard # 상대 경로 임포트 (순환 참조 주의, 인스턴스 전달)
 
 class Hand:
     """플레이어의 패를 관리합니다."""

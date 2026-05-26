@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Callable, Optional
-from enums import EventType
-from event import Event
+from src.common.enums import EventType
+from src.common.event import Event
 
 @dataclass
 class Listener:

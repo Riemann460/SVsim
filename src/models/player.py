@@ -1,14 +1,14 @@
 from typing import List
 
-import card_data
-from card import Card
-from enums import CardType, EffectType, Zone, ClassType
-from event_manager import EventManager
-from deck import Deck
-from hand import Hand
-from field import Field
-from graveyard import Graveyard
-from effect import Effect
+import src.common.card_data as card_data
+from src.models.card import Card
+from src.common.enums import CardType, EffectType, Zone, ClassType
+from src.engine.event_manager import EventManager
+from src.models.deck import Deck
+from src.models.hand import Hand
+from src.models.field import Field
+from src.models.graveyard import Graveyard
+from src.common.effect import Effect
 
 class Player:
     """개별 플레이어의 상태와 자원을 관리합니다."""
@@ -31,7 +31,7 @@ class Player:
         self.event_manager = event_manager
         self.spent_ep_in_turn = False
         self.effects: List[Effect] = []  # 크레스트 효과 인스턴스입니다.
-        from crest import Crest
+        from src.models.crest import Crest
         self.crests: List[Crest] = []  # 플레이어가 획득한 문장 객체 목록입니다.
         self.card_data = card_data.CardData('Leader', self.player_id, 0, CardType.LEADER, ClassType.NEUTRAL, 0, self.max_defense, effects=self.effects)
 

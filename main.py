@@ -1,7 +1,7 @@
-from card import Card
-from enums import Zone, CardType, EffectType, TargetType
-from main_game_logic import Game
-from player import Player
+from src.models.card import Card
+from src.common.enums import Zone, CardType, EffectType, TargetType
+from src.engine.main_game_logic import Game
+from src.models.player import Player
 
 
 # --- 게임 실행 예시 ---
@@ -128,9 +128,9 @@ if __name__ == "__main__":
                     game.super_evolve_follower(selected_card_id, current_player)
                     game.gui.get_user_choice(f"[{game.game_state_manager.get_card_name(selected_card_id)}]을(를) 초진화시켰습니다!", {"확인": None})
 
-                elif chosen_action == "마법진 활성화":
-                    game.activate_amulet(selected_card_id, current_player)
-                    game.gui.get_user_choice(f"[{game.game_state_manager.get_card_name(selected_card_id)}]을(를) 활성화했습니다!", {"확인": None})
+                elif chosen_action == "카드 기동(Engage)":
+                    game.engage_card(selected_card_id, current_player)
+                    game.gui.get_user_choice(f"[{game.game_state_manager.get_card_name(selected_card_id)}]을(를) 기동했습니다!", {"확인": None})
 
             elif choice == 2:  # 턴 종료
                 game.gui.get_user_choice(f"{current_player} 턴 종료.", {"확인": None})

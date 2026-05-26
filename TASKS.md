@@ -18,7 +18,7 @@
 - [x] 3.4 파싱 중 포착된 미구현 Action 및 Target 명칭을 수집하여 enums.py에 추가 정의하고 ADR-006 준수 주석 작성
 - [x] 3.5 최종 데이터베이스 일괄 빌드 및 check_parsing_rate.py를 통한 최종 성공률 96.89% 검증 완료
 
-## 4. Fuse and Discard Core Mechanics Implementation
-- [ ] 4.1 융합 및 버리기 코어 로직의 동작을 검증하는 실패하는 테스트 코드 작성 (e.g. `test_fuse_discard.py`)
-- [ ] 4.2 `main_game_logic.py` 및 `effect_processor.py`에 융합/버리기 관련 프로세스 구현
-- [ ] 4.3 `test_fuse_discard.py` 통과 확인 및 테스트 파일 정리
+## 4. Implementation of Unimplemented Enum Processors
+- [ ] 4.1 추가 정의된 미구현 프로세스들(REDUCE_COST, INCREASE_COST, SET_COST, SET_ATTACK, ADVANCE_CREST, DESTROY_CREST, RECOVER_EP, HEAL_LINKED 등)의 작동을 검증하는 실패하는 테스트 코드 작성 (e.g. `test_unimplemented_processors.py`)
+- [ ] 4.2 `effect_processor.py` 및 `main_game_logic.py` 내에 해당 효과들의 처리 핸들러 순차 구현
+- [ ] 4.3 유닛 테스트 통과 검증 및 데이터 연동 완료

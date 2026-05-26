@@ -34,5 +34,5 @@
 - [x] 1. DB Merge and Unimplemented Keywords Listing (2026-05-26 완료)
 - [x] 2. Crest Mechanism Implementation and Verification (2026-05-26 완료)
 - [x] 3. Card Parsing Rate Optimization (Success rate >= 90%) (최종 성공률 96.89% 달성)
-- [ ] 4. Fuse and Discard Core Mechanics Implementation
+- [ ] 4. Implementation of Unimplemented Enum Processors
 

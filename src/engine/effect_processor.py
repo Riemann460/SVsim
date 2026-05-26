@@ -1,15 +1,15 @@
 import random
 
-import card_data
+import src.common.card_data as card_data
 from typing import Any, List
 
-from deck import Deck
-from enums import CardType, EventType, Zone, TargetType, ProcessType, EffectType
-from card import Card
-from game_state_manager import GameStateManager
-from player import Player
-from effect import Effect
-from event import Event, DestroyedOnFieldEvent, FollowerSuperEvolvedEvent
+from src.models.deck import Deck
+from src.common.enums import CardType, EventType, Zone, TargetType, ProcessType, EffectType
+from src.models.card import Card
+from src.engine.game_state_manager import GameStateManager
+from src.models.player import Player
+from src.common.effect import Effect
+from src.common.event import Event, DestroyedOnFieldEvent, FollowerSuperEvolvedEvent
 
 
 class EffectProcessor:
@@ -422,7 +422,7 @@ class EffectProcessor:
         
         crest_name = effect_data.value
         if not any(c.name == crest_name for c in player.crests):
-            from crest import create_crest
+            from src.models.crest import create_crest
             game = game_state_manager.game
             crest_obj = create_crest(crest_name, player.player_id)
             player.crests.append(crest_obj)
@@ -437,10 +437,11 @@ class EffectProcessor:
         player_id = target.owner_id
         game = game_state_manager.game
         
-        from main_game_logic import validate_fuse_material
+        from src.engine.main_game_logic import validate_fuse_material
         
         hand = game_state_manager.get_cards_in_zone(player_id, Zone.HAND)
-        fusible_cards = [c for c in hand if c.card_id != target.card_id and validate_fuse_material(c, target.fuse_condition)]
+        fuse_condition = getattr(target.card_data, "fuse_condition", None)
+        fusible_cards = [c for c in hand if c.card_id != target.card_id and validate_fuse_material(c, fuse_condition)]
         if not fusible_cards:
             print(f"[LOG] {player_id}의 패에 융합할 수 있는 카드가 존재하지 않습니다.")
             return

@@ -1,7 +1,7 @@
-from card import Card
-from enums import Zone, CardType, EffectType
-from game_state_manager import GameStateManager
-from effect import Effect
+from src.models.card import Card
+from src.common.enums import Zone, CardType, EffectType
+from src.engine.game_state_manager import GameStateManager
+from src.common.effect import Effect
 
 
 class RuleEngine:
@@ -61,25 +61,25 @@ class RuleEngine:
         print(f"[LOG] {player_id}가 {card.get_display_name()} (ID: {card_id})를 플레이할 수 있습니다.")
         return True
 
-    def validate_activate_amulet(self, card_id: str, player_id: str) -> bool:
-        """마법진 활성화의 유효성 검사 (PP, 대상 제한 등)"""
+    def validate_engage_card(self, card_id: str, player_id: str) -> bool:
+        """카드 기동의 유효성 검사 (PP, 대상 제한 등)"""
         card = self.game_state_manager.get_entity_by_id(card_id, Zone.FIELD)
         player = self.game_state_manager.get_entity_by_id(player_id)
-        activate_effect: Effect = self.game_state_manager.get_card_effects(card_id, EffectType.ACTIVATE)[0]
+        activate_effect: Effect = self.game_state_manager.get_card_effects(card_id, EffectType.ENGAGE)[0]
         
-        # 이번 턴에 활성화 했다면 불가능
-        if card.is_activated:
-            print(f"[LOG] {card.get_display_name()} (ID: {card_id})는 이번 턴에 이미 활성화되었습니다.")
+        # 이번 턴에 기동했다면 불가능
+        if card.is_engaged:
+            print(f"[LOG] {card.get_display_name()} (ID: {card_id})는 이번 턴에 이미 기동(Engage)되었습니다.")
             return False
 
-        # 활성화에 코스트가 있고 PP 부족하면 불가능
+        # 기동에 코스트가 있고 PP 부족하면 불가능
         if 'cost' in activate_effect.attributes.keys():
             current_pp = player.current_pp
             # PP 부족
             if current_pp < activate_effect.cost:
-                print(f"[LOG] {player_id}의 PP ({current_pp}) 부족으로 {card.get_display_name()} (ID: {card_id}) 활성화 불가. 필요 PP: {activate_effect.cost}")
+                print(f"[LOG] {player_id}의 PP ({current_pp}) 부족으로 {card.get_display_name()} (ID: {card_id}) 기동 불가. 필요 PP: {activate_effect.cost}")
                 return False
-        print(f"[LOG] {player_id}가 {card.get_display_name()} (ID: {card_id})를 활성화할 수 있습니다.")
+        print(f"[LOG] {player_id}가 {card.get_display_name()} (ID: {card_id})를 기동할 수 있습니다.")
         return True
 
     def validate_attack(self, attacker_id: str, target_id: str) -> bool:

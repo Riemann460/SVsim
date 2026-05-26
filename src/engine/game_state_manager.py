@@ -1,10 +1,10 @@
 from typing import List, Dict, Any, Optional
 
-from enums import GamePhase, CardType, Zone, EffectType, TargetType
-from card import Card
-from player import Player
-from effect import Effect
-from event import FollowerEnterFieldEvent
+from src.common.enums import GamePhase, CardType, Zone, EffectType, TargetType
+from src.models.card import Card
+from src.models.player import Player
+from src.common.effect import Effect
+from src.common.event import FollowerEnterFieldEvent
 
 
 class GameStateManager:
@@ -129,7 +129,6 @@ class GameStateManager:
         for card in self.get_cards_in_zone(player_id, Zone.FIELD):
             card.is_engaged = False
             card.is_summoned = False
-            card.is_activated = False
 
     def play_card(self, player_id, card_id, enhanced_cost=0):
         """지정 카드를 사용"""
@@ -346,14 +345,14 @@ class GameStateManager:
         """지정된 플레이어의 현재 체력을 반환합니다."""
         return self.players[player_id].current_defense
 
-    def activate_amulet(self, card_id: str, player_id: str):
-        """지정된 마법진 카드를 활성화합니다."""
+    def engage_card(self, card_id: str, player_id: str):
+        """지정된 마법진/추종자 카드를 기동(Engage)합니다."""
         card = self.get_entity_by_id(card_id, Zone.FIELD)
         player = self.players[player_id]
-        card.is_activated = True
+        card.is_engaged = True
 
-        # 활성화에 코스트가 있고 PP 부족
-        activate_effect: Effect = self.get_card_effects(card_id, EffectType.ACTIVATE)[0]
+        # 기동에 코스트가 있고 PP 부족
+        activate_effect: Effect = self.get_card_effects(card_id, EffectType.ENGAGE)[0]
         if activate_effect.cost is not None:
             cost = activate_effect.cost
             player.spend_pp(cost)

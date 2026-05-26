@@ -1,6 +1,6 @@
 import random
 from typing import List, Optional
-from card import Card # 상대 경로 임포트
+from src.models.card import Card # 상대 경로 임포트
 
 class Deck:
     """플레이어의 덱을 관리합니다."""

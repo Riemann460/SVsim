@@ -1,7 +1,7 @@
 
 from dataclasses import dataclass
 from typing import Optional
-from enums import EventType
+from src.common.enums import EventType
 
 @dataclass
 class Event:
@@ -56,8 +56,8 @@ class FollowerSuperEvolvedEvent(CardEvent):
     event_type: EventType = EventType.FOLLOWER_SUPER_EVOLVED
 
 @dataclass
-class AmuletActivatedEvent(CardEvent):
-    event_type: EventType = EventType.AMULET_ACTIVATED
+class CardEngagedEvent(CardEvent):
+    event_type: EventType = EventType.CARD_ENGAGED
 
 @dataclass
 class DestroyedOnFieldEvent(CardEvent):

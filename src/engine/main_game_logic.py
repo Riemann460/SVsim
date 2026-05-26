@@ -2,14 +2,14 @@ from functools import partial
 from typing import Dict, Any
 from collections import defaultdict
 
-from card import Card
-from enums import GamePhase, EventType, Zone, EffectType, CardType, ClassType, TribeType
-from event_manager import EventManager
-from game_state_manager import GameStateManager
-from player import Player
-from effect_processor import EffectProcessor
-import card_data
-from rule_engine import RuleEngine
+from src.models.card import Card
+from src.common.enums import GamePhase, EventType, Zone, EffectType, CardType, ClassType, TribeType
+from src.engine.event_manager import EventManager
+from src.engine.game_state_manager import GameStateManager
+from src.models.player import Player
+from src.engine.effect_processor import EffectProcessor
+import src.common.card_data as card_data
+from src.engine.rule_engine import RuleEngine
 
 def validate_fuse_material(material_card: Card, fuse_condition: str) -> bool:
     """융합 재료 카드가 융합 조건을 충족하는지 검사합니다."""
@@ -40,17 +40,17 @@ def validate_fuse_material(material_card: Card, fuse_condition: str) -> bool:
         return name in ["Ominous Artifact 1", "Ominous Artifact 3"]
         
     return False
-from gui import GameGUI
-from effect import Effect
-from listener import Listener
-from event import (
+from ui.gui import GameGUI
+from src.common.effect import Effect
+from src.common.listener import Listener
+from src.common.event import (
     Event,
     CardPlayedEvent,
     DestroyedOnFieldEvent,
     AttackDeclaredEvent,
     CombatInitiatedEvent,
     FollowerEvolvedEvent,
-    AmuletActivatedEvent,
+    CardEngagedEvent,
     FollowerSuperEvolvedEvent,
     SpellCastEvent,
     TurnStartEvent,
@@ -158,7 +158,7 @@ class Game:
         for event_type, effect in card.card_data.required_listeners:
             # 카드 관련 리스너를 등록합니다.
             if event_type in [EventType.CARD_PLAYED, EventType.DESTROYED_ON_FIELD, EventType.ATTACK_DECLARED,
-                              EventType.COMBAT_INITIATED, EventType.FOLLOWER_EVOLVED, EventType.AMULET_ACTIVATED,
+                               EventType.COMBAT_INITIATED, EventType.FOLLOWER_EVOLVED, EventType.CARD_ENGAGED,
                               EventType.DAMAGE_DEALT_BY_COMBAT]:
                 handler = partial(self._handle_card_effect, effect_to_resolve=effect)
                 listener_id = f"{card.card_id}_{effect.type.name}_{id(effect)}"
@@ -187,7 +187,7 @@ class Game:
             # 카드 관련 리스너를 해제합니다.
             if event_type in [EventType.CARD_PLAYED, EventType.DESTROYED_ON_FIELD, EventType.ATTACK_DECLARED,
                               EventType.COMBAT_INITIATED, EventType.FOLLOWER_EVOLVED, EventType.FOLLOWER_SUPER_EVOLVED,
-                              EventType.AMULET_ACTIVATED, EventType.DAMAGE_DEALT_BY_COMBAT]:
+                               EventType.CARD_ENGAGED, EventType.DAMAGE_DEALT_BY_COMBAT]:
                 listener_id = f"{card.card_id}_{effect.type.name}_{id(effect)}"
                 self.event_manager.unsubscribe(event_type, listener_id)
 
@@ -401,7 +401,7 @@ class Game:
             return
 
         self.game_state_manager.move_card(card_id, Zone.HAND, Zone.GRAVEYARD)
-        from event import CardDiscardedEvent
+        from src.common.event import CardDiscardedEvent
         self.event_manager.publish(CardDiscardedEvent(player_id=player_id, card_id=card_id))
         self.process_events()
         self.gui.update()
@@ -456,7 +456,7 @@ class Game:
             base_card.fused_cards.append(m_card.card_id)
             print(f"[LOG] {m_card.get_display_name()} (ID: {m_card.card_id}) 카드가 {base_card.get_display_name()}에 융합되었습니다.")
 
-        from event import FuseDeclaredEvent
+        from src.common.event import FuseDeclaredEvent
         self.event_manager.publish(FuseDeclaredEvent(player_id=player_id, card_id=base_card_id, material_card_ids=material_card_ids))
         self.process_events()
         self.gui.update()
@@ -616,10 +616,10 @@ class Game:
         self.process_events()
         self.gui.update()
 
-    def activate_amulet(self, card_id: str, player_id: str):
-        """마법진 활성화 처리"""
-        self.game_state_manager.activate_amulet(card_id, player_id)
-        self.event_manager.publish(AmuletActivatedEvent(card_id=card_id))
+    def engage_card(self, card_id: str, player_id: str):
+        """카드 기동 처리"""
+        self.game_state_manager.engage_card(card_id, player_id)
+        self.event_manager.publish(CardEngagedEvent(card_id=card_id))
         self.process_events()
         self.gui.update()
 
@@ -655,9 +655,8 @@ class Game:
         if card_type == CardType.FOLLOWER and not is_evolved and self.game_state_manager.can_super_evolve(player_id):
             available_actions.append("추종자 초진화")
 
-        if card_type == CardType.AMULET and self.game_state_manager.has_keyword(card_id,
-                                                                                EffectType.ACTIVATE) and self.rule_engine.validate_activate_amulet(
+        if self.game_state_manager.has_keyword(card_id, EffectType.ENGAGE) and self.rule_engine.validate_engage_card(
                 card_id, player_id):
-            available_actions.append("마법진 활성화")
+            available_actions.append("카드 기동(Engage)")
 
         return available_actions, card_name

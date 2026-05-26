@@ -1,5 +1,5 @@
 from typing import List
-from card import Card # 상대 경로 임포트
+from src.models.card import Card # 상대 경로 임포트
 
 class Graveyard:
     """플레이어의 묘지를 관리합니다."""

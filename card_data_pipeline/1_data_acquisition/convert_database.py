@@ -1,9 +1,14 @@
 import json
 import os
-from enum import Enum
+import sys
+
+# 현재 파일이 위치한 디렉토리와 프로젝트 루트 디렉토리를 sys.path에 추가합니다.
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+sys.path.append(os.path.normpath(os.path.join(current_dir, "../..")))
 
 from enums import CardType, ClassType, TribeType, EffectType, ProcessType, TargetType
-from .parse_script import parse_effect_text, get_required_listeners  # Import Effect class for type checking
+from parse_script import parse_effect_text, get_required_listeners
 from effect import Effect
 
 
@@ -97,9 +102,37 @@ def convert_json_to_class_script(json_file_path, output_json_path):
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    set_ids = ["100", "101", "102", "103", "900"]
+    set_ids = ["100", "101", "102", "103", "104", "105", "106", "107", "900"]
     for set_id in set_ids:
         convert_json_to_class_script(
             json_file_path=os.path.normpath(os.path.join(script_dir, f"../../card_database/2_kor_database/{set_id}_card_database_kor_added.json")),
             output_json_path=os.path.normpath(os.path.join(script_dir, f"../../card_database/3_parsed_database/{set_id}_card_database_parsed.json"))
         )
+
+    # 모든 개별 parsed json 파일들을 하나로 병합하여 card_database_parsed.json 생성
+    merged_database = {
+        "BASIC_CARD_DATABASE": {},
+        "LEGENDS_RISE_CARD_DATABASE": {},
+        "TOKEN_CARD_DATABASE": {}
+    }
+    
+    for set_id in set_ids:
+        parsed_path = os.path.normpath(os.path.join(script_dir, f"../../card_database/3_parsed_database/{set_id}_card_database_parsed.json"))
+        if not os.path.exists(parsed_path):
+            continue
+            
+        with open(parsed_path, "r", encoding="utf-8") as f:
+            set_data = json.load(f)
+            
+        if set_id == "100":
+            merged_database["BASIC_CARD_DATABASE"].update(set_data)
+        elif set_id == "900":
+            merged_database["TOKEN_CARD_DATABASE"].update(set_data)
+        else:
+            merged_database["LEGENDS_RISE_CARD_DATABASE"].update(set_data)
+            
+    final_output_path = os.path.normpath(os.path.join(script_dir, "../../card_database/3_parsed_database/card_database_parsed.json"))
+    with open(final_output_path, "w", encoding="utf-8") as f:
+        json.dump(merged_database, f, ensure_ascii=False, indent=4)
+        
+    print(f"통합 데이터베이스 빌드 완료! 결과가 '{final_output_path}' 파일에 저장되었습니다.")
