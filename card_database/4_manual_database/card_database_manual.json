@@ -3678,7 +3678,7 @@
             "effects": [
                 {
                     "type": "ON_MY_TURN_END",
-                    "target": "ALL_OPPONENT_FOLLOWER",
+                    "target": "ALL_OPPONENT_FOLLOWERS",
                     "process": "DEAL_DAMAGE",
                     "value": 3
                 }
@@ -3703,7 +3703,7 @@
             "effects": [
                 {
                     "type": "FANFARE",
-                    "target": "ALL_OPPONENT_FOLLOWER",
+                    "target": "ALL_OPPONENT_FOLLOWERS",
                     "process": "DEAL_DAMAGE",
                     "value": 5
                 },

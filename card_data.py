@@ -183,7 +183,8 @@ def resolve_card_references(card_db: Dict[str, CardData], global_card_db: Dict[s
 
                 # 나머지 이펙트에 카드 이름이 입력된 경우 체크
                 elif "value" in effect.attributes.keys() and isinstance(effect.value, str):
-                    print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name})에 예기치 않은 스트링 입력 '{effect.value}'.")
+                    process_name = effect.process.name if getattr(effect, 'process', None) else 'None'
+                    print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name})에 예기치 않은 스트링 입력 '{effect.value}'.")
 
 
 def load_card_databases(json_path: str = 'card_database/3_parsed_database/card_database_parsed.json'):

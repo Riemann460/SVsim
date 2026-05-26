@@ -31,6 +31,7 @@ class Player:
         self.event_manager = event_manager
         self.spent_ep_in_turn = False
         self.effects: List[Effect] = []  # 크레스트 효과 인스턴스
+        self.crests: List[str] = []  # 플레이어가 획득한 문장 목록
         self.card_data = card_data.CardData('Leader', self.player_id, 0, CardType.LEADER, ClassType.NEUTRAL, 0, self.max_defense, effects=self.effects)
 
         # 영역 초기화

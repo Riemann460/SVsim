@@ -113,14 +113,20 @@ class Game:
         self.event_manager.process_events()
 
     def _setup_global_listeners(self):
-        """전역 이벤트 리스너 설정 (필드 카드에 귀속되지 않음)"""
+        """전역 이벤트 리스너를 설정합니다."""
         self.event_manager.subscribe(
             Listener('global_spell_cast', EventType.SPELL_CAST, self._on_spell_cast))
+        self.event_manager.subscribe(
+            Listener('global_turn_start', EventType.TURN_START, self._on_turn_start))
+        self.event_manager.subscribe(
+            Listener('global_turn_end', EventType.TURN_END, self._on_turn_end))
+        self.event_manager.subscribe(
+            Listener('global_follower_enter', EventType.FOLLOWER_ENTER_FIELD, self._on_follower_enter_field))
 
     def _register_card_listeners(self, card: Card):
         """카드의 능력에 따라 이벤트 리스너를 동적으로 등록합니다."""
         for event_type, effect in card.card_data.required_listeners:
-            # Card-specific listeners
+            # 카드 관련 리스너를 등록합니다.
             if event_type in [EventType.CARD_PLAYED, EventType.DESTROYED_ON_FIELD, EventType.ATTACK_DECLARED,
                               EventType.COMBAT_INITIATED, EventType.FOLLOWER_EVOLVED, EventType.AMULET_ACTIVATED,
                               EventType.DAMAGE_DEALT_BY_COMBAT]:
@@ -145,39 +151,15 @@ class Game:
                     Listener(id=listener_id, event_type=event_type, callback=handler, card_id=card.card_id,
                              condition=condition))
 
-            # Player-specific listeners
-            else:
-                listener_id, callback = {
-                    EventType.TURN_START: ('global_turn_start', self._on_turn_start),
-                    EventType.TURN_END: ('global_turn_end', self._on_turn_end),
-                    EventType.FOLLOWER_ENTER_FIELD: ('global_follower_enter', self._on_follower_enter_field)
-                }.get(event_type)
-
-                if self.listener_ref_counts[listener_id] == 0:
-                    self.event_manager.subscribe(Listener(listener_id, event_type, callback))
-                self.listener_ref_counts[listener_id] += 1
-
     def _unregister_card_listeners(self, card: Card):
         """필드에서 벗어나는 카드의 모든 리스너를 해제합니다."""
         for event_type, effect in card.card_data.required_listeners:
-            # Card-specific listeners
+            # 카드 관련 리스너를 해제합니다.
             if event_type in [EventType.CARD_PLAYED, EventType.DESTROYED_ON_FIELD, EventType.ATTACK_DECLARED,
                               EventType.COMBAT_INITIATED, EventType.FOLLOWER_EVOLVED, EventType.FOLLOWER_SUPER_EVOLVED,
                               EventType.AMULET_ACTIVATED, EventType.DAMAGE_DEALT_BY_COMBAT]:
                 listener_id = f"{card.card_id}_{effect.type.name}_{id(effect)}"
                 self.event_manager.unsubscribe(event_type, listener_id)
-
-            # Player-specific listeners
-            else:
-                listener_id, _ = {
-                    EventType.TURN_START: ('global_turn_start', self._on_turn_start),
-                    EventType.TURN_END: ('global_turn_end', self._on_turn_end),
-                    EventType.FOLLOWER_ENTER_FIELD: ('global_follower_enter', self._on_follower_enter_field)
-                }.get(event_type)
-
-                self.listener_ref_counts[listener_id] -= 1
-                if self.listener_ref_counts[listener_id] == 0:
-                    self.event_manager.unsubscribe(event_type, listener_id)
 
     def _handle_card_effect(self, event: Event, effect_to_resolve: Effect):
         """카드 효과를 처리하는 콜백 핸들러입니다."""
@@ -237,6 +219,25 @@ class Game:
                                                                                       EffectType.ON_OPPONENTS_TURN_END)
         for card_id in cards_with_opponent_turn_end:
             self.resolve_effects_type(card_id, EffectType.ON_OPPONENTS_TURN_END)
+
+        # 문장(Crest) 효과 처리
+        import random
+        player = self.game_state_manager.players[player_id]
+        if "Mjerrabaine, Great Manifest" in player.crests:
+            allied_followers = [c for c in player.field.get_cards() if c.get_type() == CardType.FOLLOWER]
+            if len(allied_followers) == 1:
+                print("[LOG] 제라베인 문장 효과 발동.")
+                opponent = self.game_state_manager.players[opponent_id]
+                opponent.take_damage(2)
+                opponent_field = self.game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
+                opponent_followers = [c for c in opponent_field if c.get_type() == CardType.FOLLOWER]
+                if opponent_followers:
+                    target_follower = random.choice(opponent_followers)
+                    target_follower.take_damage(2)
+                    if target_follower.current_defense <= 0:
+                        self.game_state_manager.move_card(target_follower.card_id, Zone.FIELD, Zone.GRAVEYARD)
+                        self.event_manager.publish(DestroyedOnFieldEvent(target_follower.card_id))
+                        self.process_events()
 
     def _on_damage_dealt(self, event: DamageDealtByCombatEvent):
         """흡혈 효과 처리"""

@@ -50,6 +50,7 @@ class EffectProcessor:
             ProcessType.RETURN_TO_DECK: self._process_return_to_deck,
             ProcessType.RETURN_TO_HAND: self._process_return_to_hand,
             ProcessType.TRIGGER_EFFECT: self._process_trigger_effect,
+            ProcessType.GAIN_CREST: self._process_gain_crest,
         }
 
     def _can_target_with_ability(self, target_card_id: str, game_state_manager: 'GameStateManager') -> bool:
@@ -408,6 +409,19 @@ class EffectProcessor:
             if effect.type == value:
                 self.resolve_effect(effect, target.card_id, game_state_manager, None)
         print(f"[LOG] 처리 내용: 다른 효과 발동, 타겟: {target.get_display_name()}, 발동 효과: {value.value}")
+
+    def _process_gain_crest(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리: 문장 획득"""
+        player = target
+        if hasattr(target, "owner_id"):
+            player = game_state_manager.players[target.owner_id]
+        elif hasattr(target, "player_id"):
+            player = target
+        
+        crest_name = effect_data.value
+        if crest_name not in player.crests:
+            player.crests.append(crest_name)
+            print(f"[LOG] 처리 내용: 문장 획득, 타겟: {player.player_id}, 문장명: {crest_name}")
 
     def resolve_effect(self, effect_data: Effect, caster_id: str,
                        game_state_manager: 'GameStateManager', target_id: str):

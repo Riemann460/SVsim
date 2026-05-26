@@ -7,9 +7,9 @@
 - [x] 1.4 분석 및 Enums 연동 테스트(`test_keyword_analysis.py`) 통과 확인 및 테스트 파일 정리
 
 ## 2. Crest Mechanism Implementation and Verification
-- [ ] 2.1 문장 획득 및 리스너 작동을 검증하는 실패하는 테스트 코드 작성 (e.g. `test_crest.py`)
-- [ ] 2.2 `Player` 모델에 `crests` 상태 추가 및 `EffectProcessor`에 `GAIN_CREST` 핸들러 구현
-- [ ] 2.3 `test_crest.py` 통과 확인 및 테스트 파일 정리
+- [x] 2.1 문장 획득 및 리스너 작동을 검증하는 실패하는 테스트 코드 작성 (e.g. `test_crest.py`)
+- [x] 2.2 `Player` 모델에 `crests` 상태 추가 및 `EffectProcessor`에 `GAIN_CREST` 핸들러 구현
+- [x] 2.3 `test_crest.py` 통과 확인 및 테스트 파일 정리
 
 ## 3. Fuse and Discard Core Mechanics Implementation
 - [ ] 3.1 융합 및 버리기 코어 로직의 동작을 검증하는 실패하는 테스트 코드 작성 (e.g. `test_fuse_discard.py`)
