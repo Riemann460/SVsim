@@ -77,3 +77,14 @@ class CombatInitiatedEvent(CardEvent):
 class DamageDealtByCombatEvent(CardEvent):
     damage: int
     event_type: EventType = EventType.DAMAGE_DEALT_BY_COMBAT
+
+@dataclass
+class CardDiscardedEvent(CardPlayerEvent):
+    """카드가 버려졌을 때 발생하는 이벤트입니다."""
+    event_type: EventType = EventType.CARD_DISCARDED
+
+@dataclass
+class FuseDeclaredEvent(CardPlayerEvent):
+    """융합을 선언했을 때 발생하는 이벤트입니다."""
+    material_card_ids: list
+    event_type: EventType = EventType.FUSE_DECLARED

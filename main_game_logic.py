@@ -3,13 +3,43 @@ from typing import Dict, Any
 from collections import defaultdict
 
 from card import Card
-from enums import GamePhase, EventType, Zone, EffectType, CardType
+from enums import GamePhase, EventType, Zone, EffectType, CardType, ClassType, TribeType
 from event_manager import EventManager
 from game_state_manager import GameStateManager
 from player import Player
 from effect_processor import EffectProcessor
 import card_data
 from rule_engine import RuleEngine
+
+def validate_fuse_material(material_card: Card, fuse_condition: str) -> bool:
+    """융합 재료 카드가 융합 조건을 충족하는지 검사합니다."""
+    if not fuse_condition:
+        return False
+    cond = fuse_condition.lower()
+    
+    # 1. Forestcraft 클래스 조건입니다.
+    if "forestcraft cards" in cond:
+        return material_card.card_data.class_type == ClassType.FORESTCRAFT
+        
+    # 2. Loot 종족 조건입니다 (이름에 Gilded가 포함되는지로 식별합니다).
+    if "loot cards" in cond:
+        return "gilded" in material_card.card_data.name.lower()
+        
+    # 3. Artifact 마법진 조건입니다.
+    if "artifact amulets" in cond:
+        return (TribeType.ARTIFACT in material_card.card_data.tribes and 
+                material_card.get_type() == CardType.AMULET)
+                
+    # 4. Artifact 카드 조건입니다.
+    if "artifact cards" in cond:
+        return TribeType.ARTIFACT in material_card.card_data.tribes
+        
+    # 5. 특정 오미너스 아티팩트 조건입니다.
+    if "ominous artifact" in cond:
+        name = material_card.card_data.name
+        return name in ["Ominous Artifact 1", "Ominous Artifact 3"]
+        
+    return False
 from gui import GameGUI
 from effect import Effect
 from listener import Listener
@@ -220,25 +250,6 @@ class Game:
         for card_id in cards_with_opponent_turn_end:
             self.resolve_effects_type(card_id, EffectType.ON_OPPONENTS_TURN_END)
 
-        # 문장(Crest) 효과 처리
-        import random
-        player = self.game_state_manager.players[player_id]
-        if "Mjerrabaine, Great Manifest" in player.crests:
-            allied_followers = [c for c in player.field.get_cards() if c.get_type() == CardType.FOLLOWER]
-            if len(allied_followers) == 1:
-                print("[LOG] 제라베인 문장 효과 발동.")
-                opponent = self.game_state_manager.players[opponent_id]
-                opponent.take_damage(2)
-                opponent_field = self.game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
-                opponent_followers = [c for c in opponent_field if c.get_type() == CardType.FOLLOWER]
-                if opponent_followers:
-                    target_follower = random.choice(opponent_followers)
-                    target_follower.take_damage(2)
-                    if target_follower.current_defense <= 0:
-                        self.game_state_manager.move_card(target_follower.card_id, Zone.FIELD, Zone.GRAVEYARD)
-                        self.event_manager.publish(DestroyedOnFieldEvent(target_follower.card_id))
-                        self.process_events()
-
     def _on_damage_dealt(self, event: DamageDealtByCombatEvent):
         """흡혈 효과 처리"""
         attacker_id = event.attacker_id
@@ -378,6 +389,75 @@ class Game:
 
         # 카드에 정의된 즉발 효과 해결
         self.event_manager.publish(CardPlayedEvent(card_id=card_id, enhanced_cost=enhanced_cost))
+        self.process_events()
+        self.gui.update()
+        return True
+
+    def discard_card(self, player_id: str, card_id: str):
+        """패에 있는 특정 카드를 묘지로 버립니다."""
+        card = self.game_state_manager.get_entity_by_id(card_id, Zone.HAND)
+        if not card:
+            print(f"[ERROR] discard_card - 패에서 카드 ID {card_id}를 찾을 수 없습니다.")
+            return
+
+        self.game_state_manager.move_card(card_id, Zone.HAND, Zone.GRAVEYARD)
+        from event import CardDiscardedEvent
+        self.event_manager.publish(CardDiscardedEvent(player_id=player_id, card_id=card_id))
+        self.process_events()
+        self.gui.update()
+
+    def discard_cards_manually(self, player_id: str, count: int):
+        """플레이어가 패에서 수동으로 선택하여 카드를 버립니다."""
+        hand = self.game_state_manager.get_cards_in_zone(player_id, Zone.HAND)
+        if not hand:
+            print(f"[LOG] {player_id}의 패에 버릴 카드가 없습니다.")
+            return
+
+        # GUI를 통해 버릴 카드를 선택하게 요청합니다.
+        choices_ids = self.gui.get_discard_choices(player_id, hand, count)
+        for card_id in choices_ids:
+            self.discard_card(player_id, card_id)
+
+    def fuse_cards(self, player_id: str, base_card_id: str, material_card_ids: list) -> bool:
+        """지정된 베이스 카드에 여러 재료 카드를 융합합니다."""
+        base_card = self.game_state_manager.get_entity_by_id(base_card_id, Zone.HAND)
+        if not base_card:
+            print(f"[ERROR] fuse_cards - 베이스 카드 ID {base_card_id}를 찾을 수 없습니다.")
+            return False
+
+        # 베이스 카드에 융합 조건을 불러옵니다.
+        fuse_condition = getattr(base_card.card_data, "fuse_condition", None)
+        if not fuse_condition:
+            print(f"[LOG] {base_card.get_display_name()} 카드는 융합 능력이 없습니다.")
+            return False
+
+        # 각 재료 카드의 적합성을 사전에 검증합니다.
+        validated_materials = []
+        for card_id in material_card_ids:
+            material_card = self.game_state_manager.get_entity_by_id(card_id, Zone.HAND)
+            if not material_card:
+                print(f"[ERROR] fuse_cards - 재료 카드 ID {card_id}를 패에서 찾을 수 없습니다.")
+                return False
+
+            if not validate_fuse_material(material_card, fuse_condition):
+                print(f"[LOG] 재료 카드 {material_card.get_display_name()} (ID: {card_id})는 융합 조건 '{fuse_condition}'에 맞지 않습니다.")
+                return False
+            validated_materials.append(material_card)
+
+        # 융합 속성 초기화 및 삽입 처리를 수행합니다.
+        if not hasattr(base_card, "fused_cards"):
+            base_card.fused_cards = []
+
+        player = self.game_state_manager.players[player_id]
+        for m_card in validated_materials:
+            # 패에서 재료 카드를 안전하게 추출해 제거합니다.
+            player.hand.remove_card(m_card.card_id)
+            m_card.current_zone = None
+            base_card.fused_cards.append(m_card.card_id)
+            print(f"[LOG] {m_card.get_display_name()} (ID: {m_card.card_id}) 카드가 {base_card.get_display_name()}에 융합되었습니다.")
+
+        from event import FuseDeclaredEvent
+        self.event_manager.publish(FuseDeclaredEvent(player_id=player_id, card_id=base_card_id, material_card_ids=material_card_ids))
         self.process_events()
         self.gui.update()
         return True

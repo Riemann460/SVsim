@@ -51,6 +51,8 @@ class EffectProcessor:
             ProcessType.RETURN_TO_HAND: self._process_return_to_hand,
             ProcessType.TRIGGER_EFFECT: self._process_trigger_effect,
             ProcessType.GAIN_CREST: self._process_gain_crest,
+            ProcessType.FUSE: self._process_fuse,
+            ProcessType.DISCARD: self._process_discard,
         }
 
     def _can_target_with_ability(self, target_card_id: str, game_state_manager: 'GameStateManager') -> bool:
@@ -411,7 +413,7 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 다른 효과 발동, 타겟: {target.get_display_name()}, 발동 효과: {value.value}")
 
     def _process_gain_crest(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리: 문장 획득"""
+        """문장 획득 효과를 처리하고 전역 리스너를 바인딩합니다."""
         player = target
         if hasattr(target, "owner_id"):
             player = game_state_manager.players[target.owner_id]
@@ -419,9 +421,50 @@ class EffectProcessor:
             player = target
         
         crest_name = effect_data.value
-        if crest_name not in player.crests:
-            player.crests.append(crest_name)
+        if not any(c.name == crest_name for c in player.crests):
+            from crest import create_crest
+            game = game_state_manager.game
+            crest_obj = create_crest(crest_name, player.player_id)
+            player.crests.append(crest_obj)
+            crest_obj.register_listeners(game)
             print(f"[LOG] 처리 내용: 문장 획득, 타겟: {player.player_id}, 문장명: {crest_name}")
+
+    def _process_fuse(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """융합 효과를 처리합니다."""
+        if not isinstance(target, Card):
+            return
+            
+        player_id = target.owner_id
+        game = game_state_manager.game
+        
+        from main_game_logic import validate_fuse_material
+        
+        hand = game_state_manager.get_cards_in_zone(player_id, Zone.HAND)
+        fusible_cards = [c for c in hand if c.card_id != target.card_id and validate_fuse_material(c, target.fuse_condition)]
+        if not fusible_cards:
+            print(f"[LOG] {player_id}의 패에 융합할 수 있는 카드가 존재하지 않습니다.")
+            return
+
+        material_ids = game.gui.get_fuse_choices(player_id, target, fusible_cards)
+        if material_ids:
+            game.fuse_cards(player_id, target.card_id, material_ids)
+
+    def _process_discard(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """버리기 효과를 처리합니다."""
+        game = game_state_manager.game
+        if isinstance(target, Card):
+            game.discard_card(target.owner_id, target.card_id)
+        elif isinstance(target, Player):
+            count = effect_data.value if isinstance(effect_data.value, int) else 1
+            player_id = target.player_id
+            import random
+            for _ in range(count):
+                hand_ids = game_state_manager.get_card_ids_in_zone(player_id, Zone.HAND)
+                if hand_ids:
+                    chosen_id = random.choice(hand_ids)
+                    game.discard_card(player_id, chosen_id)
+                else:
+                    break
 
     def resolve_effect(self, effect_data: Effect, caster_id: str,
                        game_state_manager: 'GameStateManager', target_id: str):

@@ -30,8 +30,9 @@ class Player:
         self.max_extra_pp = 1
         self.event_manager = event_manager
         self.spent_ep_in_turn = False
-        self.effects: List[Effect] = []  # 크레스트 효과 인스턴스
-        self.crests: List[str] = []  # 플레이어가 획득한 문장 목록
+        self.effects: List[Effect] = []  # 크레스트 효과 인스턴스입니다.
+        from crest import Crest
+        self.crests: List[Crest] = []  # 플레이어가 획득한 문장 객체 목록입니다.
         self.card_data = card_data.CardData('Leader', self.player_id, 0, CardType.LEADER, ClassType.NEUTRAL, 0, self.max_defense, effects=self.effects)
 
         # 영역 초기화
@@ -131,6 +132,6 @@ class Player:
         """지정된 영역에 있는 모든 카드의 리스트를 반환합니다."""
         return self.zone_dict[zone].get_cards()
 
-    def has_keyword(self, effect_type:EffectType):
-        '''크레스트 구현용(미구현)'''
-        return False
+    def has_keyword(self, effect_type: EffectType):
+        """보유한 효과 중 해당 키워드가 존재하는지 검사합니다."""
+        return any(effect.type == effect_type for effect in self.effects)

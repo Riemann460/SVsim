@@ -64,6 +64,7 @@ class GameStateManager:
             elif to_zone == Zone.FIELD:
                 print(f"[LOG] {card.get_display_name()} (ID: {card_id}) 필드 소환 제한 매수 초과로 소멸.")
         else:
+            card.current_zone = to_zone
             # 필드에 들어올 때 리스너 등록
             if to_zone == Zone.FIELD:
                 self.game._register_card_listeners(card)
@@ -82,6 +83,7 @@ class GameStateManager:
             elif to_zone == Zone.FIELD:
                 print(f"[LOG] {card.get_display_name()} (ID: {card.card_id}) 필드 소환 제한 매수 초과로 소멸.")
         else:
+            card.current_zone = to_zone
             # 필드에 들어올 때 리스너 등록
             if to_zone == Zone.FIELD:
                 self.game._register_card_listeners(card)

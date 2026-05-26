@@ -11,18 +11,19 @@ TOKEN_CARD_DATABASE: Dict[str, 'CardData'] = {}
 
 class CardData:
     """카드의 정적 데이터를 정의합니다."""
-    def __init__(self, card_id: str, name: str, cost: int, card_type: CardType, class_type: ClassType, attack: int = 0, defense: int = 0, tribes: List = None, effects: List[Effect] = None, raw_effects_text: str = "", required_listeners: List[EventType] = None):
-        self.card_id = card_id  # 영문명
-        self.name = name  # 한글명
+    def __init__(self, card_id: str, name: str, cost: int, card_type: CardType, class_type: ClassType, attack: int = 0, defense: int = 0, tribes: List = None, effects: List[Effect] = None, raw_effects_text: str = "", required_listeners: List[EventType] = None, fuse_condition: str = None):
+        self.card_id = card_id  # 카드의 영문 식별자입니다.
+        self.name = name  # 카드의 한글 이름입니다.
         self.cost = cost
         self.card_type = card_type
         self.class_type = class_type
-        self.attack = attack  # 추종자 전용
-        self.defense = defense  # 추종자 전용
+        self.attack = attack  # 추종자 전용 공격력입니다.
+        self.defense = defense  # 추종자 전용 체력입니다.
         self.tribes = tribes if tribes is not None else []
-        self.effects = effects if effects is not None else []  # Effect 인스턴스 리스트
+        self.effects = effects if effects is not None else []  # 효과 객체 목록입니다.
         self.raw_effects_text = raw_effects_text
         self.required_listeners = required_listeners if required_listeners is not None else []
+        self.fuse_condition = fuse_condition
 
     def get(self, key: str, default: Any = None) -> Any:
         """객체의 속성 값을 가져옵니다."""
@@ -98,14 +99,26 @@ def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
 
 
 def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
-    """딕셔너리에서 CardData 객체를 로드합니다."""
+    """딕셔너리에서 카드 데이터를 읽어들입니다."""
     effects = []
     for e_dict in card_dict.get("effects", []):
         if "raw_effect_text" in e_dict:
-            # Raw text effects are stored as dictionaries with 'raw_effect_text' key
-            effects.append(e_dict) # Keep as dict for now
+            # 원본 텍스트 효과는 딕셔너리로 우선 유지합니다.
+            effects.append(e_dict)
         else:
             effects.append(_load_effect_from_dict(e_dict))
+
+    # 융합 조건을 텍스트에서 파싱합니다.
+    fuse_condition = card_dict.get("fuse_condition", None)
+    if not fuse_condition:
+        for e_dict in card_dict.get("effects", []):
+            for k in ["raw_effect_text", "raw_action_text"]:
+                text = e_dict.get(k, "")
+                if text.startswith("Fuse:"):
+                    fuse_condition = text.replace("Fuse:", "").strip()
+                    break
+            if fuse_condition:
+                break
 
     required_listeners_from_json = card_dict.get("required_listeners", [])
     
@@ -150,7 +163,8 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
         defense=card_dict.get("defense", 0),
         tribes=[TribeType[t] for t in card_dict.get("tribes", [])],
         effects=effects,
-        required_listeners=list(listeners)
+        required_listeners=list(listeners),
+        fuse_condition=fuse_condition
     )
     
     return card_data_obj

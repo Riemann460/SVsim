@@ -24,10 +24,11 @@ class Deck:
         print(f"[LOG] 덱에서 카드 ID {card_id}를 찾을 수 없어 제거 실패.")
         return False
 
-    def add_card(self, card: Card):
-        """덱에 카드를 추가합니다."""
+    def add_card(self, card: Card) -> bool:
+        """덱에 카드를 추가하고 성공 여부를 반환합니다."""
         self._cards.append(card)
         print(f"[LOG] 덱에 카드 {card.get_display_name()} (ID: {card.card_id}) 추가됨. 현재 덱 사이즈: {len(self._cards)}")
+        return True
 
     def get_cards(self) -> List[Card]:
         """덱에 있는 모든 카드의 리스트를 반환합니다."""
