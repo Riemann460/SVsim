@@ -89,4 +89,7 @@ class Card:
 
     def get_display_name(self):
         """카드 이름을 반환"""
-        return self.card_data['name']
+        name_ko = self.card_data.get('name_ko')
+        if name_ko:
+            return name_ko
+        return self.card_data.get('name')

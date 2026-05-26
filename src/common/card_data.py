@@ -1,7 +1,30 @@
 import json
+import os
+import glob
 from typing import List, Any, Dict
 from src.common.enums import CardType, EffectType, TargetType, ProcessType, ClassType, TribeType, EventType
 from src.common.effect import Effect
+
+KOR_NAME_MAP = {}
+
+def load_kor_names(kor_db_dir: str = 'card_database/2_kor_database'):
+    """한글 카드명 매핑 데이터를 불러옵니다."""
+    global KOR_NAME_MAP
+    if not os.path.exists(kor_db_dir):
+        kor_db_dir = os.path.join('..', kor_db_dir)
+        if not os.path.exists(kor_db_dir):
+            return
+    for file_path in glob.glob(os.path.join(kor_db_dir, '*.json')):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                for item in data.values():
+                    en_name = item.get('카드 이름')
+                    ko_name = item.get('카드 이름 (한글)')
+                    if en_name and ko_name:
+                        KOR_NAME_MAP[en_name] = ko_name
+        except Exception as e:
+            print(f"[WARNING] Failed to load kor names from {file_path} {e}")
 
 class CardDatabase(dict):
     """card_id와 name 모두로 검색이 가능한 데이터베이스 클래스입니다."""
@@ -28,9 +51,9 @@ TOKEN_CARD_DATABASE = CardDatabase()
 
 class CardData:
     """카드의 정적 데이터를 정의합니다."""
-    def __init__(self, card_id: str, name: str, cost: int, card_type: CardType, class_type: ClassType, attack: int = 0, defense: int = 0, tribes: List = None, effects: List[Effect] = None, raw_effects_text: str = "", required_listeners: List[EventType] = None, fuse_condition: str = None):
+    def __init__(self, card_id: str, name: str, cost: int, card_type: CardType, class_type: ClassType, attack: int = 0, defense: int = 0, tribes: List = None, effects: List[Effect] = None, raw_effects_text: str = "", required_listeners: List[EventType] = None, fuse_condition: str = None, name_ko: str = None):
         self.card_id = card_id  # 카드의 영문 식별자입니다.
-        self.name = name  # 카드의 한글 이름입니다.
+        self.name = name  # 카드의 영문 이름입니다.
         self.cost = cost
         self.card_type = card_type
         self.class_type = class_type
@@ -41,6 +64,7 @@ class CardData:
         self.raw_effects_text = raw_effects_text
         self.required_listeners = required_listeners if required_listeners is not None else []
         self.fuse_condition = fuse_condition
+        self.name_ko = name_ko  # 카드의 한글 이름입니다.
 
     def get(self, key: str, default: Any = None) -> Any:
         """객체의 속성 값을 가져옵니다."""
@@ -183,7 +207,8 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
         tribes=[TribeType[t] for t in card_dict.get("tribes", [])],
         effects=effects,
         required_listeners=list(listeners),
-        fuse_condition=fuse_condition
+        fuse_condition=fuse_condition,
+        name_ko=KOR_NAME_MAP.get(card_dict["name"], card_dict["name"])
     )
     
     return card_data_obj
@@ -223,6 +248,7 @@ def resolve_card_references(card_db: Dict[str, CardData], global_card_db: Dict[s
 def load_card_databases(json_path: str = 'card_database/3_parsed_database/card_database_parsed.json'):
     """JSON 파일에서 모든 카드 데이터베이스를 로드합니다."""
     global BASIC_CARD_DATABASE, LEGENDS_RISE_CARD_DATABASE, TOKEN_CARD_DATABASE
+    load_kor_names()
     with open(json_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
