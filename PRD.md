@@ -12,8 +12,10 @@
   - `Player` 클래스에 문장(Crest)을 관리할 수 있는 컬렉션 필드를 설계한다.
   - `GAIN_CREST` 프로세스를 도입하여 추종자 진화/초진화 혹은 출격(Fanfare) 시 플레이어에게 문장을 부여한다.
   - 문장 부여 시 플레이어에게 지속적인 효과(예: 드로우, 피해량 가감 등)가 적용될 수 있도록 이벤트 리스너를 매핑한다.
-- **추가 미구현 핵심 키워드(융합/Fuse, 버리기/Discard) 구현**:
-  - 데이터 분석 결과를 기반으로 융합(Fuse) 및 버리기(Discard) 프로세스를 지원할 수 있는 기초 이벤트를 구현한다.
+- **카드 파싱 성공률 90% 이상 달성 (수동 작업 10% 미만)**:
+  - **대상 범위**: 기존 팩(100, 101, 102, 103, 900) 및 신규 크롤링된 모든 팩(104, 105, 106, 107)을 포함한 **전체 데이터베이스**를 기준으로 통계를 측정하고 개선합니다.
+  - **전처리 고도화 병행**: 단순 정규식 패턴 매칭 추가에 그치지 않고, 능력 텍스트 내 HTML 태그 정제, 특수 기호 제거, 개행 및 마침표 기준 다중 명령문 분할 엔진 등의 전처리 로직 고도화를 병행합니다.
+  - **미구현 요소를 위한 명세 확장**: 파싱 과정에서 발견된 미구현 Action(ProcessType) 및 Target(TargetType)은 실기능 구현을 배제하되, `enums.py`에 Enum 상수를 추가하고 ADR-006 규격(한글 온점 마침표)의 주석을 보완합니다.
 
 ## 3. 상세 사양
 - **문장 효과(Crest) 상태 관리**:
@@ -30,5 +32,7 @@
 
 ## 5. 진행 상황
 - [x] 1. DB Merge and Unimplemented Keywords Listing (2026-05-26 완료)
-- [ ] 2. Crest Mechanism Implementation and Verification
-- [ ] 3. Fuse and Discard Core Mechanics Implementation
+- [x] 2. Crest Mechanism Implementation and Verification (2026-05-26 완료)
+- [x] 3. Card Parsing Rate Optimization (Success rate >= 90%) (최종 성공률 96.89% 달성)
+- [ ] 4. Fuse and Discard Core Mechanics Implementation
+
