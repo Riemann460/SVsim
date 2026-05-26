@@ -593,7 +593,9 @@ class EffectProcessor:
 
         target_type = effect_data.get('target')
         if not target_type:
-            print(f"[WARNING] resolve_effect - target_type이 지정되지 않아 효과 처리를 건너뜁니다.")
+            # target_type이 지정되지 않은 경우 caster 자신을 타겟으로 처리합니다.
+            target = caster_card
+            handler(effect_data, target, game_state_manager)
             return
 
         target_list = self.list_target(target_type, caster_id, game_state_manager)
