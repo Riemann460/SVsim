@@ -2,10 +2,12 @@ from src.models.card import Card
 from src.common.enums import Zone, CardType, EffectType, TargetType
 from src.engine.main_game_logic import Game
 from src.models.player import Player
+from src.common import card_data
 
 
 # --- 게임 실행 예시 ---
 if __name__ == "__main__":
+    card_data.load_card_databases()
     game = Game("player1", "player2")
     current_player = "player1"
     opponent_id = game.opponent_id[current_player]
