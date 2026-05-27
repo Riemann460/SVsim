@@ -144,13 +144,13 @@ class ProcessType(Enum):
     GAIN_SHADOW = "묘지 수 증가"
     TRANSFORM = "변신"
     REANIMATE = "사령 재생"
-
-    # 미구현 프로세스들을 정의합니다.
     INCREASE_COMBO = "콤보 증가"
     ADVANCE_COUNTDOWN = "카운트다운 진행"
-    DEFINE_VARIABLE = "변수 정의"
     MULTI_ATTACK = "다중 공격"
     GAIN_MAX_PP = "최대 PP 증가"
+
+    # 미구현 프로세스들을 정의합니다.
+    DEFINE_VARIABLE = "변수 정의"
     IMMUNITY = "면역"
     SELECT = "선택"
 
@@ -179,16 +179,16 @@ class TargetType(Enum):
     OWN_DECK = "자신 덱"
     OPPONENT_FIELD = "상대 필드"
     ALL_OPPONENT_FOLLOWERS_DAMAGED = "피해를 입은 상대 추종자 전체"
+    ALL_LEADERS_MAX_DEFENSE = "가장 체력이 높은 리더 전체"
+    ALL_LEADERS_MIN_DEFENSE = "가장 체력이 낮은 리더 전체"
+    ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED = "자신 제외 아군 진화전 추종자 중 랜덤"
+    ALLY_FOLLOWER_RANDOM_SUPER_EVOLVED = "아군 초진화 추종자 중 랜덤"
 
     # 미구현 타겟들을 정의합니다.
-    ALL_LEADERS_MAX_DEFENSE = "가장 체력이 높은 리더 전체"
     ALL_FOLLOWERS_MAX_DEFENSE = "가장 체력이 높은 추종자 전체"
     ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED_NO_ATTACK = "자신 제외 공격하지 않은 진화전 아군 추종자 중 랜덤"
-    ALLY_FOLLOWER_RANDOM_SUPER_EVOLVED = "아군 초진화 추종자 중 랜덤"
-    ALL_LEADERS_MIN_DEFENSE = "가장 체력이 낮은 리더 전체"
     ALL_FOLLOWERS_MIN_DEFENSE = "가장 체력이 낮은 추종자 전체"
     ALL_NON_ENCROACHER_FOLLOWERS = "Encroacher가 아닌 추종자 전체"
-    ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED = "자신 제외 아군 진화전 추종자 중 랜덤"
 
 
 class TribeType(Enum):

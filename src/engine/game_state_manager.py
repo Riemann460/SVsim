@@ -133,6 +133,7 @@ class GameStateManager:
         for card in self.get_cards_in_zone(player_id, Zone.FIELD):
             card.is_engaged = False
             card.is_summoned = False
+            card.attack_count_this_turn = 0
 
     def play_card(self, player_id, card_id, enhanced_cost=0):
         """지정 카드를 사용합니다."""

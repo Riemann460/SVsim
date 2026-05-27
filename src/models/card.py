@@ -37,6 +37,8 @@ class Card:
         # 키워드별 추가 상태들을 설정합니다.
         self.countdown_value = card_data.get("countdown", None)  # 카운트다운 마법진용입니다.
         self.spellboost_stacks = 0  # 주문 증폭 스택용입니다.
+        self.max_attack_count = 1  # 턴당 최대 공격 횟수 제한입니다.
+        self.attack_count_this_turn = 0  # 이번 턴 공격한 누적 횟수입니다.
 
     def take_damage(self, amount: int):
         """추종자가 피해를 입는 처리를 담당합니다."""

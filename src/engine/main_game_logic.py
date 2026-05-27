@@ -528,7 +528,9 @@ class Game:
 
         self.process_events()
 
-        attacker.is_engaged = True  # 공격 완료 여부를 표시합니다.
+        attacker.attack_count_this_turn += 1
+        if attacker.attack_count_this_turn >= attacker.max_attack_count:
+            attacker.is_engaged = True  # 공격 완료 여부를 표시합니다.
         self.gui.update()
         return True
 
@@ -592,7 +594,11 @@ class Game:
         self.event_manager.publish(DamageDealtByCombatEvent(card_id=attacker_id, damage=target_damage_taken))
         self.process_events()
 
-        attacker.is_engaged = True  # 공격 완료 여부를 표시합니다.
+        self.process_events()
+
+        attacker.attack_count_this_turn += 1
+        if attacker.attack_count_this_turn >= attacker.max_attack_count:
+            attacker.is_engaged = True  # 공격 완료 여부를 표시합니다.
 
         # 필살 효과를 처리합니다.
         if target.has_keyword(EffectType.BANE):
