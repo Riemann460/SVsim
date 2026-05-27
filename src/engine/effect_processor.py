@@ -281,11 +281,7 @@ class EffectProcessor:
 
     def list_target(self, target_type: TargetType, caster_id: str,
                        game_state_manager: 'GameStateManager'):
-        """타겟 타입을 해석하고 타겟 리스트 반환"""
-        if not target_type:
-            print(f"[WARNING] list_target - target_type이 None입니다.")
-            return []
-
+        """타겟 타입을 해석하고 타겟 리스트를 반환합니다."""
         caster_card = game_state_manager.get_entity_by_id(caster_id)
         if not caster_card:
             print(f"[ERROR] list_target - caster card with id {caster_id} not found.")
@@ -592,12 +588,6 @@ class EffectProcessor:
             return
 
         target_type = effect_data.get('target')
-        if not target_type:
-            # target_type이 지정되지 않은 경우 caster 자신을 타겟으로 처리합니다.
-            target = caster_card
-            handler(effect_data, target, game_state_manager)
-            return
-
         target_list = self.list_target(target_type, caster_id, game_state_manager)
 
         for target in target_list:

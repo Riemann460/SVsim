@@ -97,9 +97,13 @@ def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
     if "process" in effect_dict and effect_dict["process"] is not None:
         attrs["process"] = ProcessType[effect_dict["process"]]
 
-    if "process" in effect_dict and attrs["process"] == ProcessType.RETURN_TO_DECK:
-        if "target" not in effect_dict or effect_dict["target"] is None:
-            # RETURN_TO_DECK 프로세스인데 target이 없으면 기본적으로 OWN_HAND_CHOICE로 할당합니다.
+    # target이 누락된 경우에 대한 보정을 처리합니다.
+    if attrs.get("target") is None:
+        effect_type = attrs.get("type")
+        process_type = attrs.get("process")
+        if effect_type in [EffectType.ON_EVOLVE, EffectType.ON_SUPER_EVOLVE] or process_type == ProcessType.TRIGGER_EFFECT:
+            attrs["target"] = TargetType.SELF
+        elif process_type == ProcessType.RETURN_TO_DECK:
             attrs["target"] = TargetType.OWN_HAND_CHOICE
 
     # effect 인스턴스 처리
