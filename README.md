@@ -25,6 +25,8 @@ This project is a Python-based implementation of the card game "Shadowverse".
     - **Targeting:** Supports complex targeting (choice, random, conditional) and player choices for "Choose" effects.
 *   **Robust Card Data Pipeline:** Automated raw data parsing and validation across sets 100-107 and 900, achieving a 96.89% parser success rate.
 *   **Functional GUI:** A `tkinter`-based GUI provides a visual representation of the game state, including each player's hand, field, and stats. It also facilitates user interactions like mulligan and effect choices.
+*   **Unimplemented Enums & Mechanics Engine Integration:** Completed full logic implementation and verification for missing keywords, targeting types, and process mechanisms (Combo, Rally, Necromancy, Reanimate, Earth Rite, Overflow, Skybound Art, Invoke, Transform, and Conditional Effect).
+
 
 ### Planned Features
 *   **AI Opponent:** Implement an AI that can play against a human player.
@@ -34,7 +36,6 @@ This project is a Python-based implementation of the card game "Shadowverse".
     - Drag-and-drop controls for a more intuitive experience.
     - Animations and visual effects for card actions.
 *   **Network Play:** Implement networking to allow players to compete over the internet.
-*   **Unimplemented Enum Processors:** Implement code handlers for custom process enums (REDUCE_COST, INCREASE_COST, SET_COST, SET_ATTACK, ADVANCE_CREST, DESTROY_CREST, RECOVER_EP, HEAL_LINKED, etc.) to expand functional card execution.
 
 ## Card Data Pipeline
 

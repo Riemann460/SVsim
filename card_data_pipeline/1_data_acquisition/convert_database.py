@@ -6,6 +6,10 @@ import sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 sys.path.append(os.path.normpath(os.path.join(current_dir, "../..")))
+# Add path to src/common for enums and other modules
+src_common_path = os.path.normpath(os.path.join(current_dir, "../../src/common"))
+if src_common_path not in sys.path:
+    sys.path.append(src_common_path)
 
 from enums import CardType, ClassType, TribeType, EffectType, ProcessType, TargetType
 from parse_script import parse_effect_text, get_required_listeners
@@ -130,9 +134,30 @@ if __name__ == "__main__":
             merged_database["TOKEN_CARD_DATABASE"].update(set_data)
         else:
             merged_database["LEGENDS_RISE_CARD_DATABASE"].update(set_data)
+
+# Build name → ID mapping across all sections
+name_to_id = {}
+for db_key in ["BASIC_CARD_DATABASE", "LEGENDS_RISE_CARD_DATABASE", "TOKEN_CARD_DATABASE"]:
+    for cid, info in merged_database[db_key].items():
+        card_name = info.get("name")
+        if card_name:
+            name_to_id[card_name] = cid
+
+# Replace effect.value strings that match a card name with the corresponding ID
+def replace_effect_values(section):
+    for card in section.values():
+        for effect in card.get("effects", []):
+            val = effect.get("value")
+            if isinstance(val, str) and val in name_to_id:
+                effect["value"] = name_to_id[val]
+
+for sect in merged_database.values():
+    replace_effect_values(sect)
             
+
     final_output_path = os.path.normpath(os.path.join(script_dir, "../../card_database/3_parsed_database/card_database_parsed.json"))
+    # Dump the merged and transformed database
     with open(final_output_path, "w", encoding="utf-8") as f:
         json.dump(merged_database, f, ensure_ascii=False, indent=4)
-        
+
     print(f"통합 데이터베이스 빌드 완료! 결과가 '{final_output_path}' 파일에 저장되었습니다.")
