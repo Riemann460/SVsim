@@ -1,3 +1,4 @@
+# 역할 정의. 게임의 상태 전이 및 카드 능력의 격리된 구독 처리를 돕는 개별 이벤트 데이터 구조를 정의합니다.
 
 from dataclasses import dataclass
 from typing import Optional
@@ -5,24 +6,24 @@ from src.common.enums import EventType
 
 @dataclass
 class Event:
-    """이벤트의 기본 클래스"""
+    """이벤트의 기본 클래스입니다."""
     pass
 
 @dataclass
 class CardEvent(Event):
-    """카드와 관련된 이벤트의 기본 클래스"""
+    """카드와 관련된 이벤트의 기본 클래스입니다."""
     card_id: str
 
 @dataclass
 class PlayerEvent(Event):
-    """플레이어와 관련된 이벤트의 기본 클래스"""
+    """플레이어와 관련된 이벤트의 기본 클래스입니다."""
     player_id: str
 
 @dataclass
 class CardPlayerEvent(CardEvent, PlayerEvent):
     pass
 
-# 구체적인 이벤트 클래스
+# 구체적인 이벤트 클래스들입니다.
 @dataclass
 class TurnStartEvent(PlayerEvent):
     turn_number: int

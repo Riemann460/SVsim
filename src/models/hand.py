@@ -1,10 +1,12 @@
+# 역할 정의. 플레이어가 획득하여 쥐고 있는 손패 카드 목록을 관리하는 클래스입니다.
+
 from typing import List
-from src.models.card import Card # 상대 경로 임포트
-from src.models.graveyard import Graveyard # 상대 경로 임포트 (순환 참조 주의, 인스턴스 전달)
+from src.models.card import Card # 상대 경로 임포트입니다.
+from src.models.graveyard import Graveyard # 상대 경로 임포트이며 순환 참조 방지를 위해 인스턴스로 전달받습니다.
 
 class Hand:
     """플레이어의 패를 관리합니다."""
-    MAX_HAND_SIZE = 9  # [사용자 질의]
+    MAX_HAND_SIZE = 9  # 사용자 질의에 의해 결정된 최대 손패 매수입니다.
 
     def __init__(self):
         """Hand 클래스의 생성자입니다."""

@@ -1,3 +1,5 @@
+# 역할 정의. 카드 효과 텍스트를 파싱하여 개별 효과 및 대상을 규칙 패턴에 기반해 분석하는 핵심 파서 클래스입니다.
+
 import json
 import re
 from enum import Enum
@@ -27,11 +29,12 @@ EFFECT_TO_EVENT_MAP = {
 }
 
 def parse_effect_text(description: str, card_type_enum):
+    """카드 텍스트의 줄바꿈과 HTML 요소를 정돈하고 구조화된 리스트로 변환합니다."""
     if not description:
         return []
 
-    # 1. 원래 줄바꿈이나 태그 기준으로 문단을 분리
-    # <hr>, <ev>, </ev>, \n 등을 기준으로 분리하되, 숫자(1., 2.)로 시작하는 줄은 이전 문단에 포함시킨다.
+    # 1. 원래 줄바꿈이나 태그 기준으로 문단을 분리합니다.
+    # <hr>, <ev>, </ev>, \n 등을 기준으로 분리하되, 숫자(1., 2.)로 시작하는 줄은 이전 문단에 포함시킵니다.
     description_clean = description.replace("<hr>", "\n").replace("<ev>", "\n").replace("</ev>", "\n")
     raw_lines = [p.strip() for p in description_clean.split('\n') if p.strip()]
     
@@ -45,16 +48,16 @@ def parse_effect_text(description: str, card_type_enum):
     parsed_effects = []
 
     for paragraph in paragraphs:
-        # 2. 모든 HTML 태그 제거
+        # 2. 모든 HTML 태그를 제거합니다.
         p_clean = re.sub(r"<[^>]*>", "", paragraph)
         
-        # 3. 특수 공백 및 깨진 문자 필터링
+        # 3. 특수 공백 및 깨진 문자를 필터링합니다.
         p_clean = p_clean.replace("&nbsp;", " ")
         p_clean = p_clean.replace("①", "1").replace("②", "2").replace("③", "3").replace("④", "4")
         p_clean = p_clean.replace("\ufffd", "")
         p_clean = re.sub(r"Ominous Artifact\s+[^a-zA-Z0-9\s]+", "Ominous Artifact", p_clean)
         
-        # 4. 마침표 뒤 대문자 시작하는 다중 문장 분할 (앞에 숫자가 붙은 모드 선택 형태 '1.' 등은 예외)
+        # 4. 마침표 뒤 대문자로 시작하는 다중 문장들을 분할합니다 (앞에 숫자가 붙은 모드 선택 형태 '1.' 등은 예외 처리합니다).
         p_clean = re.sub(r"(?<!\b\d)\.\s*([A-Z])", r".\n\1", p_clean)
 
         lines = [line.strip() for line in p_clean.strip().split('\n') if line.strip()]
@@ -66,7 +69,7 @@ def parse_effect_text(description: str, card_type_enum):
         while i < len(lines):
             line = lines[i]
 
-            # "Select a Mode" 또는 "Select X Modes" 또는 "abilities from the following" 구문이 포함된 라인 찾기
+            # "Select a Mode" 또는 "Select X Modes" 또는 "abilities from the following" 구문이 포함된 라인을 찾습니다.
             if ("Select" in line and "Mode" in line) or "abilities from the following" in line:
                 trigger_effect = _parse_single_effect(line)
                 if isinstance(trigger_effect, list):
@@ -81,7 +84,7 @@ def parse_effect_text(description: str, card_type_enum):
                 trigger_effect.update(process=ProcessType.CHOOSE, choices=[])
 
                 i += 1
-                # 다음 줄부터 숫자(1., 2.)로 시작하는 선택지들을 파싱
+                # 다음 줄부터 숫자(1., 2.)로 시작하는 선택지들을 파싱합니다.
                 while i < len(lines) and re.match(r"^\d\.", lines[i]):
                     choice_text = re.sub(r"^\d\.\s*", "", lines[i])
                     action_attrs = parse_action(choice_text)
@@ -97,7 +100,7 @@ def parse_effect_text(description: str, card_type_enum):
                     for r in result:
                         paragraph_effects.append(r)
                 else:
-                    # 명시적인 이펙트 패턴이 있는지 확인
+                    # 명시적인 이펙트 패턴이 존재하는지 확인합니다.
                     has_explicit_pattern = False
                     if line.lower().strip() in SIMPLE_KEYWORD_EFFECTS:
                         has_explicit_pattern = True
@@ -128,9 +131,9 @@ def parse_effect_text(description: str, card_type_enum):
     return parsed_effects
 
 
-# 패턴과 해당 효과를 매핑하는 데이터 구조
+# 패턴과 해당 효과를 매핑하는 데이터 구조입니다.
 EFFECT_PATTERNS = [
-    # 키워드: 설명 (정규식 그룹)
+    # 키워드 - 설명 (정규식 그룹).
     {'regex': r"Enhance \((\d+)\): (.*)", 'type': EffectType.ENHANCE, 'groups': ['enhance_cost', 'action_text']},
     {'regex': r"Evolve: (.*)", 'type': EffectType.ON_EVOLVE, 'groups': ['action_text']},
     {'regex': r"Super-Evolve: (.*)", 'type': EffectType.ON_SUPER_EVOLVE, 'groups': ['action_text']},
@@ -168,11 +171,11 @@ EFFECT_PATTERNS = [
     {'regex': r"It costs (\d+) until the end of the turn", 'type': EffectType.SPELL, 'process': ProcessType.SET_COST, 'groups': ['value']},
 ]
 
-# 단순 키워드 효과 (정규식 필요 없음)
+# 단순 키워드 효과들을 관리합니다 (정규식이 필요하지 않습니다).
 SIMPLE_KEYWORD_EFFECTS = {
     "ward": EffectType.WARD, "storm": EffectType.STORM, "rush": EffectType.RUSH,
     "bane": EffectType.BANE, "drain": EffectType.DRAIN, "barrier": EffectType.BARRIER,
-    "ambush": EffectType.AMBUSH, "intimidate": EffectType.INTIMIDATE, "aura": EffectType.AURA,
+    "ambush": EffectType.AMBUSH, "intimidate": EffectType.INIMIDATE, "aura": EffectType.AURA,
     "combo": EffectType.COMBO, "earth rite": EffectType.EARTH_RITE, "earth sigil": EffectType.EARTH_SIGIL,
     "necromancy": EffectType.NECROMANCY, "reanimate": EffectType.REANIMATE, "overflow": EffectType.OVERFLOW,
     "rally": EffectType.RALLY, "skybound art": EffectType.SKYBOUND_ART, "super skybound art": EffectType.SUPER_SKYBOUND_ART,
@@ -185,23 +188,23 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
     text_clean = text_clean.replace('"', '')
     low_text = text_clean.lower()
     
-    # 1. Simple keyword effects
+    # 1. 단순 키워드 효과를 처리합니다.
     if low_text in SIMPLE_KEYWORD_EFFECTS:
         return Effect(type=SIMPLE_KEYWORD_EFFECTS[low_text])
 
-    # 2. Pattern-based effects
+    # 2. 패턴 기반 효과를 처리합니다.
     for pattern in EFFECT_PATTERNS:
         match = re.match(pattern['regex'], text_clean, re.IGNORECASE)
         if match:
             extracted_data = dict(zip(pattern['groups'], match.groups()))
-            # Convert numeric strings where appropriate
+            # 필요한 경우 숫자 문자열을 정수형으로 변환합니다.
             for key, value in extracted_data.items():
                 if 'text' not in key:
                     try:
                         extracted_data[key] = int(value)
                     except (ValueError, TypeError):
                         pass
-            # Special handling for FANFARE with multiple actions separated by periods or commas
+            # 마침표나 쉼표로 분리된 다중 액션을 가진 FANFARE의 예외 처리를 수행합니다.
             if pattern['type'] == EffectType.FANFARE and 'action_text' in extracted_data:
                 actions = [a.strip() for a in re.split(r'[.,]\s*', extracted_data['action_text']) if a.strip()]
                 effects: list[Effect] = []
@@ -210,7 +213,7 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
                     ef = Effect(type=EffectType.FANFARE, **action_attrs)
                     effects.append(ef)
                 return effects
-            # General action parsing
+            # 일반적인 액션 파싱을 수행합니다.
             if 'action_text' in extracted_data:
                 action_text = extracted_data.pop('action_text')
                 if "Select a Mode" in action_text:
@@ -225,28 +228,28 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
             effect.update(type=pattern['type'])
             return effect
 
-    # 3. Standalone action without pattern
+    # 3. 패턴이 없는 독립 액션을 처리합니다.
     action_attrs = parse_action(text_clean)
     if 'raw_action_text' not in action_attrs:
         effect = Effect(**action_attrs)
         effect.update(type=EffectType.SPELL)
         return effect
 
-    # 3.5 Target-only statements
+    # 3.5 대상만을 지정하는 문장을 처리합니다.
     target_attrs = parse_target(text_clean)
     if 'raw_target_text' not in target_attrs:
         effect = Effect(**target_attrs)
         effect.update(type=EffectType.SPELL, process=ProcessType.ADD_EFFECT)
         return effect
 
-    # 4. 정말 파싱 실패한 경우
+    # 4. 파싱에 완전히 실패한 경우의 대체 처리입니다.
     print(f"[WARNING] Could not parse effect text: '{text}'")
     return Effect(raw_effect_text=text)
 
 
-# 대상 파싱을 위한 패턴 목록
+# 대상 파싱을 위한 패턴 목록입니다.
 TARGET_PATTERNS = [
-    # 대상: 설명
+    # 대상 - 설명.
     {'regex': r"\bthis follower\b", 'target': TargetType.SELF},
     {'regex': r"\byour leader\b", 'target': TargetType.OWN_LEADER},
     {'regex': r"\bthe enemy leader\b", 'target': TargetType.OPPONENT_LEADER},
@@ -297,9 +300,9 @@ TARGET_PATTERNS = [
     {'regex': r"\ba random unevolved allied follower on the field with a base cost of (\d+) or more\b", 'target': TargetType.ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED, 'groups': ['value']},
 ]
 
-# 액션 파싱을 위한 패턴 목록
+# 액션 파싱을 위한 패턴 목록입니다.
 ACTION_PATTERNS = [
-    # 패턴: 설명 (정규식 그룹)
+    # 패턴 - 설명 (정규식 그룹).
     {'regex': r"Select (?:an|a)? (?:super-evolved|evolved|damaged)? enemy follower on the field and destroy it", 'process': ProcessType.DESTROY, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
     {'regex': r"Select an enemy follower on the field and banish it", 'process': ProcessType.BANISH, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
     {'regex': r"Select an enemy card on the field and banish it", 'process': ProcessType.BANISH, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
@@ -307,55 +310,55 @@ ACTION_PATTERNS = [
     {'regex': r"Select an enemy follower on the field and set its defense to (\d+)", 'process': ProcessType.SET_DEFENSE, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': ['value']},
     {'regex': r"Select an enemy follower on the field and give it -0\/-(\d+)", 'process': ProcessType.STAT_BUFF, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': ['value'], 'special_handling': 'neg_def_buff'},
 
-    # 소환
+    # 소환 효과를 처리하는 패턴입니다.
     {'regex': r"Summon (\d+) copies of (.*)", 'process': ProcessType.SUMMON, 'groups': ['value', 'card_name'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Summon a (.*)", 'process': ProcessType.SUMMON, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Summon (.*)", 'process': ProcessType.SUMMON, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
 
-    # 패로 가져오기
+    # 패로 카드를 가져오는 효과를 처리하는 패턴입니다.
     {'regex': r"Add (\d+) copies of (.*) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['value', 'card_name'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Add an (.*) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Add a (.*) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Add (.*) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
 
-    # cost 관련 세부 패턴 (우선 배치)
+    # 비용(Cost) 관련 세부 패턴들을 정의합니다 (우선 순위가 높아 상단에 배치합니다).
     {'regex': r"Select a follower in your hand and increase its cost by (\d+)", 'process': ProcessType.INCREASE_COST, 'target': TargetType.OWN_HAND_CHOICE, 'groups': ['value']},
     {'regex': r"increase its cost by (\d+)", 'process': ProcessType.INCREASE_COST, 'target': TargetType.SELF, 'groups': ['value']},
 
-    # 스탯 버프 (non-greedy 적용)
+    # 스탯 버프 효과를 정의합니다 (non-greedy 매칭을 적용합니다).
     {'regex': r"Give (.*?) ([+-]?\d+|[+-]?X)\/([+-]?\d+|[+-]?X)", 'process': ProcessType.STAT_BUFF, 'groups': ['target_text', 'value', 'value2']},
     {'regex': r"(.*?) and give it ([+-]?\d+|[+-]?X)\/([+-]?\d+|[+-]?X)", 'process': ProcessType.STAT_BUFF, 'groups': ['target_text', 'value', 'value2']},
     {'regex': r"Select a follower on the field and give it ([+-]?\d+|[+-]?X)\/([+-]?\d+|[+-]?X)", 'process': ProcessType.STAT_BUFF, 'target': TargetType.ALLY_FOLLOWER_CHOICE, 'groups': ['value', 'value2']},
     {'regex': r"give [+-]?([+-]?\d+|[+-]?X)\/[+-]?([+-]?\d+|[+-]?X)", 'process': ProcessType.STAT_BUFF, 'target': TargetType.SELF, 'groups': ['value', 'value2']},
 
-    # 데미지 (비어있는 target 매칭 방지를 위해 (.+) 사용)
+    # 피해(Damage) 효과를 정의합니다 (비어있는 대상 매칭을 방지하기 위해 (.+)를 사용합니다).
     {'regex': r"Deal (\d+|X) damage split between (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text']},
     {'regex': r"Deal (\d+|X) damage to (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text']},
     {'regex': r"(.+) and deal it (\d+|X) damage", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['target_text', 'value']},
     {'regex': r"Deal damage to (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['target_text'], 'value': 'X'},
 
-    # 파괴
+    # 파괴 효과를 처리하는 패턴입니다.
     {'regex': r"Destroy a random enemy follower with the highest attack", 'process': ProcessType.DESTROY, 'target': TargetType.OPPONENT_FOLLOWER_MAX_ATTACK_RANDOM, 'groups': []},
     {'regex': r"(.+) and destroy it", 'process': ProcessType.DESTROY, 'groups': ['target_text']},
     {'regex': r"Destroy this card", 'process': ProcessType.DESTROY, 'target': TargetType.SELF, 'groups': []},
     {'regex': r"Destroy this amulet", 'process': ProcessType.DESTROY, 'target': TargetType.SELF, 'groups': []},
     {'regex': r"Destroy the opposing follower", 'process': ProcessType.DESTROY, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
 
-    # 드로우
+    # 드로우 효과를 처리하는 패턴입니다.
     {'regex': r"Draw (\d+|X) cards", 'process': ProcessType.DRAW, 'groups': ['value'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Draw a card", 'process': ProcessType.DRAW, 'groups': [], 'value': 1, 'target': TargetType.OWN_LEADER},
     {'regex': r"Draw a follower", 'process': ProcessType.DRAW, 'groups': [], 'value': 1, 'condition': 'CARD_TYPE_FOLLOWER', 'target': TargetType.OWN_LEADER},
     {'regex': r"Draw a spell", 'process': ProcessType.DRAW, 'groups': [], 'value': 1, 'condition': 'CARD_TYPE_SPELL', 'target': TargetType.OWN_LEADER},
     {'regex': r"Draw (\d+) (.*)", 'process': ProcessType.DRAW, 'groups': ['value', 'card_name'], 'target': TargetType.OWN_LEADER},
 
-    # 회복
+    # 회복 효과를 처리하는 패턴입니다.
     {'regex': r"Restore (\d+) defense (.+)", 'process': ProcessType.HEAL, 'groups': ['value', 'target_text']},
     {'regex': r"Restore (\d+) defense", 'process': ProcessType.HEAL, 'target': TargetType.OWN_LEADER, 'groups': ['value']},
 
-    # 효과 발동
+    # 다른 효과 발동을 처리하는 패턴입니다.
     {'regex': r"Replicate the effects of this card's Fanfare ability", 'process': ProcessType.TRIGGER_EFFECT, 'groups': [], 'value': EffectType.FANFARE},
 
-    # 신규 추가 액션 패턴
+    # 새로 추가된 액션 패턴들을 정의합니다.
     {'regex': r"Increase your Combo by (\d+)", 'process': ProcessType.INCREASE_COMBO, 'groups': ['value']},
     {'regex': r"Gain your Combo by (\d+)", 'process': ProcessType.INCREASE_COMBO, 'groups': ['value']},
     {'regex': r"Gain (\d+) earth sigils", 'process': ProcessType.GAIN_EARTH_SIGIL, 'groups': ['value']},
@@ -366,7 +369,7 @@ ACTION_PATTERNS = [
     {'regex': r"Evolve (.*)", 'process': ProcessType.SUPER_EVOLVE, 'groups': ['target_text']},
     {'regex': r"Select an allied follower on the field and give it (.*)", 'process': ProcessType.ADD_EFFECT, 'target': TargetType.ALLY_FOLLOWER_CHOICE, 'groups': ['value']},
     
-    # 다중 효과 및 단일 효과 부여 (non-greedy 적용)
+    # 다중 효과 및 단일 효과를 부여합니다 (non-greedy 매칭을 적용합니다).
     {'regex': r"Give (.*?) (Ward|Storm|Rush|Bane|Drain|Barrier|Ambush|Intimidate|Aura)\s+and\s+(Ward|Storm|Rush|Bane|Drain|Barrier|Ambush|Intimidate|Aura)", 'process': ProcessType.ADD_EFFECT, 'groups': ['target_text', 'value', 'value2']},
     {'regex': r"Give (.*?) (Ward|Storm|Rush|Bane|Drain|Barrier|Ambush|Intimidate|Aura)", 'process': ProcessType.ADD_EFFECT, 'groups': ['target_text', 'value']},
     {'regex': r"Remove (Ward|Storm|Rush|Bane|Drain|Barrier|Ambush|Intimidate|Aura) from (.*)", 'process': ProcessType.REMOVE_KEYWORD, 'groups': ['value', 'target_text']},
@@ -420,7 +423,7 @@ ACTION_PATTERNS = [
     {'regex': r"Draw a (.*) follower that costs (\d+) or less and set its cost to (\d+)", 'process': ProcessType.DRAW, 'groups': ['card_name', 'value'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Select (\d+)", 'process': ProcessType.CHOOSE, 'groups': ['value']},
 
-    # 새로 추가된 액션 패턴
+    # 추가된 신규 액션 패턴들을 정의합니다.
     {'regex': r"Halve the cost of (.*)", 'process': ProcessType.REDUCE_COST, 'value': 'halve', 'groups': ['target_text']},
     {'regex': r"Banish all duplicates from your deck", 'process': ProcessType.BANISH, 'target': TargetType.OWN_DECK, 'groups': []},
     {'regex': r"Banish all (.*) cards from your deck", 'process': ProcessType.BANISH, 'target': TargetType.OWN_DECK, 'groups': ['value']},
@@ -445,13 +448,14 @@ ACTION_PATTERNS = [
     {'regex': r"Give (.*?) (\d+) random abilities from the following", 'process': ProcessType.ADD_EFFECT, 'groups': ['target_text', 'value']},
     {'regex': r"Destroy all enemy followers with (\d+) defense", 'process': ProcessType.DESTROY, 'target': TargetType.ALL_OPPONENT_FOLLOWERS, 'groups': ['value']},
 
-    # 덜 구체적이어서 아래에 위치해야 하는 패턴들
+    # 덜 구체적인 매칭 조건으로 하단에 위치시켜야 하는 패턴들입니다.
     {'regex': r"Select (.*?) on the field", 'process': ProcessType.SELECT, 'groups': ['target_text']},
     {'regex': r"Deal (\d+|X) damage", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value']},
 ]
 
 
 def parse_target(text: str) -> Dict:
+    """텍스트에서 대상을 분석하여 TargetType enum 매핑 결과를 반환합니다."""
     text_clean = text.strip().rstrip('.')
     for pattern in TARGET_PATTERNS:
         if re.search(pattern['regex'], text_clean, re.IGNORECASE):
@@ -460,6 +464,7 @@ def parse_target(text: str) -> Dict:
 
 
 def parse_action(text: str):
+    """텍스트에서 수행할 액션을 분석하여 ProcessType enum 및 속성 매핑 결과를 반환합니다."""
     text_clean = text.strip().rstrip('.')
     text_clean = text_clean.replace('"', '')
     for pattern in ACTION_PATTERNS:
@@ -520,6 +525,7 @@ def parse_action(text: str):
 
 
 def get_required_listeners(effects: List[Effect]) -> List:
+    """효과 리스트를 바탕으로 바인딩이 필요한 이벤트 리스너들의 목록을 반환합니다."""
     listeners = set()
     for effect in effects:
         if 'type' not in effect.keys():
@@ -533,6 +539,7 @@ def get_required_listeners(effects: List[Effect]) -> List:
 
 
 def parse_card_data(raw_data: Dict) -> CardData:
+    """raw card data 딕셔너리를 가공하여 구조화된 CardData 객체를 반환합니다."""
     card_id = raw_data.get("card_name_id")
     name = raw_data.get("card_name")
     cost = raw_data.get("cost")

@@ -1,3 +1,5 @@
+# 역할 정의. 카드 데이터베이스를 편리하게 수동 검토하고 편집할 수 있도록 지원하는 Tkinter UI 기반 수동 에디터 애플리케이션입니다.
+
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import json
@@ -16,13 +18,15 @@ def is_fully_parsed(card_info: dict) -> bool:
             return False
     return True
 
+
 class CardEditorApp:
+    """카드 데이터의 효과 JSON 및 리스너 정보를 시각적으로 편집하기 위한 에디터 앱 클래스입니다."""
     def __init__(self, root):
         self.root = root
         self.root.title("Card Effect Manual Editor")
-        self.root.geometry("1200x850") # Adjusted height for new buttons
+        self.root.geometry("1200x850")  # 새로운 버튼들을 배치하기 위해 높이를 조절합니다.
 
-        # File Paths
+        # 파일 경로들을 정의합니다.
         import os
         script_dir = os.path.dirname(os.path.abspath(__file__))
         self.parsed_dir = os.path.normpath(os.path.join(script_dir, "../../card_database/3_parsed_database"))
@@ -30,31 +34,31 @@ class CardEditorApp:
         
         self.source_file = '_card_database_parsed.json'
         self.output_file = '_card_database_manual.json'
-        self.set_id = None  # Will be set by switch_dataset
+        self.set_id = None  # switch_dataset 메서드에 의해 세트 ID가 결정됩니다.
 
-        # Setup card pack selection buttons first
+        # 카드팩 선택 버튼들을 먼저 구성합니다.
         self.setup_set_selection_buttons()
 
-        # Main Paned Window
+        # 메인 분할창(PanedWindow)을 생성합니다.
         self.paned_window = ttk.PanedWindow(root, orient=tk.HORIZONTAL)
         self.paned_window.pack(fill=tk.BOTH, expand=True)
 
-        # Data
+        # 관리할 데이터 구조입니다.
         self.card_data = {}
-        self.parsed_card_data = {} # To store original parsed data
+        self.parsed_card_data = {}  # 원본 파싱 데이터를 보관합니다.
         self.df = pd.DataFrame()
 
-        # Left Pane: Card List
+        # 왼쪽 패널 - 카드 목록 영역.
         self.left_pane = ttk.Frame(self.paned_window, width=600)
         self.paned_window.add(self.left_pane, weight=2)
         self.setup_left_pane()
 
-        # Right Pane: Editor
+        # 오른쪽 패널 - 에디터 영역.
         self.right_pane = ttk.Frame(self.paned_window, width=600)
         self.paned_window.add(self.right_pane, weight=3)
         self.setup_right_pane()
         
-        # Initial data load
+        # 초기 데이터를 로드합니다.
         self.switch_dataset('100')
 
     def setup_set_selection_buttons(self):
@@ -80,7 +84,7 @@ class CardEditorApp:
 
     def switch_dataset(self, set_id):
         if self.set_id == set_id:
-            return # Don't reload if it's the same set
+            return  # 동일한 세트인 경우 다시 로드하지 않습니다.
 
         self.set_id = set_id
         self.root.title(f"Card Effect Manual Editor - Set {self.set_id}")
@@ -102,18 +106,18 @@ class CardEditorApp:
         self.status_var.set(False)
 
     def setup_left_pane(self):
-        # Frame for Treeview and Scrollbar
+        # Treeview와 Scrollbar를 담을 프레임입니다.
         tree_frame = ttk.Frame(self.left_pane)
         tree_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Treeview for displaying cards
+        # 카드를 보여주기 위한 Treeview입니다.
         cols = ("Card Name", "Class", "Parsing", "Status")
         self.tree = ttk.Treeview(tree_frame, columns=cols, show='headings')
         for col in cols:
             self.tree.heading(col, text=col)
             self.tree.column(col, width=120)
 
-        # Scrollbar
+        # 스크롤바입니다.
         scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscroll=scrollbar.set)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
@@ -121,37 +125,37 @@ class CardEditorApp:
 
         self.tree.bind('<<TreeviewSelect>>', self.on_card_select)
 
-        # Status Label
+        # 상태 표시 레이블입니다.
         self.status_label = ttk.Label(self.left_pane, text="", anchor=tk.W)
         self.status_label.pack(fill=tk.X, padx=10, pady=5)
 
     def setup_right_pane(self):
-        # Frame for raw_effects_text
+        # raw_effects_text를 표시할 프레임입니다.
         raw_text_frame = ttk.LabelFrame(self.right_pane, text="Raw Effect Text")
         raw_text_frame.pack(fill=tk.X, padx=10, pady=5)
         self.raw_effects_label = ttk.Label(raw_text_frame, text="", wraplength=550, justify=tk.LEFT)
         self.raw_effects_label.pack(padx=5, pady=5)
 
-        # Frame for auto-parsed effects
+        # 자동 파싱된 효과를 표시할 프레임입니다.
         parsed_effects_frame = ttk.LabelFrame(self.right_pane, text="Auto-parsed Effects (Read-only)")
         parsed_effects_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
         self.parsed_effects_text = scrolledtext.ScrolledText(parsed_effects_frame, wrap=tk.WORD, height=5, width=70)
         self.parsed_effects_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         self.parsed_effects_text.config(state=tk.DISABLED)
 
-        # Frame for editable effects
+        # 직접 편집 가능한 효과를 정의할 프레임입니다.
         effects_frame = ttk.LabelFrame(self.right_pane, text="Effects (Edit JSON here)")
         effects_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
         self.effects_text = scrolledtext.ScrolledText(effects_frame, wrap=tk.WORD, height=10, width=70)
         self.effects_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Frame for required listeners
+        # 필요한 이벤트 리스너를 정의할 프레임입니다.
         listeners_frame = ttk.LabelFrame(self.right_pane, text="Required Listeners (Edit JSON here)")
         listeners_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
         self.listeners_text = scrolledtext.ScrolledText(listeners_frame, wrap=tk.WORD, height=5, width=70)
         self.listeners_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Frame for controls
+        # 제어용 컨트롤 프레임입니다.
         control_frame = ttk.Frame(self.right_pane)
         control_frame.pack(fill=tk.X, padx=10, pady=10)
 
@@ -243,17 +247,17 @@ class CardEditorApp:
         card_info_manual = self.card_data[card_id]
         card_info_parsed = self.parsed_card_data.get(card_id, {})
 
-        # Update right pane
+        # 오른쪽 패널 정보를 업데이트합니다.
         self.raw_effects_label.config(text=card_info_manual.get('raw_effects_text', ''))
         
-        # Display parsed effects (read-only)
+        # 파싱된 효과 목록을 보여줍니다 (읽기 전용).
         parsed_effects_json = json.dumps(card_info_parsed.get('effects', []), indent=4, ensure_ascii=False)
         self.parsed_effects_text.config(state=tk.NORMAL)
         self.parsed_effects_text.delete('1.0', tk.END)
         self.parsed_effects_text.insert('1.0', parsed_effects_json)
         self.parsed_effects_text.config(state=tk.DISABLED)
 
-        # Display editable effects
+        # 편집 가능한 효과 목록을 보여줍니다.
         effects_json = json.dumps(card_info_manual.get('effects', []), indent=4, ensure_ascii=False)
         self.effects_text.delete('1.0', tk.END)
         self.effects_text.insert('1.0', effects_json)
@@ -262,7 +266,7 @@ class CardEditorApp:
         self.listeners_text.delete('1.0', tk.END)
         self.listeners_text.insert('1.0', listeners_json)
 
-        # Update checkbox
+        # 체크박스 상태를 업데이트합니다.
         status = card_info_manual.get('_manual_review_status', 'Pending')
         self.status_var.set(status == 'Completed')
 
@@ -276,29 +280,29 @@ class CardEditorApp:
         card_record = self.df.loc[selected_index]
         card_id = card_record['card_id']
 
-        # Validate and get edited effects
+        # 편집된 효과 JSON의 유효성을 검증합니다.
         try:
             edited_effects = json.loads(self.effects_text.get('1.0', tk.END))
             if not isinstance(edited_effects, list):
                 raise ValueError("Effects must be a JSON list.")
         except (json.JSONDecodeError, ValueError) as e:
-            messagebox.showerror("Error", f"Invalid JSON format in Effects: {e}")
+            messagebox.showerror("Error", f"Invalid JSON format in Effects - {e}")
             return
 
-        # Validate and get edited listeners
+        # 편집된 리스너 JSON의 유효성을 검증합니다.
         try:
             edited_listeners = json.loads(self.listeners_text.get('1.0', tk.END))
             if not isinstance(edited_listeners, list):
                 raise ValueError("Required Listeners must be a JSON list.")
         except (json.JSONDecodeError, ValueError) as e:
-            messagebox.showerror("Error", f"Invalid JSON format in Required Listeners: {e}")
+            messagebox.showerror("Error", f"Invalid JSON format in Required Listeners - {e}")
             return
 
-        # Update in-memory data
+        # 메모리 내 데이터를 업데이트합니다.
         self.card_data[card_id]['effects'] = edited_effects
         self.card_data[card_id]['required_listeners'] = edited_listeners
         
-        # Save the entire database to the output file
+        # 전체 데이터베이스를 파일에 저장합니다.
         try:
             import os
             output_path = os.path.join(self.manual_dir, f"{self.set_id}{self.output_file}")
@@ -307,12 +311,12 @@ class CardEditorApp:
                 json.dump(self.card_data, f, indent=4, ensure_ascii=False)
             messagebox.showinfo("Success", f"Changes for '{card_record['Card Name']}' saved successfully.")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to save file: {e}")
+            messagebox.showerror("Error", f"Failed to save file - {e}")
 
     def update_status(self):
         selected_items = self.tree.selection()
         if not selected_items:
-            self.status_var.set(not self.status_var.get()) # Revert checkbox
+            self.status_var.set(not self.status_var.get())  # 체크박스 상태를 복구합니다.
             messagebox.showwarning("Warning", "Please select a card to update its status.")
             return
 
@@ -320,10 +324,10 @@ class CardEditorApp:
         
         new_status = "Completed" if self.status_var.get() else "Pending"
         
-        # Update DataFrame
+        # DataFrame을 업데이트합니다.
         self.df.loc[selected_index, 'Status'] = new_status
         
-        # Update Treeview
+        # Treeview를 업데이트합니다.
         parsing = self.df.loc[selected_index, 'Parsing']
         self.tree.item(selected_items[0], values=(self.df.loc[selected_index, "Card Name"], self.df.loc[selected_index, "Class"], parsing, new_status))
         
@@ -335,7 +339,7 @@ class CardEditorApp:
             tag = 'raw_text'
         self.tree.item(selected_items[0], tags=(tag,))
 
-        # Update main data object
+        # 메인 데이터 객체를 업데이트합니다.
         card_record = self.df.loc[selected_index]
         card_id = card_record['card_id']
         self.card_data[card_id]['_manual_review_status'] = new_status
@@ -352,7 +356,7 @@ class CardEditorApp:
 
 
 if __name__ == "__main__":
-    # Check if pandas is installed
+    # pandas 라이브러리가 설치되어 있는지 확인합니다.
     try:
         import pandas as pd
     except ImportError:
@@ -362,4 +366,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = CardEditorApp(root)
     root.mainloop()
-

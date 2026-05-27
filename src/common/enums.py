@@ -1,8 +1,10 @@
+# 역할 정의. 게임의 종류, 타입, 영역, 페이즈, 효과, 처리 방식, 대상 및 종족을 구분하기 위한 열거형 상수 집합입니다.
+
 from enum import Enum
 
 
 class CardType(Enum):
-    """카드 카테고리 정의"""
+    """카드 카테고리를 정의합니다."""
     FOLLOWER = "추종자"
     SPELL = "주문"
     AMULET = "마법진"
@@ -10,23 +12,23 @@ class CardType(Enum):
 
 
 class EventType(Enum):
-    """게임 내에서 발생하는 이벤트 타입 정의"""
-    CARD_ENGAGED = "카드_활성화됨"  # 활성화 효과 발동.
-    CARD_PLAYED = "카드_플레이됨"  # 출격 능력 발동
-    DESTROYED_ON_FIELD = "필드_카드_파괴됨"  # 유언 능력 발동
-    TURN_START = "턴_시작"  # 카운트다운 처리
-    COMBAT_INITIATED = "교전_시작됨"  # 쌍방 교전시 능력 발동
-    ATTACK_DECLARED = "공격_선언됨"  # 공격자 공격시 능력 발동
-    SPELL_CAST = "주문_사용됨"  # 주문 효과 발동
-    FOLLOWER_EVOLVED = "추종자_진화됨"  # 진화시 능력 발동
-    FOLLOWER_SUPER_EVOLVED = "추종자_초진화됨"  # 초진화시 능력 발동
-    DAMAGE_DEALT_BY_COMBAT = "데미지_입힘"  # 흡혈 능력 발동
-    TURN_END = "턴_종료"  # 턴 종료시 발동
-    FOLLOWER_ENTER_FIELD = "추종자_전장_소환됨"  # 추종자 소환시 능력 발동
-    CARD_DISCARDED = "카드_버려짐"  # 카드 버려짐
-    FUSE_DECLARED = "융합_선언됨"  # 융합 발동
+    """게임 내에서 발생하는 이벤트 타입을 정의합니다."""
+    CARD_ENGAGED = "카드_활성화됨"  # 활성화 효과 발동을 의미합니다.
+    CARD_PLAYED = "카드_플레이됨"  # 출격 능력 발동을 의미합니다.
+    DESTROYED_ON_FIELD = "필드_카드_파괴됨"  # 유언 능력 발동을 의미합니다.
+    TURN_START = "턴_시작"  # 카운트다운 처리를 의미합니다.
+    COMBAT_INITIATED = "교전_시작됨"  # 쌍방 교전시 능력 발동을 의미합니다.
+    ATTACK_DECLARED = "공격_선언됨"  # 공격자 공격시 능력 발동을 의미합니다.
+    SPELL_CAST = "주문_사용됨"  # 주문 효과 발동을 의미합니다.
+    FOLLOWER_EVOLVED = "추종자_진화됨"  # 진화시 능력 발동을 의미합니다.
+    FOLLOWER_SUPER_EVOLVED = "추종자_초진화됨"  # 초진화시 능력 발동을 의미합니다.
+    DAMAGE_DEALT_BY_COMBAT = "데미지_입힘"  # 흡혈 능력 발동을 의미합니다.
+    TURN_END = "턴_종료"  # 턴 종료시 발동을 의미합니다.
+    FOLLOWER_ENTER_FIELD = "추종자_전장_소환됨"  # 추종자 소환시 능력 발동을 의미합니다.
+    CARD_DISCARDED = "카드_버려짐"  # 카드 버려짐을 의미합니다.
+    FUSE_DECLARED = "융합_선언됨"  # 융합 발동을 의미합니다.
 
-    # 미구현 이벤트 정의.
+    # 미구현 이벤트를 정의합니다.
     PP_GAINED = "PP_획득됨"
     HEALED = "회복됨"
     PP_SPENT = "PP_소모됨"
@@ -37,7 +39,7 @@ class EventType(Enum):
 
 
 class ClassType(Enum):
-    """클래스(직업) 정의"""
+    """클래스(직업)를 정의합니다."""
     NEUTRAL = "Neutral"
     FORESTCRAFT = "Forestcraft"
     SWORDCRAFT = "Swordcraft"
@@ -49,7 +51,7 @@ class ClassType(Enum):
 
 
 class Zone(Enum):
-    """게임 영역 정의"""
+    """게임 영역을 정의합니다."""
     DECK = "덱"
     HAND = "패"
     FIELD = "전장"
@@ -58,14 +60,14 @@ class Zone(Enum):
 
 
 class GamePhase(Enum):
-    """턴 단계 정의"""
+    """턴 단계를 정의합니다."""
     START_PHASE = "시작_단계"
     MAIN_PHASE = "메인_단계"
     END_PHASE = "종료_단계"
 
 
 class EffectType(Enum):
-    """카드의 키워드 종류를 정의"""
+    """카드의 키워드 종류를 정의합니다."""
     CHOOSE = "모드 선택"
     SPELLBOOST = "주문 증폭"
     AURA = "오라"
@@ -93,7 +95,7 @@ class EffectType(Enum):
     AMBUSH = "잠복"
     BANE = "필살"
 
-    # 미구현 키워드 정의.
+    # 미구현 키워드를 정의합니다.
     COMBO = "콤보"
     EARTH_RITE = "흙의 비술"
     EARTH_SIGIL = "비술 마법진"
@@ -107,7 +109,7 @@ class EffectType(Enum):
 
 
 class ProcessType(Enum):
-    """효과의 처리 방식을 정의"""
+    """효과의 처리 방식을 정의합니다."""
     CHOOSE = "모드 선택"
     STAT_BUFF = "스탯 버프"
     DRAW = "카드 드로우"
@@ -139,7 +141,7 @@ class ProcessType(Enum):
     RECOVER_EP = "EP 회복"
     HEAL_LINKED = "연계 회복"
 
-    # 미구현 프로세스 정의.
+    # 미구현 프로세스들을 정의합니다.
     INCREASE_COMBO = "콤보 증가"
     GAIN_EARTH_SIGIL = "비술 마법진 획득"
     ADVANCE_COUNTDOWN = "카운트다운 진행"
@@ -157,7 +159,7 @@ class ProcessType(Enum):
 
 
 class TargetType(Enum):
-    """효과가 적용되는 대상을 정의"""
+    """효과가 적용되는 대상을 정의합니다."""
     SELF = "자기 자신"
     OWN_LEADER = "자기 리더"
     OPPONENT_LEADER = "상대 리더"
@@ -173,7 +175,7 @@ class TargetType(Enum):
     OPPONENT_FOLLOWER_MAX_ATTACK_RANDOM = "상대 추종자 중 가장 공격력이 높은 추종자 중 랜덤"
     ALLY_FOLLOWER_CHOICE_UNEVOLVED = "진화하지 않은 아군 추종자 단일 선택"
 
-    # 미구현 타겟 정의.
+    # 미구현 타겟들을 정의합니다.
     ALL_FOLLOWERS = "모든 추종자 전체"
     ANOTHER_ALLY_FOLLOWER_RANDOM = "자신 제외 아군 추종자 중 랜덤"
     ALL_OPPONENTS = "상대 전체"
@@ -192,7 +194,7 @@ class TargetType(Enum):
 
 
 class TribeType(Enum):
-    """카드의 종족(타입)을 정의"""
+    """카드의 종족(타입)을 정의합니다."""
     EARTH_SIGIL = "Earth_Sigil"
     LUMINOUS = "Luminous"
     LEVIN = "Levin"

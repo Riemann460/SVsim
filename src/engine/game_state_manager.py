@@ -1,3 +1,5 @@
+# 역할 정의. 게임의 전반적인 상태를 추적하고 조작하는 클래스입니다.
+
 from typing import List, Dict, Any, Optional
 
 from src.common.enums import GamePhase, CardType, Zone, EffectType, TargetType
@@ -8,7 +10,7 @@ from src.common.event import FollowerEnterFieldEvent
 
 
 class GameStateManager:
-    """게임 보드 상태를 관리하는 객체"""
+    """게임 보드 상태를 관리하는 객체입니다."""
 
     def __init__(self):
         """GameStateManager 클래스의 생성자입니다."""
@@ -19,7 +21,7 @@ class GameStateManager:
         self.game_phase: Optional[GamePhase] = None
         self.cards = []
         self._next_card_instance_id = 0
-        self.game = None # Game 인스턴스를 참조하기 위한 필드 추가
+        self.game = None  # Game 인스턴스를 참조하기 위한 필드를 추가합니다.
         self.is_awaiting_choice: bool = False
         self.pending_choice: Optional[Effect] = None
         self.player_awaiting_choice: Optional[str] = None
@@ -33,17 +35,17 @@ class GameStateManager:
         return card
 
     def get_card_ids_in_zone(self, player_id: str, zone: Zone) -> List[str]:
-        """특정 플레이어의 특정 영역에 있는 카드 ID 조회"""
+        """특정 플레이어의 특정 영역에 있는 카드의 ID 목록을 조회합니다."""
         player = self.players[player_id]
         return [card.card_id for card in player.get_cards_in_zone(zone)]
 
     def get_cards_in_zone(self, player_id: str, zone: Zone, condition=lambda x: True) -> List[Card]:
-        """특정 플레이어의 특정 영역에 있는 카드 직접 반환"""
+        """특정 플레이어의 특정 영역에 있는 카드 객체 목록을 반환합니다."""
         player = self.players[player_id]
         return [card for card in player.get_cards_in_zone(zone) if condition(card)]
 
     def move_card(self, card_id: str, from_zone: Zone, to_zone: Zone):
-        """카드를 한 영역에서 다른 영역으로 이동"""
+        """카드를 한 영역에서 다른 영역으로 이동시킵니다."""
         card = self.get_entity_by_id(card_id, from_zone)
         if not card:
             print(f"[ERROR] move_card - card with id {card_id} from zone {from_zone} not found.")
@@ -51,7 +53,7 @@ class GameStateManager:
 
         player = self.players[card.owner_id]
         
-        # 필드를 벗어날 때 리스너 해제
+        # 필드를 벗어날 때 리스너를 해제합니다.
         if from_zone == Zone.FIELD:
             self.game._unregister_card_listeners(card)
 
@@ -65,7 +67,7 @@ class GameStateManager:
                 print(f"[LOG] {card.get_display_name()} (ID: {card_id}) 필드 소환 제한 매수 초과로 소멸.")
         else:
             card.current_zone = to_zone
-            # 필드에 들어올 때 리스너 등록
+            # 필드에 들어올 때 리스너를 등록합니다.
             if to_zone == Zone.FIELD:
                 self.game._register_card_listeners(card)
                 if card.get_type() == CardType.FOLLOWER:
@@ -75,7 +77,7 @@ class GameStateManager:
             print(f"[LOG] 카드 {card.get_display_name()} (ID: {card_id})이(가) {from_zone.value}에서 {to_zone.value}로 이동됨.")
 
     def add_card(self, card: Card, to_zone: Zone, player_id: str):
-        """카드를 지정 영역에 추가"""
+        """카드를 지정 영역에 추가합니다."""
         player = self.players[player_id]
         if not player.zone_dict[to_zone].add_card(card):
             if to_zone == Zone.HAND:
@@ -85,7 +87,7 @@ class GameStateManager:
                 print(f"[LOG] {card.get_display_name()} (ID: {card.card_id}) 필드 소환 제한 매수 초과로 소멸.")
         else:
             card.current_zone = to_zone
-            # 필드에 들어올 때 리스너 등록
+            # 필드에 들어올 때 리스너를 등록합니다.
             if to_zone == Zone.FIELD:
                 self.game._register_card_listeners(card)
                 if card.get_type() == CardType.FOLLOWER:
@@ -95,7 +97,7 @@ class GameStateManager:
             print(f"[LOG] 카드 {card.get_display_name()} (ID: {card.card_id})이(가) {to_zone.value}로 추가됨.")
 
     def shuffle_deck(self, player_id: str):
-        """지정 플레이어의 덱 셔플"""
+        """지정 플레이어의 덱을 셔플합니다."""
         player = self.players[player_id]
         player.deck.shuffle()
 
@@ -107,33 +109,33 @@ class GameStateManager:
         player = self.players[player_id]
         print(f"[LOG] {player_id}의 {self.turn_number}턴 시작 (시작 단계)")
 
-        # 최대 PP 증가 및 회복
+        # 최대 PP를 증가시키고 회복시킵니다.
         if player.max_pp < player.MAX_PP:
             player.max_pp += 1
         player.refresh_pp()
 
-        # 진화 가능 턴 처리
+        # 진화 가능 턴을 처리합니다.
         if self.turn_number in [8, 9]:
             player.gain_ep(2)
 
-        # 초진화 가능 턴 처리
+        # 초진화 가능 턴을 처리합니다.
         if self.turn_number in [12, 13]:
             player.gain_sep(2)
 
-        # EPP 처리
+        # EPP를 처리합니다.
         if self.turn_number in [2, 12]:
             player.gain_epp(1)
 
-        # 플레이어 EP 소모 상태 리셋
+        # 플레이어 EP 소모 상태를 리셋합니다.
         player.spent_ep_in_turn = False
 
-        # 필드 카드 상태 리셋 (공격/활성화)
+        # 필드 카드 상태를 리셋합니다. 공격 및 활성화 여부를 초기화합니다.
         for card in self.get_cards_in_zone(player_id, Zone.FIELD):
             card.is_engaged = False
             card.is_summoned = False
 
     def play_card(self, player_id, card_id, enhanced_cost=0):
-        """지정 카드를 사용"""
+        """지정 카드를 사용합니다."""
         player = self.players[player_id]
         player.combo_count += 1
         card = self.get_entity_by_id(card_id, Zone.HAND)
@@ -148,20 +150,20 @@ class GameStateManager:
             player.spend_pp(card.current_cost)
             print(f"[LOG] {player_id}가 {card.get_display_name()} (ID: {card_id})을(를) PP {card.current_cost} 소모하여 플레이함. 남은 PP: {player.current_pp}")
 
-        # 카드 타입에 따른 처리
+        # 카드 타입에 따른 처리를 수행합니다.
         if card.get_type() in [CardType.FOLLOWER, CardType.AMULET]:
             self.move_card(card_id, Zone.HAND, Zone.FIELD)
-            # 마법진인 경우 카운트다운 초기화
+            # 마법진인 경우 카운트다운을 초기화합니다.
             if card.get_type() == CardType.AMULET and card.has_keyword(EffectType.COUNTDOWN):
                 for effect in card.effects:
                     if effect.type == EffectType.COUNTDOWN:
                         card.countdown_value = effect.value
 
         elif card.get_type() == CardType.SPELL:
-            self.move_card(card_id, Zone.HAND, Zone.GRAVEYARD)  # 주문은 사용 즉시 묘지로
+            self.move_card(card_id, Zone.HAND, Zone.GRAVEYARD)  # 주문은 사용 즉시 묘지로 이동합니다.
 
     def get_entity_by_id(self, entity_id: str, zone: Zone = None) -> Optional[Any]:
-        """Player나 Card의 ID로 인스턴스 조회"""
+        """Player나 Card의 ID로 인스턴스를 조회합니다."""
         if entity_id in self.players:
             return self.players[entity_id]
 
@@ -178,21 +180,21 @@ class GameStateManager:
         print(f"[ERROR] get_entity_by_id - ID {entity_id}를 찾을 수 없습니다.")
 
     def get_card_name(self, entity_id: str) -> str:
-        """Player나 Card의 ID로 이름 조회"""
+        """Player나 Card의 ID로 이름을 조회합니다."""
         entity = self.get_entity_by_id(entity_id)
         if entity:
             return entity.get_display_name()
         print(f"[ERROR] get_card_name - ID {entity_id}를 찾을 수 없습니다.")
 
     def get_type(self, entity_id: str) -> str:
-        """Player나 Card의 ID로 타입 조회"""
+        """Player나 Card의 ID로 타입을 조회합니다."""
         entity = self.get_entity_by_id(entity_id)
         if entity:
             return entity.get_type()
         print(f"[ERROR] get_type - ID {entity_id}를 찾을 수 없습니다.")
 
     def get_card_effects(self, entity_id: str, effect_type: EffectType) -> List[Effect]:
-        """Player나 Card의 ID로 키워드 효과 조회"""
+        """Player나 Card의 ID로 키워드 효과들을 조회합니다."""
         entity = self.get_entity_by_id(entity_id)
         if entity:
             return [effect for effect in entity.effects if effect.type == effect_type]
@@ -200,7 +202,7 @@ class GameStateManager:
         return []
 
     def get_owner(self, card_id: str):
-        """Card의 ID로 owner ID 조회"""
+        """Card의 ID로 소유자 ID를 조회합니다."""
         entity = self.get_entity_by_id(card_id)
         if entity:
             return entity.owner_id
@@ -208,7 +210,7 @@ class GameStateManager:
 
 
     def evolve_card(self, card_id: str):
-        """지정 카드 진화"""
+        """지정 카드를 진화시킵니다."""
         card: Card
         card = self.get_entity_by_id(card_id, Zone.FIELD)
         if card:
@@ -218,7 +220,7 @@ class GameStateManager:
             card.max_defense += 2
 
     def super_evolve_card(self, card_id: str):
-        """지정 카드 초진화"""
+        """지정 카드를 초진화시킵니다."""
         card: Card
         card = self.get_entity_by_id(card_id, Zone.FIELD)
         if card:
@@ -229,11 +231,11 @@ class GameStateManager:
             card.max_defense += 3
 
     def get_cards_with_keyword(self, player_id: str, zone: Zone, keyword: EffectType):
-        """지정 플레이어의 특정 필드에서 해당 키워드를 가진 카드 리스트 반환"""
+        """지정 플레이어의 특정 필드에서 해당 키워드를 가진 카드 리스트를 반환합니다."""
         return [card.card_id for card in self.players[player_id].zone_dict[zone].get_cards() if card.has_keyword(keyword)]
 
     def countdown(self, card_id: str):
-        """지정 카드의 카운트다운 처리"""
+        """지정 카드의 카운트다운을 처리합니다."""
         entity = self.get_entity_by_id(card_id, Zone.FIELD)
         if entity:
             entity.countdown_value -= 1
@@ -244,7 +246,7 @@ class GameStateManager:
         return False
 
     def get_card_info_hand(self, card_id: str):
-        """지정 카드의 정보 전달(name, type, cost)"""
+        """지정 카드의 정보를 반환합니다. 이름, 타입, 비용을 포함합니다."""
         entity: Card
         entity = self.get_entity_by_id(card_id, Zone.HAND)
         if entity:
@@ -254,7 +256,7 @@ class GameStateManager:
 
 
     def get_card_info_field(self, card_id: str):
-        """지정 카드의 정보 전달(name, type, attack, defense, countdown_value, effect_types)"""
+        """지정 카드의 정보를 반환합니다. 이름, 타입, 공격력, 체력, 카운트다운 값, 효과 목록을 포함합니다."""
         entity: Card
         entity = self.get_entity_by_id(card_id, Zone.FIELD)
         if entity:
@@ -263,7 +265,7 @@ class GameStateManager:
         return None, None, None, None, None, None
 
     def get_pp_info(self, player_id: str):
-        """지정 플레이어의 pp 정보 전달(current_pp, max_pp)"""
+        """지정 플레이어의 PP 정보를 반환합니다. 현재 PP와 최대 PP를 포함합니다."""
         player = self.players[player_id]
         if player:
             return player.current_pp, player.max_pp
@@ -271,7 +273,7 @@ class GameStateManager:
         return None, None
 
     def get_card_attack_info_field(self, card_id: str):
-        """지정 카드의 정보 전달(name, type, can_attack_leader, can_attack_follower, attack, defense, is_evolved, is_super_evolved)"""
+        """지정 카드의 공격 관련 정보를 반환합니다."""
         card: Card
         card = self.get_entity_by_id(card_id, Zone.FIELD)
         if card:
@@ -280,7 +282,7 @@ class GameStateManager:
         return None, None, None, None, None, None, None, None
 
     def can_evolve(self, player_id: str) -> bool:
-        """플레이어의 진화 가능 여부 전달"""
+        """플레이어의 진화 가능 여부를 판단합니다."""
         player = self.players[player_id]
         if player:
             return self.players[player_id].current_ep > 0 and not self.players[player_id].spent_ep_in_turn
@@ -288,7 +290,7 @@ class GameStateManager:
         return False
 
     def can_super_evolve(self, player_id: str) -> bool:
-        """플레이어의 초진화 가능 여부 전달"""
+        """플레이어의 초진화 가능 여부를 판단합니다."""
         player = self.players[player_id]
         if player:
             return self.players[player_id].current_sep > 0 and not self.players[player_id].spent_ep_in_turn
@@ -296,7 +298,7 @@ class GameStateManager:
         return False
 
     def has_keyword(self, card_id: str, effect_type: EffectType):
-        """지정 카드의 특정 키워드 보유 여부 전달"""
+        """지정 카드가 특정 키워드를 보유하고 있는지 판단합니다."""
         card: Card
         card = self.get_entity_by_id(card_id)
         if card:
@@ -305,9 +307,7 @@ class GameStateManager:
         return False
 
     def evolve_card_with_ep(self, card_id: str, player_id:str):
-        """EP를 사용한 지정 카드 진화
-        :rtype: object
-        """
+        """EP를 사용하여 지정된 카드를 진화시킵니다."""
         card: Card
         card = self.get_entity_by_id(card_id, Zone.FIELD)
         if card:
@@ -322,7 +322,7 @@ class GameStateManager:
             print(f"[ERROR] evolve_card_with_ep - 카드 ID {card_id}를 찾을 수 없습니다.")
 
     def turn_off_super_evolve(self, player_id: str):
-        """턴 종료로 초진화턴 면역 버프 무력화"""
+        """턴 종료 시점에 초진화턴 면역 버프를 무력화합니다."""
         player = self.players[player_id]
         if player:
             for card in self.players[player_id].field.get_cards():
@@ -331,7 +331,7 @@ class GameStateManager:
             print(f"[ERROR] turn_off_super_evolve - 플레이어 ID {player_id}를 찾을 수 없습니다.")
 
     def super_evolve_card_with_sep(self, card_id: str, player_id: str):
-        """SEP를 사용한 지정 카드 초진화"""
+        """SEP를 사용하여 지정된 카드를 초진화시킵니다."""
         card = self.get_entity_by_id(card_id, Zone.FIELD)
         if card:
             if self.can_super_evolve(player_id) and not card.is_evolved:

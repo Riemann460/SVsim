@@ -1,3 +1,5 @@
+# 역할 정의. 게임에 참여하는 각 플레이어 리더의 체력, PP, EP/SEP 자원 및 덱, 패, 전장, 묘지 영역의 총합 상태를 관리하는 클래스입니다.
+
 from typing import List
 
 import src.common.card_data as card_data
@@ -12,8 +14,8 @@ from src.common.effect import Effect
 
 class Player:
     """개별 플레이어의 상태와 자원을 관리합니다."""
-    STARTING_LEADER_HP = 20 # [7, 6]
-    MAX_PP = 10 # [7, 6]
+    STARTING_LEADER_HP = 20  # 초기 리더의 체력 기준값입니다.
+    MAX_PP = 10  # 최대 플레이 포인트 기준값입니다.
 
     def __init__(self, player_id: str, event_manager: EventManager):
         """Player 클래스의 생성자입니다."""
@@ -30,41 +32,41 @@ class Player:
         self.max_extra_pp = 1
         self.event_manager = event_manager
         self.spent_ep_in_turn = False
-        self.effects: List[Effect] = []  # 크레스트 효과 인스턴스입니다.
+        self.effects: List[Effect] = []  # 크레스트 효과 인스턴스 목록입니다.
         from src.models.crest import Crest
         self.crests: List[Crest] = []  # 플레이어가 획득한 문장 객체 목록입니다.
         self.combo_count = 0  # 턴당 플레이한 카드 장수를 기록하는 필드입니다.
         self.rally_count = 0  # 누적 소환된 아군 추종자 장수를 기록하는 필드입니다.
         self.card_data = card_data.CardData('Leader', self.player_id, 0, CardType.LEADER, ClassType.NEUTRAL, 0, self.max_defense, effects=self.effects)
 
-        # 영역 초기화
+        # 각 영역들을 초기화합니다.
         self.hand = Hand()
         self.graveyard = Graveyard()
         self.field = Field()
-        self.deck = Deck([])  # 덱은 게임 시작 시 할당됨
+        self.deck = Deck([])  # 덱은 게임 시작 시 동적으로 할당됩니다.
         self.zone_dict = {Zone.HAND: self.hand, Zone.GRAVEYARD: self.graveyard, Zone.FIELD: self.field, Zone.DECK: self.deck}
 
     def take_damage(self, amount: int):
-        """리더가 피해를 입음"""
+        """리더가 피해를 입었을 때의 처리를 담당합니다."""
         self.current_defense -= amount
         print(f"[LOG] {self.player_id} 리더가 {amount} 피해를 입었습니다. 현재 체력: {self.current_defense}")
         if self.current_defense <= 0:
             print(f"[LOG] {self.player_id} 리더의 체력이 0 이하가 되어 게임 종료 조건 충족.")
-            return True  # 게임 종료
+            return True  # 게임 종료.
         return False
 
     def heal_damage(self, amount: int):
-        """리더가 회복됨"""
+        """리더가 체력을 회복했을 때의 처리를 담당합니다."""
         self.current_defense = min(self.current_defense+amount, self.max_defense)
         print(f"[LOG] {self.player_id} 리더가 {amount} 체력을 회복했습니다. 현재 체력: {self.current_defense}")
 
     def gain_pp(self, amount: int):
-        """pp가 회복됨"""
+        """PP가 회복되었을 때의 처리를 담당합니다."""
         self.current_pp = min(self.current_pp + amount, self.max_pp)
         print(f"[LOG] {self.player_id} PP가 {amount} 증가했습니다. 현재 PP: {self.current_pp}")
 
     def spend_pp(self, amount: int):
-        """pp가 소모됨"""
+        """PP가 소모되었을 때의 처리를 담당합니다."""
         if self.current_pp >= amount:
             self.current_pp -= amount
             print(f"[LOG] {self.player_id} PP {amount} 소모. 남은 PP: {self.current_pp}")
@@ -80,29 +82,29 @@ class Player:
         print(f"[ERROR] 처리 불가능한 PP 사용 요청! 남은 PP: {self.current_pp} 요청 PP: {amount}")
 
     def refresh_pp(self):
-        """pp가 전부 회복됨"""
+        """PP가 전부 회복되었을 때의 처리를 담당합니다."""
         amount = self.max_pp - self.current_pp
         self.current_pp = self.max_pp
         print(f"[LOG] {self.player_id} PP가 {amount} 증가했습니다. 현재 PP: {self.current_pp}")
 
     def gain_epp(self, amount: int):
-        """epp가 회복됨"""
+        """EPP가 회복되었을 때의 처리를 담당합니다."""
         self.extra_pp = min(self.extra_pp + amount, self.max_extra_pp)
         print(f"[LOG] {self.player_id} EPP가 {amount} 증가했습니다. 현재 EPP: {self.extra_pp}")
 
     def spend_extra_pp(self, amount: int) -> bool:
-        """epp를 사용함"""
+        """EPP를 사용했을 때의 처리를 담당합니다."""
         if self.extra_pp >= amount:
             self.extra_pp -= amount
             print(f"[LOG] {self.player_id} EXTRA PP {amount} 소모. 남은 EXTRA PP: {self.extra_pp}")
 
     def gain_ep(self, amount: int):
-        """ep가 회복됨"""
+        """EP가 회복되었을 때의 처리를 담당합니다."""
         self.current_ep = min(self.current_ep+amount, self.max_ep)
         print(f"[LOG] {self.player_id} 진화 포인트 {amount} 획득. 현재 EP: {self.current_ep}")
 
     def spend_ep(self, amount: int):
-        """ep가 소모됨"""
+        """EP가 소모되었을 때의 처리를 담당합니다."""
         if self.current_ep >= amount:
             self.current_ep -= amount
             print(f"[LOG] {self.player_id} EP {amount} 소모. 남은 EP: {self.current_ep}")
@@ -110,12 +112,12 @@ class Player:
             print(f"[ERROR] 처리 불가능한 EP 사용 요청! 남은 EP: {self.current_ep} 요청 EP: {amount}")
 
     def gain_sep(self, amount: int):
-        """sep가 회복됨"""
+        """SEP가 회복되었을 때의 처리를 담당합니다."""
         self.current_sep = min(self.current_sep+amount, self.max_sep)
         print(f"[LOG] {self.player_id} 초진화 포인트 {amount} 획득. 현재 SEP: {self.current_sep}")
 
     def spend_sep(self, amount: int):
-        """sep가 소모됨"""
+        """SEP가 소모되었을 때의 처리를 담당합니다."""
         if self.current_sep >= amount:
             self.current_sep -= amount
             print(f"[LOG] {self.player_id} SEP {amount} 소모. 남은 SEP: {self.current_sep}")

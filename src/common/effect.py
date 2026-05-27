@@ -1,9 +1,11 @@
+# 역할 정의. 카드 효과의 속성 데이터를 담고 딕셔너리와의 상호 변환을 지원하는 클래스입니다.
+
 from typing import Any, Dict, Optional
 from enum import Enum
 
 
 class Effect:
-    """카드 별 효과 개별 인스턴스"""
+    """카드 별 효과 개별 인스턴스입니다."""
     def __init__(self, **kwargs):
         """Effect 클래스의 생성자입니다."""
         self.attributes = kwargs
@@ -47,9 +49,9 @@ class Effect:
             if isinstance(value, Enum):
                 data[key] = value.name
             elif isinstance(value, Effect):
-                data[key] = value.to_dict()  # 재귀 호출
+                data[key] = value.to_dict()  # 재귀 호출.
             elif isinstance(value, list):
-                # 리스트 내의 Effect 객체들도 변환
+                # 리스트 내의 Effect 객체들도 변환합니다.
                 data[key] = [
                     item.to_dict() if isinstance(item, Effect) else item
                     for item in value

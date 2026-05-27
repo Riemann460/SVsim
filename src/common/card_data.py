@@ -42,7 +42,7 @@ class CardDatabase(dict):
         except KeyError:
             return default
 
-# 전역 변수
+# 전역 변수.
 BASIC_CARD_DATABASE = CardDatabase()
 LEGENDS_RISE_CARD_DATABASE = CardDatabase()
 TOKEN_CARD_DATABASE = CardDatabase()
@@ -235,10 +235,9 @@ def resolve_card_references(card_db: Dict[str, CardData], global_card_db: Dict[s
                     print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name})에 예기치 않은 스트링 입력 '{effect.value}'.")
 
 def load_card_databases(path: str = 'card_database/4_manual_database/card_database_manual.json'):
-    """Loads card databases from a single merged manual JSON file.
-    The JSON contains top‑level keys for each database (e.g. \"BASIC_CARD_DATABASE\",
-    \"LEGENDS_RISE_CARD_DATABASE\", \"TOKEN_CARD_DATABASE\").
-    All cards are loaded into the corresponding global databases."""
+    """단일 통합 수동 JSON 파일에서 카드 데이터베이스를 불러옵니다.
+    JSON은 각 데이터베이스에 대한 최상위 키를 포함합니다.
+    모든 카드는 대응하는 전역 데이터베이스로 로드됩니다."""
     global BASIC_CARD_DATABASE, LEGENDS_RISE_CARD_DATABASE, TOKEN_CARD_DATABASE
     load_kor_names()
     import os, json
@@ -262,9 +261,8 @@ def load_card_databases(path: str = 'card_database/4_manual_database/card_databa
     resolve_all_card_references()
 
 def resolve_all_card_references():
-    """Resolve cross‑card references for all loaded card databases.
-    This builds a combined view of all cards and invokes `resolve_card_references`
-    for each top‑level database."""
+    """로드된 모든 카드 데이터베이스에 대해 상호 카드 참조를 해결합니다.
+    이것은 모든 카드의 결합된 뷰를 구축하고 각 최상위 데이터베이스에 대해 resolve_card_references를 호출합니다."""
     all_cards = {**BASIC_CARD_DATABASE, **LEGENDS_RISE_CARD_DATABASE, **TOKEN_CARD_DATABASE}
     resolve_card_references(BASIC_CARD_DATABASE, all_cards)
     resolve_card_references(LEGENDS_RISE_CARD_DATABASE, all_cards)

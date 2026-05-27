@@ -1,6 +1,8 @@
+# 역할 정의. 플레이어의 덱에 해당하는 카드 뭉치를 관리하는 클래스입니다.
+
 import random
 from typing import List, Optional
-from src.models.card import Card # 상대 경로 임포트
+from src.models.card import Card # 상대 경로 임포트입니다.
 
 class Deck:
     """플레이어의 덱을 관리합니다."""

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # 이 파일은 api.dotgg.gg/cgfw/getcards API를 활용하여 지정 카드팩들의 카드 데이터를 효율적으로 수집 및 로컬 파일로 저장합니다.
 
 import json
@@ -63,7 +62,7 @@ def main():
             mapped_card["카드 이름"] = card.get("name", "")
             mapped_card["카드 능력 서술문구"] = card.get("skill_text", "")
             
-            # 카드팩 필드 맵핑 (예: [10004] Skybound Dragons)
+            # 카드팩 필드 맵핑 (예 - [10004] Skybound Dragons).
             set_id = card.get("setId", "")
             set_name = card.get("set_name", "")
             mapped_card["카드팩"] = f"[{set_id}] {set_name}" if set_id and set_name else "Unknown"

@@ -1,3 +1,5 @@
+# 역할 정의. 개별 카드 JSON 데이터를 통합하고 구조화된 클래스 기반의 파싱된 JSON 데이터베이스로 변환하는 스크립트입니다.
+
 import json
 import os
 import sys
@@ -6,7 +8,7 @@ import sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 sys.path.append(os.path.normpath(os.path.join(current_dir, "../..")))
-# Add path to src/common for enums and other modules
+# enums 및 기타 모듈을 위해 src/common 경로를 추가합니다.
 src_common_path = os.path.normpath(os.path.join(current_dir, "../../src/common"))
 if src_common_path not in sys.path:
     sys.path.append(src_common_path)
@@ -17,21 +19,19 @@ from effect import Effect
 
 
 def convert_json_to_class_script(json_file_path: str, output_json_path: str) -> None:
-    """Convert a Korean‑augmented card JSON file into a structured JSON representation.
+    """한글 데이터가 보강된 카드 JSON 파일을 구조화된 JSON 데이터베이스로 변환합니다.
 
-    Parameters
+    매개변수
     ----------
-    json_file_path: str
-        Path to the source JSON file containing raw card data (Korean names included).
-    output_json_path: str
-        Destination path for the parsed JSON file.
+    json_file_path (str) - 한글 카드명이 포함된 원본 JSON 파일 경로입니다.
+    output_json_path (str) - 구조화되어 파싱된 JSON 결과를 저장할 파일 경로입니다.
     """
-    # Enum reverse maps for conversion
+    # 변환을 위한 역방향 Enum 맵을 정의합니다.
     class_map = {e.value: e for e in ClassType}
     type_map = {"Follower": CardType.FOLLOWER, "Spell": CardType.AMULET, "4": CardType.SPELL}
     tribe_map = {e.value: e for e in TribeType}
 
-    # Default fallbacks
+    # 기본 예외 처리 값들을 설정합니다.
     class_map["Unknown"] = ClassType.NEUTRAL
     tribe_map["Earth Sigil"] = TribeType.EARTH_SIGIL
 
@@ -39,13 +39,13 @@ def convert_json_to_class_script(json_file_path: str, output_json_path: str) -> 
         with open(json_file_path, "r", encoding="utf-8") as f:
             raw_data = json.load(f)
     except FileNotFoundError:
-        print(f"오류: '{json_file_path}' 파일을 찾을 수 없습니다.")
+        print(f"오류 - '{json_file_path}' 파일을 찾을 수 없습니다.")
         return
 
     database = {}
     for card_en_name, details in raw_data.items():
         try:
-            # 기본 정보 추출
+            # 기본 정보를 추출합니다.
             card_name_kr = details.get("카드 이름 (한글)", details.get("카드 이름", card_en_name))
             cost = int(details.get("카드 코스트", 0))
             attack = int(details.get("카드 공격력", 0))
@@ -53,11 +53,11 @@ def convert_json_to_class_script(json_file_path: str, output_json_path: str) -> 
             card_type_str = details.get("카드 타입", "Follower")
             class_type_str = details.get("카드 클래스", "Neutral")
 
-            # Enum 변환
+            # Enum 형식으로 변환합니다.
             card_type_enum = type_map.get(card_type_str, CardType.FOLLOWER).name
             class_type_enum = class_map.get(class_type_str, ClassType.NEUTRAL).name
 
-            # 종족 파싱
+            # 종족을 파싱합니다.
             tribes = []
             tribe = details.get("카드 종족 타입")
             if tribe:
@@ -65,7 +65,7 @@ def convert_json_to_class_script(json_file_path: str, output_json_path: str) -> 
                 if resolved_tribe:
                     tribes.append(resolved_tribe.name)
 
-            # 효과 파싱
+            # 효과를 파싱합니다.
             raw_effects_text = ""
             parsed_effects = []
             if details.get("카드 능력 서술문구"):
@@ -74,14 +74,14 @@ def convert_json_to_class_script(json_file_path: str, output_json_path: str) -> 
                 for effect_obj in parsed_effects_list:
                     parsed_effects.append(effect_obj.to_dict())
 
-            # Spell 타입이면 효과에 명시적으로 Spell 타입을 부여
+            # Spell 타입이면 효과에 명시적으로 Spell 타입을 부여합니다.
             if card_type_enum == CardType.SPELL.name:
                 for eff in parsed_effects:
                     eff.update(type=EffectType.SPELL.name)
 
             required_listeners = get_required_listeners(parsed_effects)
 
-            # 영어 이름(기존 키)와 한글 이름을 모두 보관
+            # 영어 이름(기존 키)과 한글 이름을 모두 보관합니다.
             card_name_en = details.get("카드 이름", card_en_name)
             card_data_dict = {
                 "card_id": card_en_name,
@@ -98,13 +98,13 @@ def convert_json_to_class_script(json_file_path: str, output_json_path: str) -> 
                 "required_listeners": required_listeners,
             }
 
-            # 현재 set 에 따라 적절한 DB에 저장 (일단 개별 파일에만 저장)
+            # 현재 세트에 따라 적절한 DB에 저장합니다 (우선 개별 파일로만 기록됩니다).
             database[card_en_name] = card_data_dict
         except (ValueError, KeyError) as e:
-            print(f"카드 '{card_en_name}' 처리 중 에러 발생: {e}, {card_data_dict}")
+            print(f"카드 '{card_en_name}' 처리 중 에러 발생 - {e}, {card_data_dict}")
             continue
 
-    # Write per‑set parsed JSON
+    # 세트별로 파싱된 JSON 파일을 기록합니다.
     with open(output_json_path, "w", encoding="utf-8") as f:
         json.dump(database, f, ensure_ascii=False, indent=4)
     print(f"데이터 변환 완료! 결과가 '{output_json_path}' 파일에 저장되었습니다.")
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
     set_ids = ["100", "101", "102", "103", "104", "105", "106", "107", "900"]
 
-    # 1️⃣ 개별 set 을 파싱하여 3_parsed_database 에 저장
+    # 1️⃣ 개별 세트를 파싱하여 3_parsed_database 에 저장합니다.
     for set_id in set_ids:
         convert_json_to_class_script(
             json_file_path=os.path.normpath(
@@ -126,7 +126,7 @@ if __name__ == "__main__":
             ),
         )
 
-    # 2️⃣ 모든 파싱된 파일을 하나의 merged_database 로 병합
+    # 2️⃣ 모든 파싱된 파일을 하나의 merged_database 로 병합합니다.
     merged_database = {
         "BASIC_CARD_DATABASE": {},
         "LEGENDS_RISE_CARD_DATABASE": {},
@@ -147,7 +147,7 @@ if __name__ == "__main__":
         else:
             merged_database["LEGENDS_RISE_CARD_DATABASE"].update(set_data)
 
-    # 3️⃣ name → id 매핑 (영문 & 한글 모두 매핑)
+    # 3️⃣ name 에서 id 로의 매핑을 수행합니다 (영문 및 한글 모두 매핑됩니다).
     name_to_id: dict[str, str] = {}
     for db_key in ["BASIC_CARD_DATABASE", "LEGENDS_RISE_CARD_DATABASE", "TOKEN_CARD_DATABASE"]:
         for cid, info in merged_database[db_key].items():
@@ -158,7 +158,7 @@ if __name__ == "__main__":
             if kr_name:
                 name_to_id[kr_name] = cid
 
-    # 4️⃣ 효과값에 카드 이름이 있으면 ID 로 교체
+    # 4️⃣ 효과값에 카드 이름이 존재할 경우 ID 로 교체합니다.
     def replace_effect_values(section: dict) -> None:
         for card in section.values():
             for effect in card.get("effects", []):
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     for sect in merged_database.values():
         replace_effect_values(sect)
 
-    # 5️⃣ 최종 merged 파일 기록
+    # 5️⃣ 최종 병합 파일을 기록합니다.
     final_output_path = os.path.normpath(os.path.join(script_dir, "../../card_database/3_parsed_database/card_database_parsed.json"))
     with open(final_output_path, "w", encoding="utf-8") as f:
         json.dump(merged_database, f, ensure_ascii=False, indent=4)

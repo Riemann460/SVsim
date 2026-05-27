@@ -1,5 +1,7 @@
+# 역할 정의. 플레이어의 묘지로 이동한 카드 목록과 그림자(Shadow) 자원을 관리하는 클래스입니다.
+
 from typing import List
-from src.models.card import Card # 상대 경로 임포트
+from src.models.card import Card # 상대 경로 임포트입니다.
 
 class Graveyard:
     """플레이어의 묘지를 관리합니다."""

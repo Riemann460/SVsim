@@ -1,10 +1,12 @@
+# 역할 정의. 플레이어의 필드(전장)에 소환된 카드들을 관리하는 클래스입니다.
+
 from typing import List
-from src.models.card import Card  # 상대 경로 임포트
+from src.models.card import Card  # 상대 경로 임포트입니다.
 
 
 class Field:
     """플레이어의 전장을 관리합니다."""
-    MAX_FIELD_SIZE = 5  # [6]
+    MAX_FIELD_SIZE = 5  # 전장 최대 크기 설정값입니다.
 
     def __init__(self):
         """Field 클래스의 생성자입니다."""

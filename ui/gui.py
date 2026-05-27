@@ -1,3 +1,5 @@
+# 역할 정의. Tkinter를 기반으로 게임 화면을 표시하고 플레이어 입력을 받는 GUI 클래스입니다.
+
 import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING
@@ -7,7 +9,9 @@ if TYPE_CHECKING:
     from src.models.card import Card
     from src.common.enums import CardType
 
+
 class GameGUI:
+    """게임 상태를 Tkinter 기반 창에 시각적으로 표현하는 GUI 클래스입니다."""
     def __init__(self, game_state_manager: 'GameStateManager'):
         """GameGUI 클래스의 생성자입니다."""
         self.root = tk.Tk()
@@ -15,24 +19,24 @@ class GameGUI:
         self.root.geometry("1200x800")
         self.game_state_manager = game_state_manager
 
-        # Main frame
+        # 메인 프레임입니다.
         main_frame = ttk.Frame(self.root, padding="5")
         main_frame.pack(fill="both", expand=True)
 
-        # Player frames
+        # 플레이어 프레임입니다.
         self.player_frames = {}
-        # Player 2 (Opponent) at the top
+        # 플레이어 2(상대방)는 상단에 배치합니다.
         self.player_frames['player2'] = ttk.Frame(main_frame, relief="sunken", borderwidth=2)
         self.player_frames['player2'].pack(side="top", fill="both", expand=True, padx=5, pady=5)
         
-        # Turn info in the middle
+        # 턴 정보는 중앙에 배치합니다.
         self.turn_label = ttk.Label(main_frame, text="Turn Info", anchor="center", font=("Helvetica", 14, "bold"))
         self.turn_label.pack(side="top", fill="x", pady=10)
 
-        # Choice frame for user interactions
+        # 사용자 상호작용을 위한 선택지 프레임입니다.
         self.choice_frame = ttk.Frame(main_frame, relief="groove", borderwidth=2, padding="5")
         self.choice_frame.pack(side="top", fill="x", pady=5)
-        self.choice_frame.pack_forget() # Hide initially
+        self.choice_frame.pack_forget()  # 초기에는 숨깁니다.
 
         self.choice_label = ttk.Label(self.choice_frame, text="", font=("Helvetica", 12))
         self.choice_label.pack(pady=5)
@@ -40,32 +44,32 @@ class GameGUI:
         self.choice_buttons_frame = ttk.Frame(self.choice_frame)
         self.choice_buttons_frame.pack(pady=5)
 
-        # Player 1 (Current) at the bottom
+        # 플레이어 1(자신)은 하단에 배치합니다.
         self.player_frames['player1'] = ttk.Frame(main_frame, relief="sunken", borderwidth=2)
         self.player_frames['player1'].pack(side="bottom", fill="both", expand=True, padx=5, pady=5)
 
-        # Create UI elements for each player
+        # 각 플레이어의 UI 요소를 생성합니다.
         self.stat_labels = {}
         self.field_frames = {}
         self.hand_frames = {}
 
         for player_id, frame in self.player_frames.items():
-            # Container for stats and hand
+            # 스탯과 손패를 담을 컨테이너입니다.
             left_container = ttk.Frame(frame)
             left_container.pack(side="left", fill="y", padx=10, pady=10)
 
-            # Stats
+            # 플레이어 스탯입니다.
             stats_container = ttk.LabelFrame(left_container, text=f"{player_id} Stats", padding="5")
             stats_container.pack(side="top", fill="x", pady=5)
             self.stat_labels[player_id] = ttk.Label(stats_container, text="Stats", justify="left")
             self.stat_labels[player_id].pack()
 
-            # Hand
+            # 플레이어 손패입니다.
             hand_container = ttk.LabelFrame(left_container, text="Hand", padding="5")
             hand_container.pack(side="bottom", fill="both", expand=True, pady=5)
             self.hand_frames[player_id] = hand_container
 
-            # Field
+            # 플레이어 필드입니다.
             field_container = ttk.LabelFrame(frame, text="Field", padding="10")
             field_container.pack(side="right", fill="both", expand=True, padx=10, pady=10)
             self.field_frames[player_id] = field_container
@@ -79,28 +83,28 @@ class GameGUI:
 
     def _update_widgets(self):
         """내부 위젯들을 업데이트하는 헬퍼 메서드입니다."""
-        # Update turn info
+        # 턴 정보를 업데이트합니다.
         current_player = self.game_state_manager.current_turn_player_id
         turn_num = self.game_state_manager.turn_number
-        self.turn_label.config(text=f"Turn: {turn_num} - Current Player: {current_player}")
+        self.turn_label.config(text=f"Turn - {turn_num} - Current Player - {current_player}")
 
-        # Update player info
+        # 플레이어 정보를 업데이트합니다.
         for player_id, player in self.game_state_manager.players.items():
-            # Update stats
+            # 스탯 정보를 업데이트합니다.
             stats_text = (
-                f"HP: {player.current_defense}/{player.max_defense}\n"
-                f"PP: {player.current_pp}/{player.max_pp}\n"
-                f"EP: {player.current_ep}/{player.max_ep}\n"
-                f"SEP: {player.current_sep}/{player.max_sep}\n"
-                f"Deck: {player.deck.size()}\n"
-                f"Grave: {player.graveyard.size()}"
+                f"HP - {player.current_defense}/{player.max_defense}\n"
+                f"PP - {player.current_pp}/{player.max_pp}\n"
+                f"EP - {player.current_ep}/{player.max_ep}\n"
+                f"SEP - {player.current_sep}/{player.max_sep}\n"
+                f"Deck - {player.deck.size()}\n"
+                f"Grave - {player.graveyard.size()}"
             )
             self.stat_labels[player_id].config(text=stats_text)
 
-            # Update field
+            # 필드 영역을 업데이트합니다.
             self._update_zone_frame(self.field_frames[player_id], player.field.get_cards(), is_field=True)
 
-            # Update hand
+            # 손패 영역을 업데이트합니다.
             self._update_zone_frame(self.hand_frames[player_id], player.hand.get_cards(), is_field=False)
 
         self.root.update_idletasks()
@@ -121,10 +125,10 @@ class GameGUI:
             elif card.is_evolved:
                 name_color = "blue"
 
-            name_label = ttk.Label(card_frame, text=f"{card.get_display_name()} (ID: {card.card_id})", font=("Helvetica", 10, "bold"), foreground=name_color)
+            name_label = ttk.Label(card_frame, text=f"{card.get_display_name()} (ID - {card.card_id})", font=("Helvetica", 10, "bold"), foreground=name_color)
             name_label.pack()
 
-            cost_label = ttk.Label(card_frame, text=f"Cost: {card.current_cost}")
+            cost_label = ttk.Label(card_frame, text=f"Cost - {card.current_cost}")
             cost_label.pack()
 
             if card.get_type() == CardType.FOLLOWER:
@@ -134,7 +138,7 @@ class GameGUI:
                      stats_label.config(foreground="red")
             
             if card.get_type() == CardType.AMULET and card.countdown_value is not None:
-                countdown_label = ttk.Label(card_frame, text=f"Countdown: {card.countdown_value}")
+                countdown_label = ttk.Label(card_frame, text=f"Countdown - {card.countdown_value}")
                 countdown_label.pack()
 
             keywords = [eff.type.value for eff in card.effects]
@@ -147,13 +151,13 @@ class GameGUI:
         self.mulligan_selected_card_ids = []
         self.mulligan_vars = {}
 
-        # Create a new top-level window for mulligan
+        # 멀리건을 위한 새로운 상위 창을 생성합니다.
         self.mulligan_window = tk.Toplevel(self.root)
         self.mulligan_window.title(f"{player_id}의 멀리건 선택")
-        self.mulligan_window.transient(self.root)  # Make it a transient window
-        self.mulligan_window.grab_set()  # Make it modal
+        self.mulligan_window.transient(self.root)  # 임시 창으로 설정합니다.
+        self.mulligan_window.grab_set()  # 모달 대화상자로 설정합니다.
 
-        prompt_label = ttk.Label(self.mulligan_window, text="멀리건할 카드를 선택하세요 (체크된 카드가 교체됩니다):", font=("Helvetica", 12))
+        prompt_label = ttk.Label(self.mulligan_window, text="멀리건할 카드를 선택하세요 (체크된 카드가 교체됩니다)-", font=("Helvetica", 12))
         prompt_label.pack(pady=10)
 
         cards_frame = ttk.Frame(self.mulligan_window)
@@ -162,14 +166,14 @@ class GameGUI:
         for card in hand_cards:
             var = tk.BooleanVar()
             self.mulligan_vars[card.card_id] = var
-            card_text = f"{card.get_display_name()} (ID: {card.card_id}) (코스트: {card.current_cost})";
+            card_text = f"{card.get_display_name()} (ID - {card.card_id}) (코스트 - {card.current_cost})"
             chk = ttk.Checkbutton(cards_frame, text=card_text, variable=var)
             chk.pack(anchor="w", padx=5, pady=2)
 
         confirm_button = ttk.Button(self.mulligan_window, text="멀리건 확인", command=self._confirm_mulligan_choices)
         confirm_button.pack(pady=10)
 
-        self.root.wait_window(self.mulligan_window)  # Block until the window is closed
+        self.root.wait_window(self.mulligan_window)  # 창이 닫힐 때까지 블로킹합니다.
         return self.mulligan_selected_card_ids
 
     def _confirm_mulligan_choices(self):
@@ -184,18 +188,18 @@ class GameGUI:
         self.user_choice_var = tk.StringVar()
         self.choice_label.config(text=prompt)
 
-        # Clear previous buttons
+        # 이전 버튼들을 해제합니다.
         for widget in self.choice_buttons_frame.winfo_children():
             widget.destroy()
 
-        # Create new buttons
+        # 새로운 버튼들을 생성합니다.
         for text, value in choices.items():
             button = ttk.Button(self.choice_buttons_frame, text=text, command=lambda v=value: self._set_user_choice(v))
             button.pack(side="left", padx=5)
         
-        self.choice_frame.pack(side="top", fill="x", pady=5)  # Show the choice frame
-        self.root.wait_variable(self.user_choice_var)  # Block until choice is made
-        self.choice_frame.pack_forget()  # Hide after choice
+        self.choice_frame.pack(side="top", fill="x", pady=5)  # 선택지 프레임을 표시합니다.
+        self.root.wait_variable(self.user_choice_var)  # 선택이 완료될 때까지 대기합니다.
+        self.choice_frame.pack_forget()  # 선택이 끝난 후 프레임을 숨깁니다.
         return self.user_choice_var.get()
 
     def _set_user_choice(self, choice):

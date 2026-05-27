@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# 이 파일은 플레이어가 획득하는 문장 효과를 객체 단위로 정의하고 관리합니다.
+# 역할 정의. 플레이어가 획득하는 문장 효과를 객체 단위로 정의하고 관리합니다.
 
 from typing import List, Tuple
 from src.common.enums import EventType
