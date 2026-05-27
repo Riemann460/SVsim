@@ -26,10 +26,29 @@ class GameStateManager:
         self.pending_choice: Optional[Effect] = None
         self.player_awaiting_choice: Optional[str] = None
 
-    def create_card_instance(self, card_data, owner_id):
+    def create_card_instance(self, card_data_obj, owner_id):
         """새로운 카드 인스턴스를 생성하고 게임에 추가합니다."""
+        # card_data_obj 가 str 인 경우 정적 데이터베이스에서 조회하여 치환합니다.
+        if isinstance(card_data_obj, str):
+            from src.common import card_data as cd
+            # 1. card_id 로 먼저 조회해 봅니다.
+            resolved = cd.get_card_data_by_id(card_data_obj)
+            if not resolved:
+                # 2. card_id 가 아니면 카드 영문명 또는 한글명으로 조회해 봅니다.
+                for db in [cd.BASIC_CARD_DATABASE, cd.LEGENDS_RISE_CARD_DATABASE, cd.TOKEN_CARD_DATABASE]:
+                    for c_data in db.values():
+                        if c_data.name == card_data_obj or c_data.name_ko == card_data_obj:
+                            resolved = c_data
+                            break
+                    if resolved:
+                        break
+            if resolved:
+                card_data_obj = resolved
+            else:
+                print(f"[ERROR] create_card_instance - '{card_data_obj}'에 해당하는 카드 데이터를 찾을 수 없습니다.")
+
         new_card_id = str(self._next_card_instance_id)
-        card = Card(card_data, owner_id, new_card_id)
+        card = Card(card_data_obj, owner_id, new_card_id)
         self.cards.append(card)
         self._next_card_instance_id += 1
         return card
