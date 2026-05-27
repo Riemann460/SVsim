@@ -247,8 +247,8 @@ class DeckBuilderGUI:
         self.card_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
         # 우측 패널
-        right_panel = ttk.Frame(main_frame)
-        right_panel.pack(side=tk.RIGHT, fill=tk.BOTH, width=320, padx=5)
+        right_panel = ttk.Frame(main_frame, width=320)
+        right_panel.pack(side=tk.RIGHT, fill=tk.BOTH, padx=5)
         
         ttk.Label(right_panel, text="현재 덱 구성 상황", style="SubHeader.TLabel").pack(anchor=tk.W, pady=5)
         
