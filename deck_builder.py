@@ -3,10 +3,98 @@
 import os
 import json
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, simpledialog
 
 from src.common import card_data
 from src.common.enums import ClassType, CardType
+
+
+# 덱 코드(URL 및 해시) 복구 유틸리티에 사용될 문자 변환 맵입니다.
+custom_char_to_binary_map = {str(i): i for i in range(10)}
+custom_char_to_binary_map.update({chr(ord('A') + i): i + 10 for i in range(26)})
+custom_char_to_binary_map.update({chr(ord('a') + i): i + 36 for i in range(26)})
+custom_char_to_binary_map['-'] = 62
+custom_char_to_binary_map['_'] = 63
+
+reverse_custom_map = [None] * 64
+for char, value in custom_char_to_binary_map.items():
+    reverse_custom_map[value] = char
+
+
+def decode_hash_to_int(encoded_str):
+    """4자리 base64 해시 문자열을 정수 카드 ID로 변환합니다."""
+    if len(encoded_str) != 4:
+        raise ValueError("해시 문자열은 반드시 4글자여야 합니다.")
+    value_24bit = 0
+    for i, char in enumerate(encoded_str):
+        if char not in custom_char_to_binary_map:
+            raise ValueError(f"지원하지 않는 문자가 포함되어 있습니다. {char}")
+        six_bit_value = custom_char_to_binary_map[char]
+        value_24bit |= (six_bit_value << (6 * (3 - i)))
+    return value_24bit
+
+
+def parse_deck_code(url_or_hash):
+    """URL 주소 또는 해시 문자열에서 클래스 ID와 4자리 카드 해시 리스트를 분리하여 반환합니다."""
+    from urllib.parse import urlparse, parse_qs
+    
+    hash_val = url_or_hash
+    if url_or_hash.startswith("http"):
+        parsed = urlparse(url_or_hash)
+        qs = parse_qs(parsed.query)
+        hash_list = qs.get("hash")
+        if not hash_list:
+            raise ValueError("URL 쿼리 매개변수에 hash 값이 없습니다.")
+        hash_val = hash_list[0]
+        
+    parts = hash_val.split(".")
+    if len(parts) < 3:
+        raise ValueError("올바르지 않은 해시 포맷 형식입니다.")
+        
+    class_id = parts[1]
+    hashes = parts[2:]
+    
+    card_ids = []
+    for h in hashes:
+        if len(h) == 4:
+            decoded_id = decode_hash_to_int(h)
+            card_ids.append(str(decoded_id))
+    return class_id, card_ids
+
+
+def build_deck_from_decoded(class_id, card_ids, all_cards):
+    """디코딩 완료된 ID 정보를 토대로 최종 직업, 포맷 감지 결과 및 덱 구성 내역을 딕셔너리로 조립합니다."""
+    # 1번 엘프, 2번 로얄, 3번 위치, 4번 드래곤, 5번 나이트메어, 6번 비숍, 7번 네메시스 순으로 대응합니다.
+    class_map = {
+        "1": ClassType.FORESTCRAFT,
+        "2": ClassType.SWORDCRAFT,
+        "3": ClassType.RUNECRAFT,
+        "4": ClassType.DRAGONCRAFT,
+        "5": ClassType.ABYSSCRAFT,
+        "6": ClassType.HAVENCRAFT,
+        "7": ClassType.PORTALCRAFT
+    }
+    class_type = class_map.get(str(class_id), ClassType.FORESTCRAFT)
+    
+    deck_dict = {}
+    format_type = "Rotation"
+    
+    for cid in card_ids:
+        # DB에 존재하는 카드인지 확인 작업을 선행합니다.
+        # token 카드는 덱 빌딩 시 제외되어야 하므로 검증합니다.
+        card = all_cards.get(cid)
+        if not card:
+            # 기본 DB에 없으면 그냥 넘어갑니다.
+            continue
+            
+        # 팩 ID가 101번인 카드가 단 하나라도 포함되어 있으면 자동으로 Unlimited 포맷으로 감지하여 할당합니다.
+        if cid.startswith("101"):
+            format_type = "Unlimited"
+            
+        deck_dict[cid] = deck_dict.get(cid, 0) + 1
+        
+    return class_type, format_type, deck_dict
+
 
 def filter_cards_by_rules(format_type, class_type, all_cards):
     """지정된 포맷 및 직업 규칙에 부합하는 카드를 필터링하여 반환합니다."""
@@ -200,6 +288,9 @@ class DeckBuilderGUI:
         
         load_btn = tk.Button(bottom_frame, text="덱 불러오기", command=self._load_deck_dialog, bg=self.bg_panel, fg=self.fg_light, font=("맑은 고딕", 10), relief=tk.FLAT, padx=10, pady=5)
         load_btn.pack(side=tk.RIGHT, padx=5)
+
+        code_load_btn = tk.Button(bottom_frame, text="덱 코드로 불러오기", command=self._load_from_deck_code_dialog, bg=self.bg_panel, fg=self.fg_light, font=("맑은 고딕", 10), relief=tk.FLAT, padx=10, pady=5)
+        code_load_btn.pack(side=tk.RIGHT, padx=5)
         
     def _on_filter_changed(self):
         """필터 조건 변경 시 현재 덱을 비우고 카드 리스트를 갱신합니다."""
@@ -401,6 +492,57 @@ class DeckBuilderGUI:
                 messagebox.showerror("로딩 실패", f"덱을 로드하는 중 에러가 발생하였습니다.\n{str(e)}")
                 
         tk.Button(load_win, text="불러오기", command=do_load, bg=self.accent_blue, fg=self.bg_dark, font=("맑은 고딕", 9, "bold"), relief=tk.FLAT, padx=10, pady=3).pack(pady=10)
+
+    def _load_from_deck_code_dialog(self):
+        """사용자로부터 덱 공유 URL 또는 해시를 입력받아 덱 구성을 자동으로 채웁니다."""
+        # 덱 코드 입력 시 현재 작성 중인 덱은 소멸할 수 있으므로 사전에 의사를 묻습니다.
+        confirm = messagebox.askyesno(
+            "불러오기 확인",
+            "덱 코드를 로드하면 현재 편집 중인 덱 내용이 초기화됩니다. 계속하시겠습니까?"
+        )
+        if not confirm:
+            return
+            
+        # 덱 코드 및 URL 문자열 입력을 대화상자로 요청합니다.
+        code_input = simpledialog.askstring(
+            "덱 코드로 불러오기",
+            "덱 공유 URL 또는 해시 값을 입력하세요."
+        )
+        if not code_input:
+            return
+            
+        code_input = code_input.strip()
+        try:
+            class_id, card_ids = parse_deck_code(code_input)
+            class_type, format_type, deck_dict = build_deck_from_decoded(
+                class_id, card_ids, self.all_cards
+            )
+            
+            if not deck_dict:
+                raise ValueError("해당 덱 코드로 복구할 수 있는 카드 정보가 데이터베이스에 존재하지 않습니다.")
+                
+            # 복원된 정보를 GUI 드롭다운 변수 및 덱 객체에 동적 할당합니다.
+            self.format_var.set(format_type)
+            self.class_var.set(class_type.name)
+            
+            self.current_deck.clear()
+            self.current_deck.update(deck_dict)
+            
+            # 카드 화면과 덱 뷰를 갱신합니다.
+            self._update_card_list()
+            self._update_deck_list()
+            
+            # 복원된 장수를 구하여 성공 알림을 발생시킵니다.
+            total_loaded = sum(deck_dict.values())
+            messagebox.showinfo(
+                "불러오기 성공",
+                f"덱 코드를 정상적으로 해독하였습니다. 총 {total_loaded}장의 카드를 채웠습니다."
+            )
+        except Exception as e:
+            messagebox.showerror(
+                "불러오기 실패",
+                f"덱 코드를 해독하거나 분석하는 과정에서 오류가 발생했습니다. {str(e)}"
+            )
 
 
 if __name__ == "__main__":
