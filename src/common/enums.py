@@ -94,8 +94,6 @@ class EffectType(Enum):
     INTIMIDATE = "위압"
     AMBUSH = "잠복"
     BANE = "필살"
-
-    # 미구현 키워드를 정의합니다.
     COMBO = "콤보"
     EARTH_RITE = "흙의 비술"
     EARTH_SIGIL = "비술 마법진"
@@ -140,20 +138,20 @@ class ProcessType(Enum):
     DESTROY_CREST = "문장 파괴"
     RECOVER_EP = "EP 회복"
     HEAL_LINKED = "연계 회복"
-
-    # 미구현 프로세스들을 정의합니다.
-    INCREASE_COMBO = "콤보 증가"
     GAIN_EARTH_SIGIL = "비술 마법진 획득"
-    ADVANCE_COUNTDOWN = "카운트다운 진행"
     SPELLBOOST_HAND = "패 주문 증폭"
-    DEFINE_VARIABLE = "변수 정의"
-    MULTI_ATTACK = "다중 공격"
-    GAIN_MAX_PP = "최대 PP 증가"
     CONDITIONAL_EFFECT = "조건부 효과"
-    IMMUNITY = "면역"
     GAIN_SHADOW = "묘지 수 증가"
     TRANSFORM = "변신"
     REANIMATE = "사령 재생"
+
+    # 미구현 프로세스들을 정의합니다.
+    INCREASE_COMBO = "콤보 증가"
+    ADVANCE_COUNTDOWN = "카운트다운 진행"
+    DEFINE_VARIABLE = "변수 정의"
+    MULTI_ATTACK = "다중 공격"
+    GAIN_MAX_PP = "최대 PP 증가"
+    IMMUNITY = "면역"
     SELECT = "선택"
 
 
@@ -174,8 +172,6 @@ class TargetType(Enum):
     OWN_HAND_CHOICE = "자기 패 단일 선택"
     OPPONENT_FOLLOWER_MAX_ATTACK_RANDOM = "상대 추종자 중 가장 공격력이 높은 추종자 중 랜덤"
     ALLY_FOLLOWER_CHOICE_UNEVOLVED = "진화하지 않은 아군 추종자 단일 선택"
-
-    # 미구현 타겟들을 정의합니다.
     ALL_FOLLOWERS = "모든 추종자 전체"
     ANOTHER_ALLY_FOLLOWER_RANDOM = "자신 제외 아군 추종자 중 랜덤"
     ALL_OPPONENTS = "상대 전체"
@@ -183,6 +179,8 @@ class TargetType(Enum):
     OWN_DECK = "자신 덱"
     OPPONENT_FIELD = "상대 필드"
     ALL_OPPONENT_FOLLOWERS_DAMAGED = "피해를 입은 상대 추종자 전체"
+
+    # 미구현 타겟들을 정의합니다.
     ALL_LEADERS_MAX_DEFENSE = "가장 체력이 높은 리더 전체"
     ALL_FOLLOWERS_MAX_DEFENSE = "가장 체력이 높은 추종자 전체"
     ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED_NO_ATTACK = "자신 제외 공격하지 않은 진화전 아군 추종자 중 랜덤"
