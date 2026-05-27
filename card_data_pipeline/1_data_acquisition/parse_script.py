@@ -514,7 +514,7 @@ def parse_action(text: str):
                 action['value'] = [card_name] * count
             elif 'card_names' in groups:
                 card_list_str = groups['card_names']
-                cards = re.split(r'\s+and\s+|\s*,\s*an?\s*|\s*,\s*', card_list_str)
+                cards = re.split(r'\s*,\s*and\s+an?\s*|\s*,\s*and\s*|\s+and\s+|\s*,\s*an?\b\s*|\s*,\s*', card_list_str)
                 card_names = [re.sub(r'^an?\s+', '', card).strip().replace('.', '') for card in cards if card.strip()]
                 if card_names:
                     action['value'] = card_names[0] if len(card_names) == 1 else card_names
