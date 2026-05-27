@@ -11,7 +11,7 @@ class CardType(Enum):
 
 class EventType(Enum):
     """게임 내에서 발생하는 이벤트 타입 정의"""
-    CARD_ENGAGED = "카드_기동됨"  # 기동 효과 발동
+    CARD_ENGAGED = "카드_활성화됨"  # 활성화 효과 발동.
     CARD_PLAYED = "카드_플레이됨"  # 출격 능력 발동
     DESTROYED_ON_FIELD = "필드_카드_파괴됨"  # 유언 능력 발동
     TURN_START = "턴_시작"  # 카운트다운 처리
@@ -80,7 +80,7 @@ class EffectType(Enum):
     ON_OPPONENTS_TURN_END = "상대방 턴 종료시"
     ON_FOLLOWER_ENTER_FIELD = "추종자가 전장에 소환되었을 때"
     SUPER_EVOLVED = "초진화하면"
-    ENGAGE = "기동"
+    ENGAGE = "활성화"
     WARD = "수호"
     RUSH = "돌진"
     STORM = "질주"

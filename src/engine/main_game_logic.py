@@ -671,7 +671,7 @@ class Game:
                     break
 
     def engage_card(self, card_id: str, player_id: str):
-        """카드 기동 처리"""
+        """카드의 활성화 능력을 처리합니다."""
         self.game_state_manager.engage_card(card_id, player_id)
         self.event_manager.publish(CardEngagedEvent(card_id=card_id))
         self.process_events()
@@ -711,6 +711,6 @@ class Game:
 
         if self.game_state_manager.has_keyword(card_id, EffectType.ENGAGE) and self.rule_engine.validate_engage_card(
                 card_id, player_id):
-            available_actions.append("카드 기동(Engage)")
+            available_actions.append("카드 활성화(Engage)")
 
         return available_actions, card_name

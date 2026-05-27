@@ -349,12 +349,12 @@ class GameStateManager:
         return self.players[player_id].current_defense
 
     def engage_card(self, card_id: str, player_id: str):
-        """지정된 마법진/추종자 카드를 기동(Engage)합니다."""
+        """지정된 마법진/추종자 카드를 활성화(Engage)합니다."""
         card = self.get_entity_by_id(card_id, Zone.FIELD)
         player = self.players[player_id]
         card.is_engaged = True
 
-        # 기동에 코스트가 있고 PP 부족
+        # 활성화에 코스트가 있으면 PP를 소모합니다.
         activate_effect: Effect = self.get_card_effects(card_id, EffectType.ENGAGE)[0]
         if activate_effect.cost is not None:
             cost = activate_effect.cost
