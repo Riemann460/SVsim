@@ -236,12 +236,13 @@ class GameStateManager:
         return [card.card_id for card in self.players[player_id].zone_dict[zone].get_cards() if card.has_keyword(keyword)]
 
     def countdown(self, card_id: str):
-        """지정 카드의 카운트다운을 처리합니다."""
+        """지정 카드의 카운트다운을 처리합니다. 카운트다운 수치가 존재할 때만 처리합니다."""
         entity = self.get_entity_by_id(card_id, Zone.FIELD)
         if entity:
-            entity.countdown_value -= 1
-            if entity.countdown_value == 0:
-                return True
+            if entity.countdown_value is not None:
+                entity.countdown_value -= 1
+                if entity.countdown_value == 0:
+                    return True
             return False
         print(f"[ERROR] countdown - 카드 ID {card_id}를 찾을 수 없습니다.")
         return False
