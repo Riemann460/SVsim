@@ -206,13 +206,31 @@ class Game:
                 print(
                     f"[LOG] 초진화 효과 처리: 대상 카드: {self.game_state_manager.get_card_name(card_id)} -> 이펙트 '{effect_trigger_type.name}'")
                 self.resolve_effects_type(card_id, effect_trigger_type)
-                break  # 초진화시 효과가 있다면 진화시 효과는 발동하지 않도록 설정합니다.
 
+    def _on_turn_start(self, event: TurnStartEvent):
+        """카운트다운 효과 및 오의 게이지 감소를 처리합니다."""
+        player_id = event.player_id
+        cards_with_countdown = self.game_state_manager.get_cards_with_keyword(player_id, Zone.FIELD,
+                                                                              EffectType.COUNTDOWN)
+        for card_id in cards_with_countdown:
+            print(f"[LOG] {self.game_state_manager.get_card_name(card_id)} (ID: {card_id}) 카운트다운 감소.")
+            if self.game_state_manager.countdown(card_id):
+                print(f"[LOG] {self.game_state_manager.get_card_name(card_id)} (ID: {card_id}) 카운트다운 0. 필드에서 묘지로 이동.")
+                self.game_state_manager.move_card(card_id, Zone.FIELD, Zone.GRAVEYARD)
+                from src.common.event import DestroyedOnFieldEvent
+                self.event_manager.publish(DestroyedOnFieldEvent(card_id=card_id))
+
+        # 턴 시작 시 손패의 오의 게이지를 감소시킵니다.
+        self._reduce_skybound_art_gauges(player_id)
+        
     def _on_spell_cast(self, event: SpellCastEvent):
         """주문 증폭 효과를 처리합니다."""
         player_id = event.player_id
-        cards_with_spellboost = self.game_state_manager.get_cards_with_keyword(player_id, Zone.FIELD,
+        cards_with_spellboost_field = self.game_state_manager.get_cards_with_keyword(player_id, Zone.FIELD,
                                                                                EffectType.SPELLBOOST)
+        cards_with_spellboost_hand = self.game_state_manager.get_cards_with_keyword(player_id, Zone.HAND,
+                                                                              EffectType.SPELLBOOST)
+        cards_with_spellboost = cards_with_spellboost_field + cards_with_spellboost_hand
         if cards_with_spellboost:
             print(
                 f"[LOG] {player_id}의 주문 증폭 효과 처리. 대상 카드: {[self.game_state_manager.get_card_name(card_id) for card_id in cards_with_spellboost]}")
@@ -398,6 +416,9 @@ class Game:
         self.process_events()
 
         if is_spell:
+            from src.common.event import SpellCastEvent
+            self.event_manager.publish(SpellCastEvent(player_id=player_id))
+            self.process_events()
             self._unregister_card_listeners(card)
 
         self.gui.update()
@@ -620,6 +641,8 @@ class Game:
     def evolve_follower(self, card_id: str, player_id: str):
         """EP를 소모하여 추종자를 진화시킵니다."""
         self.game_state_manager.evolve_card_with_ep(card_id, player_id)
+        player = self.game_state_manager.players[player_id]
+        player.evolution_count += 1
         self.event_manager.publish(FollowerEvolvedEvent(card_id=card_id, spend_ep=True))
         self._reduce_skybound_art_gauges(player_id)
         self.process_events()
@@ -628,6 +651,8 @@ class Game:
     def super_evolve_follower(self, card_id: str, player_id: str):
         """SEP를 소모하여 추종자를 초진화시킵니다."""
         self.game_state_manager.super_evolve_card_with_sep(card_id, player_id)
+        player = self.game_state_manager.players[player_id]
+        player.evolution_count += 1
         self.event_manager.publish(FollowerSuperEvolvedEvent(card_id=card_id, spend_sep=True))
         self._reduce_skybound_art_gauges(player_id)
         self.process_events()

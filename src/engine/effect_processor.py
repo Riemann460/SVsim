@@ -87,6 +87,7 @@ class EffectProcessor:
             ProcessType.GAIN_EARTH_SIGIL: self._process_gain_earth_sigil,
             ProcessType.TRANSFORM: self._process_transform,
             ProcessType.CONDITIONAL_EFFECT: self._process_conditional_effect,
+            ProcessType.SPELLBOOST_HAND: self._process_spellboost_hand,
         }
 
     def _log_info(self, msg: str) -> None:
@@ -225,6 +226,9 @@ class EffectProcessor:
         opponent_id = game_state_manager.opponent_id[caster_card.owner_id]
         opponent_cards = game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
         opponent_followers = [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER]
+
+        if not opponent_followers:
+            return []
 
         random.shuffle(opponent_followers)
         selected_card = opponent_followers.pop()
@@ -566,6 +570,88 @@ class EffectProcessor:
 
         effect_data.update(caster_id=caster_id)
 
+        # 대체(instead) 효과 체크 로직입니다.
+        if effect_data.type in [EffectType.FANFARE, EffectType.SPELL]:
+            raw_text = caster_card.card_data.get("raw_effects_text", "").lower()
+            if "instead" in raw_text:
+                # 콤보 대체 조건 검사.
+                has_combo = any(e.type == EffectType.COMBO for e in caster_card.effects)
+                if has_combo:
+                    import re
+                    match = re.search(r"Combo\s*\((\d+)\)", caster_card.card_data.raw_effects_text, re.IGNORECASE)
+                    req_combo = int(match.group(1)) if match else 3
+                    player = game_state_manager.players[caster_card.owner_id]
+                    if player.combo_count >= req_combo:
+                        print(f"[LOG] 콤보 조건 만족으로 인해 {effect_data.type.value} 효과 발동을 건너뛰고 콤보 효과로 대체합니다.")
+                        return
+
+                # 오의 대체 조건 검사.
+                has_sa = any(e.type == EffectType.SKYBOUND_ART for e in caster_card.effects)
+                if has_sa:
+                    sa_effects = [e for e in caster_card.effects if e.type == EffectType.SKYBOUND_ART]
+                    if any(getattr(e, "skybound_art_gauge", 999) == 0 for e in sa_effects):
+                        print(f"[LOG] 오의 조건 만족으로 인해 {effect_data.type.value} 효과 발동을 건너뛰고 오의 효과로 대체합니다.")
+                        return
+
+                # 해방오의 대체 조건 검사.
+                has_ssa = any(e.type == EffectType.SUPER_SKYBOUND_ART for e in caster_card.effects)
+                if has_ssa:
+                    ssa_effects = [e for e in caster_card.effects if e.type == EffectType.SUPER_SKYBOUND_ART]
+                    if any(getattr(e, "skybound_art_gauge", 999) == 0 for e in ssa_effects):
+                        print(f"[LOG] 해방오의 조건 만족으로 인해 {effect_data.type.value} 효과 발동을 건너뛰고 해방오의 효과로 대체합니다.")
+                        return
+
+        if effect_data.type == EffectType.COMBO:
+            import re
+            match = re.search(r"Combo\s*\((\d+)\)", caster_card.card_data.raw_effects_text, re.IGNORECASE)
+            req_combo = int(match.group(1)) if match else 3
+            player = game_state_manager.players[caster_card.owner_id]
+            if player.combo_count < req_combo:
+                print(f"[LOG] 콤보 카운트({player.combo_count})가 조건({req_combo})에 미달하여 효과 발동 실패.")
+                return
+            # value가 'X'인 경우, 다른 FANFARE나 SPELL 효과의 value 값을 복제하여 사용합니다.
+            if effect_data.value == 'X':
+                base_val = None
+                for e in caster_card.effects:
+                    if e.type in [EffectType.FANFARE, EffectType.SPELL] and isinstance(e.value, int):
+                        base_val = e.value
+                        break
+                if base_val is not None:
+                    effect_data.value = base_val
+                    print(f"[LOG] 콤보 효과의 수치 'X'를 기본 효과의 값인 {base_val}로 설정합니다.")
+            print(f"[LOG] 콤보 {req_combo} 효과 발동.")
+
+        elif effect_data.type == EffectType.SKYBOUND_ART:
+            gauge = getattr(effect_data, "skybound_art_gauge", 999)
+            if gauge > 0:
+                print(f"[LOG] 오의 게이지({gauge}) 부족으로 효과 발동 실패.")
+                return
+            print(f"[LOG] 오의 효과 발동.")
+
+        elif effect_data.type == EffectType.SUPER_SKYBOUND_ART:
+            gauge = getattr(effect_data, "skybound_art_gauge", 999)
+            if gauge > 0:
+                print(f"[LOG] 해방오의 게이지({gauge}) 부족으로 효과 발동 실패.")
+                return
+            print(f"[LOG] 해방오의 효과 발동.")
+
+        elif effect_data.type == EffectType.OVERFLOW:
+            player = game_state_manager.players[caster_card.owner_id]
+            if not player.is_overflow:
+                print(f"[LOG] 각성 조건 미충족으로 효과 발동 실패.")
+                return
+            print(f"[LOG] 각성 효과 발동.")
+
+        elif effect_data.type == EffectType.RALLY:
+            import re
+            match = re.search(r"Rally\s*\((\d+)\)", caster_card.card_data.raw_effects_text, re.IGNORECASE)
+            req_rally = int(match.group(1)) if match else 10
+            player = game_state_manager.players[caster_card.owner_id]
+            if player.rally_count < req_rally:
+                print(f"[LOG] 연계 수치({player.rally_count})가 조건({req_rally})에 미달하여 효과 발동 실패.")
+                return
+            print(f"[LOG] 연계 {req_rally} 효과 발동.")
+
         if effect_data.type == EffectType.NECROMANCY:
             player = game_state_manager.players[caster_card.owner_id]
             req_shadows = int(effect_data.value) if effect_data.value is not None else 0
@@ -849,3 +935,31 @@ class EffectProcessor:
             if_false_effect = val.get("if_false")
             if if_false_effect:
                 self.resolve_effect(if_false_effect, caster_id, game_state_manager, getattr(target, "card_id", None) or getattr(target, "player_id", None))
+
+    def _process_spellboost_hand(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리 - 손패 주문 증폭. 주석 규정을 엄격하게 준수합니다."""
+        player = target
+        if hasattr(target, "owner_id"):
+            player = game_state_manager.players[target.owner_id]
+        elif hasattr(target, "player_id"):
+            player = target
+
+        caster_id = getattr(effect_data, "caster_id", None)
+        times = 1
+        if caster_id and game_state_manager.get_card_name(caster_id) == "William, Mysterian Student":
+            times = 2
+        elif effect_data.value is not None:
+            try:
+                times = int(effect_data.value)
+            except (ValueError, TypeError):
+                times = 1
+
+        for _ in range(times):
+            hand_cards = player.hand.get_cards()
+            cards_with_sb = [c for c in hand_cards if c.has_keyword(EffectType.SPELLBOOST)]
+            for card in cards_with_sb:
+                card.spellboost_stacks += 1
+                print(f"[LOG] 패의 {card.get_display_name()} 주문 증폭 스택 증가. 현재 스택 {card.spellboost_stacks}.")
+                for effect in card.effects:
+                    if effect.type == EffectType.SPELLBOOST:
+                        self.resolve_effect(effect, card.card_id, game_state_manager, None)

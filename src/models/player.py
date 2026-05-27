@@ -37,6 +37,7 @@ class Player:
         self.crests: List[Crest] = []  # 플레이어가 획득한 문장 객체 목록입니다.
         self.combo_count = 0  # 턴당 플레이한 카드 장수를 기록하는 필드입니다.
         self.rally_count = 0  # 누적 소환된 아군 추종자 장수를 기록하는 필드입니다.
+        self.evolution_count = 0  # 누적 진화 및 초진화 횟수를 기록하는 필드입니다.
         self.card_data = card_data.CardData('Leader', self.player_id, 0, CardType.LEADER, ClassType.NEUTRAL, 0, self.max_defense, effects=self.effects)
 
         # 각 영역들을 초기화합니다.
