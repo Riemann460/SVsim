@@ -65,7 +65,14 @@ class RuleEngine:
         """카드 활성화의 유효성을 검사합니다."""
         card = self.game_state_manager.get_entity_by_id(card_id, Zone.FIELD)
         player = self.game_state_manager.get_entity_by_id(player_id)
-        activate_effect: Effect = self.game_state_manager.get_card_effects(card_id, EffectType.ENGAGE)[0]
+        
+        # 활성화 효과가 없는 경우 검증 실패 처리합니다.
+        engage_effects = self.game_state_manager.get_card_effects(card_id, EffectType.ENGAGE)
+        if not engage_effects:
+            print(f"[LOG] {card.get_display_name()} (ID: {card_id})는 활성화(Engage) 효과를 가지고 있지 않습니다.")
+            return False
+            
+        engage_effect: Effect = engage_effects[0]
         
         # 이번 턴에 이미 활성화한 상태라면 처리가 불가능합니다.
         if card.is_engaged:
@@ -73,11 +80,12 @@ class RuleEngine:
             return False
 
         # 활성화에 코스트가 존재하고 PP가 부족하면 처리가 불가능합니다.
-        if 'cost' in activate_effect.attributes.keys():
+        cost = engage_effect.get("cost")
+        if cost is not None:
             current_pp = player.current_pp
             # PP가 부족한지 검증합니다.
-            if current_pp < activate_effect.cost:
-                print(f"[LOG] {player_id}의 PP ({current_pp}) 부족으로 {card.get_display_name()} (ID: {card_id}) 활성화 불가. 필요 PP: {activate_effect.cost}")
+            if current_pp < cost:
+                print(f"[LOG] {player_id}의 PP ({current_pp}) 부족으로 {card.get_display_name()} (ID: {card_id}) 활성화 불가. 필요 PP: {cost}")
                 return False
         print(f"[LOG] {player_id}가 {card.get_display_name()} (ID: {card_id})를 활성화할 수 있습니다.")
         return True

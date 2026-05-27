@@ -354,8 +354,13 @@ class GameStateManager:
         player = self.players[player_id]
         card.is_engaged = True
 
+        # 활성화 효과 리스트가 비어있다면 조기 리턴합니다.
+        engage_effects = self.get_card_effects(card_id, EffectType.ENGAGE)
+        if not engage_effects:
+            return
+
         # 활성화에 코스트가 있으면 PP를 소모합니다.
-        activate_effect: Effect = self.get_card_effects(card_id, EffectType.ENGAGE)[0]
-        if activate_effect.cost is not None:
-            cost = activate_effect.cost
+        engage_effect: Effect = engage_effects[0]
+        cost = engage_effect.get("cost")
+        if cost is not None:
             player.spend_pp(cost)
