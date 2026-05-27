@@ -66,8 +66,8 @@ class Game:
     """게임 전체 흐름을 관리하는 클래스입니다.
     주요 역할 - 플레이어의 요청 처리, 게임 보드의 이벤트에 따른 효과 처리, 효과 처리로 인한 변화를 게임 보드에 적용합니다."""
 
-    def __init__(self, player1_id: str, player2_id: str):
-        """Game 클래스의 생성자입니다."""
+    def __init__(self, player1_id: str, player2_id: str, p1_deck_data: List[Any] = None, p2_deck_data: List[Any] = None):
+        """Game 클래스의 생성자입니다. 플레이어별 외부 주입 덱이 있으면 이를 기반으로 구성합니다."""
         self.game_state_manager = GameStateManager()
         self.game_state_manager.game = self  # Game 인스턴스를 전달합니다.
         self.event_manager = EventManager()
@@ -84,7 +84,7 @@ class Game:
         self.game_state_manager.turn_number = 0
 
         self._setup_global_listeners()
-        self._initialize_decks(player1_id, player2_id)
+        self._initialize_decks(player1_id, player2_id, p1_deck_data, p2_deck_data)
         self._initial_draw(player1_id, player2_id)
         self._start_turn(player1_id)
         self.gui.update()
@@ -286,35 +286,75 @@ class Game:
         for card_id in cards_with_enter_field:
             self.resolve_effects_type(card_id, EffectType.ON_FOLLOWER_ENTER_FIELD, target_id=event.card_id)
 
-    def _initialize_decks(self, player1_id: str, player2_id: str):
+    def _initialize_decks(self, player1_id: str, player2_id: str, p1_deck_data: List[Any] = None, p2_deck_data: List[Any] = None):
         """초기 덱을 설정합니다. 최대 40장, 카드별 3장까지 제한됩니다."""
-        # 예시 카드 데이터입니다.
-        card_data_list = [
-            card_data.BASIC_CARD_DATABASE["Indomitable Fighter"],
-            card_data.BASIC_CARD_DATABASE["Leah, Bellringer Angel"],
-            card_data.BASIC_CARD_DATABASE["Quake Goliath"],
-            card_data.BASIC_CARD_DATABASE["Detective's Lens"],
-            card_data.BASIC_CARD_DATABASE["Arriet, Luxminstrel"],
-            card_data.BASIC_CARD_DATABASE["Caravan Mammoth"],
-            card_data.BASIC_CARD_DATABASE["Adventurers' Guild"],
-            card_data.LEGENDS_RISE_CARD_DATABASE["Ruby, Greedy Cherub"],
-            card_data.LEGENDS_RISE_CARD_DATABASE["Vigilant Detective"],
-            card_data.LEGENDS_RISE_CARD_DATABASE["Goblin Foray"],
-            card_data.LEGENDS_RISE_CARD_DATABASE["Apollo, Heaven's Envoy"],
-            card_data.LEGENDS_RISE_CARD_DATABASE["Seraphic Tidings"],
-            card_data.LEGENDS_RISE_CARD_DATABASE["Phildau, Lionheart Ward"],
-            card_data.LEGENDS_RISE_CARD_DATABASE["Divine Thunder"]
-        ]
         player1_deck = []
         player2_deck = []
-        for _ in range(3):
-            for data in card_data_list[:12]:
+
+        if p1_deck_data:
+            for data in p1_deck_data:
                 player1_deck.append(self.game_state_manager.create_card_instance(data, player1_id))
+        else:
+            # 예시 카드 데이터 리스트입니다.
+            card_data_list = [
+                card_data.BASIC_CARD_DATABASE["Indomitable Fighter"],
+                card_data.BASIC_CARD_DATABASE["Leah, Bellringer Angel"],
+                card_data.BASIC_CARD_DATABASE["Quake Goliath"],
+                card_data.BASIC_CARD_DATABASE["Detective's Lens"],
+                card_data.BASIC_CARD_DATABASE["Arriet, Luxminstrel"],
+                card_data.BASIC_CARD_DATABASE["Caravan Mammoth"],
+                card_data.BASIC_CARD_DATABASE["Adventurers' Guild"],
+                card_data.LEGENDS_RISE_CARD_DATABASE["Ruby, Greedy Cherub"],
+                card_data.LEGENDS_RISE_CARD_DATABASE["Vigilant Detective"],
+                card_data.LEGENDS_RISE_CARD_DATABASE["Goblin Foray"],
+                card_data.LEGENDS_RISE_CARD_DATABASE["Apollo, Heaven's Envoy"],
+                card_data.LEGENDS_RISE_CARD_DATABASE["Seraphic Tidings"],
+                card_data.LEGENDS_RISE_CARD_DATABASE["Phildau, Lionheart Ward"],
+                card_data.LEGENDS_RISE_CARD_DATABASE["Divine Thunder"]
+            ]
+            for _ in range(3):
+                for data in card_data_list[:12]:
+                    player1_deck.append(self.game_state_manager.create_card_instance(data, player1_id))
+            for _ in range(2):
+                for data in card_data_list[12:]:
+                    player1_deck.append(self.game_state_manager.create_card_instance(data, player1_id))
+
+        if p2_deck_data:
+            for data in p2_deck_data:
                 player2_deck.append(self.game_state_manager.create_card_instance(data, player2_id))
-        for _ in range(2):
-            for data in card_data_list[12:]:
-                player1_deck.append(self.game_state_manager.create_card_instance(data, player1_id))
-                player2_deck.append(self.game_state_manager.create_card_instance(data, player2_id))
+        else:
+            if not p1_deck_data:
+                # p1 덱이 없을 때 p2 덱도 예시 카드로 복제합니다.
+                for _ in range(3):
+                    for data in card_data_list[:12]:
+                        player2_deck.append(self.game_state_manager.create_card_instance(data, player2_id))
+                for _ in range(2):
+                    for data in card_data_list[12:]:
+                        player2_deck.append(self.game_state_manager.create_card_instance(data, player2_id))
+            else:
+                # p1 덱은 주입되었으나 p2 덱이 없을 때 p2 덱을 예시 카드로 생성합니다.
+                card_data_list = [
+                    card_data.BASIC_CARD_DATABASE["Indomitable Fighter"],
+                    card_data.BASIC_CARD_DATABASE["Leah, Bellringer Angel"],
+                    card_data.BASIC_CARD_DATABASE["Quake Goliath"],
+                    card_data.BASIC_CARD_DATABASE["Detective's Lens"],
+                    card_data.BASIC_CARD_DATABASE["Arriet, Luxminstrel"],
+                    card_data.BASIC_CARD_DATABASE["Caravan Mammoth"],
+                    card_data.BASIC_CARD_DATABASE["Adventurers' Guild"],
+                    card_data.LEGENDS_RISE_CARD_DATABASE["Ruby, Greedy Cherub"],
+                    card_data.LEGENDS_RISE_CARD_DATABASE["Vigilant Detective"],
+                    card_data.LEGENDS_RISE_CARD_DATABASE["Goblin Foray"],
+                    card_data.LEGENDS_RISE_CARD_DATABASE["Apollo, Heaven's Envoy"],
+                    card_data.LEGENDS_RISE_CARD_DATABASE["Seraphic Tidings"],
+                    card_data.LEGENDS_RISE_CARD_DATABASE["Phildau, Lionheart Ward"],
+                    card_data.LEGENDS_RISE_CARD_DATABASE["Divine Thunder"]
+                ]
+                for _ in range(3):
+                    for data in card_data_list[:12]:
+                        player2_deck.append(self.game_state_manager.create_card_instance(data, player2_id))
+                for _ in range(2):
+                    for data in card_data_list[12:]:
+                        player2_deck.append(self.game_state_manager.create_card_instance(data, player2_id))
 
         for card in player1_deck:
             self.game_state_manager.add_card(card, Zone.DECK, player1_id)

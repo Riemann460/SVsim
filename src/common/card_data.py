@@ -300,3 +300,10 @@ def evaluate_condition(card: Any, condition_str: str) -> bool:
         return card.card_data.name == name_str
         
     return True
+
+def get_card_data_by_id(card_id: str) -> Any:
+    """ID를 기반으로 정적 카드 데이터를 조회합니다."""
+    for db in [BASIC_CARD_DATABASE, LEGENDS_RISE_CARD_DATABASE, TOKEN_CARD_DATABASE]:
+        if card_id in db:
+            return db[card_id]
+    return None
