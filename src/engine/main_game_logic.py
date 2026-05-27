@@ -387,12 +387,22 @@ class Game:
             print(f"[LOG] {self.game_state_manager.get_card_name(card_id)} (ID: {card_id}) 카드 플레이 유효성 검사 실패.")
             return False
 
+        card = self.game_state_manager.get_entity_by_id(card_id, Zone.HAND)
+        is_spell = card.get_type() == CardType.SPELL if card else False
+
+        if is_spell:
+            self._register_card_listeners(card)
+
         # 코스트, 필드 소환은 GSM에서 처리
         self.game_state_manager.play_card(player_id, card_id, enhanced_cost)
 
         # 카드에 정의된 즉발 효과 해결
         self.event_manager.publish(CardPlayedEvent(card_id=card_id, enhanced_cost=enhanced_cost))
         self.process_events()
+
+        if is_spell:
+            self._unregister_card_listeners(card)
+
         self.gui.update()
         return True
 

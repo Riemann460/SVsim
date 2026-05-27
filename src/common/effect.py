@@ -10,8 +10,7 @@ class Effect:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        # 'CHOOSE' 타입에 대한 유효성 검사 추가
-        if self.get('type') and self.get('type').name == 'CHOOSE':
+        if isinstance(self.get('type'), Enum) and self.get('type').name == 'CHOOSE':
             if 'choices' not in self.attributes or not isinstance(self.attributes['choices'], list):
                 raise ValueError("CHOOSE effect must have a 'choices' list.")
             for choice in self.attributes['choices']:

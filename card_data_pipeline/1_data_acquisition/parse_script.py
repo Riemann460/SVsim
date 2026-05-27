@@ -30,45 +30,92 @@ def parse_effect_text(description: str, card_type_enum):
     if not description:
         return []
 
-    # 1. 태그 전처리 및 줄바꿈 정리
-    description = description.replace("<hr>", "\n").replace("<ev>", "\n").replace("</ev>", "\n")
+    # 1. 원래 줄바꿈이나 태그 기준으로 문단을 분리
+    # <hr>, <ev>, </ev>, \n 등을 기준으로 분리하되, 숫자(1., 2.)로 시작하는 줄은 이전 문단에 포함시킨다.
+    description_clean = description.replace("<hr>", "\n").replace("<ev>", "\n").replace("</ev>", "\n")
+    raw_lines = [p.strip() for p in description_clean.split('\n') if p.strip()]
     
-    # 2. 모든 HTML 태그 제거
-    description = re.sub(r"<[^>]*>", "", description)
-    
-    # 3. 특수 공백 및 깨진 문자 필터링
-    description = description.replace("&nbsp;", " ")
-    description = description.replace("①", "1").replace("②", "2").replace("③", "3").replace("④", "4")
-    description = description.replace("\ufffd", "")
-    description = re.sub(r"Ominous Artifact\s+[^a-zA-Z0-9\s]+", "Ominous Artifact", description)
-    
-    # 4. 마침표 뒤 대문자 시작하는 다중 문장 분할 (앞에 숫자가 붙은 모드 선택 형태 '1.' 등은 예외)
-    description = re.sub(r"(?<!\b\d)\.\s*([A-Z])", r".\n\1", description)
+    paragraphs = []
+    for line in raw_lines:
+        if paragraphs and re.match(r"^\d\.", line):
+            paragraphs[-1] = paragraphs[-1] + "\n" + line
+        else:
+            paragraphs.append(line)
 
-    lines = [line.strip() for line in description.strip().split('\n') if line.strip()]
     parsed_effects = []
 
-    i = 0
-    while i < len(lines):
-        line = lines[i]
+    for paragraph in paragraphs:
+        # 2. 모든 HTML 태그 제거
+        p_clean = re.sub(r"<[^>]*>", "", paragraph)
+        
+        # 3. 특수 공백 및 깨진 문자 필터링
+        p_clean = p_clean.replace("&nbsp;", " ")
+        p_clean = p_clean.replace("①", "1").replace("②", "2").replace("③", "3").replace("④", "4")
+        p_clean = p_clean.replace("\ufffd", "")
+        p_clean = re.sub(r"Ominous Artifact\s+[^a-zA-Z0-9\s]+", "Ominous Artifact", p_clean)
+        
+        # 4. 마침표 뒤 대문자 시작하는 다중 문장 분할 (앞에 숫자가 붙은 모드 선택 형태 '1.' 등은 예외)
+        p_clean = re.sub(r"(?<!\b\d)\.\s*([A-Z])", r".\n\1", p_clean)
 
-        # "Select a Mode" 또는 "Select X Modes" 또는 "abilities from the following" 구문이 포함된 라인 찾기
-        if ("Select" in line and "Mode" in line) or "abilities from the following" in line:
-            trigger_effect = _parse_single_effect(line)
-            trigger_effect.update(process=ProcessType.CHOOSE, choices=[])
+        lines = [line.strip() for line in p_clean.strip().split('\n') if line.strip()]
+        
+        paragraph_effects = []
+        inherited_type = None
 
-            i += 1
-            # 다음 줄부터 숫자(1., 2.)로 시작하는 선택지들을 파싱
-            while i < len(lines) and re.match(r"^\d\.", lines[i]):
-                choice_text = re.sub(r"^\d\.\s*", "", lines[i])
-                action_attrs = parse_action(choice_text)
-                trigger_effect.choices.append(Effect(**action_attrs))
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+
+            # "Select a Mode" 또는 "Select X Modes" 또는 "abilities from the following" 구문이 포함된 라인 찾기
+            if ("Select" in line and "Mode" in line) or "abilities from the following" in line:
+                trigger_effect = _parse_single_effect(line)
+                if isinstance(trigger_effect, list):
+                    if trigger_effect:
+                        inherited_type = trigger_effect[0].get('type')
+                        trigger_effect = trigger_effect[0]
+                    else:
+                        trigger_effect = Effect()
+                else:
+                    inherited_type = trigger_effect.get('type')
+                
+                trigger_effect.update(process=ProcessType.CHOOSE, choices=[])
+
+                i += 1
+                # 다음 줄부터 숫자(1., 2.)로 시작하는 선택지들을 파싱
+                while i < len(lines) and re.match(r"^\d\.", lines[i]):
+                    choice_text = re.sub(r"^\d\.\s*", "", lines[i])
+                    action_attrs = parse_action(choice_text)
+                    trigger_effect.choices.append(Effect(**action_attrs))
+                    i += 1
+
+                paragraph_effects.append(trigger_effect)
+            else:
+                result = _parse_single_effect(line)
+                if isinstance(result, list):
+                    if result:
+                        inherited_type = result[0].get('type')
+                    for r in result:
+                        paragraph_effects.append(r)
+                else:
+                    # 명시적인 이펙트 패턴이 있는지 확인
+                    has_explicit_pattern = False
+                    if line.lower().strip() in SIMPLE_KEYWORD_EFFECTS:
+                        has_explicit_pattern = True
+                    else:
+                        for pattern in EFFECT_PATTERNS:
+                            if re.match(pattern['regex'], line, re.IGNORECASE):
+                                has_explicit_pattern = True
+                                break
+                    
+                    if not has_explicit_pattern and inherited_type is not None:
+                        result.update(type=inherited_type)
+                    else:
+                        inherited_type = result.get('type')
+                    
+                    paragraph_effects.append(result)
                 i += 1
 
-            parsed_effects.append(trigger_effect)
-        else:
-            parsed_effects.append(_parse_single_effect(line))
-            i += 1
+        parsed_effects.extend(paragraph_effects)
 
     if card_type_enum == "SPELL":
         for effect in parsed_effects:
@@ -133,58 +180,59 @@ SIMPLE_KEYWORD_EFFECTS = {
 }
 
 
-def _parse_single_effect(text: str) -> Effect:
+def _parse_single_effect(text: str) -> Effect | list[Effect]:
     text_clean = text.strip().rstrip('.')
     text_clean = text_clean.replace('"', '')
     low_text = text_clean.lower()
     
-    # 1. 단순 키워드 효과 처리
+    # 1. Simple keyword effects
     if low_text in SIMPLE_KEYWORD_EFFECTS:
         return Effect(type=SIMPLE_KEYWORD_EFFECTS[low_text])
 
-    # 2. 데이터 기반으로 복잡한 효과 패턴 처리
+    # 2. Pattern-based effects
     for pattern in EFFECT_PATTERNS:
         match = re.match(pattern['regex'], text_clean, re.IGNORECASE)
         if match:
-            # 정규식 그룹과 그룹 이름을 매핑하여 딕셔너리 생성
             extracted_data = dict(zip(pattern['groups'], match.groups()))
-
-            # 숫자 값은 정수형으로 변환 시도
+            # Convert numeric strings where appropriate
             for key, value in extracted_data.items():
-                if 'text' not in key:  # action_text, condition_text 등은 제외
+                if 'text' not in key:
                     try:
                         extracted_data[key] = int(value)
                     except (ValueError, TypeError):
-                        pass  # 변환 실패 시 문자열 유지
-
-            # 파싱할 액션 텍스트가 있으면 parse_action 호출
+                        pass
+            # Special handling for FANFARE with multiple actions separated by periods or commas
+            if pattern['type'] == EffectType.FANFARE and 'action_text' in extracted_data:
+                actions = [a.strip() for a in re.split(r'[.,]\s*', extracted_data['action_text']) if a.strip()]
+                effects: list[Effect] = []
+                for act in actions:
+                    action_attrs = parse_action(act)
+                    ef = Effect(type=EffectType.FANFARE, **action_attrs)
+                    effects.append(ef)
+                return effects
+            # General action parsing
             if 'action_text' in extracted_data:
                 action_text = extracted_data.pop('action_text')
-                # 만약 action_text가 모드 선택이라면, process를 CHOOSE로 설정
                 if "Select a Mode" in action_text:
                     extracted_data['process'] = ProcessType.CHOOSE
-                    # choices는 parse_effect_text에서 채워줄 것이므로 여기서는 비워둠
                     extracted_data['choices'] = []
                 else:
                     action_attrs = parse_action(action_text)
                     extracted_data.update(action_attrs)
-
-            # 최종 Effect 객체 생성
             effect = Effect(**extracted_data)
-            # EFFECT_PATTERNS에서 process가 미리 세팅된 경우 덮어쓰지 않음
             if 'process' not in extracted_data and 'process' in pattern:
                 effect.update(process=pattern['process'])
             effect.update(type=pattern['type'])
             return effect
 
-    # 3. 어떤 이펙트 패턴에도 해당하지 않는다면, 이 문장 자체가 하나의 독립 액션 구문(예: "Draw a card.")일 수 있으므로 parse_action을 바로 대입
+    # 3. Standalone action without pattern
     action_attrs = parse_action(text_clean)
     if 'raw_action_text' not in action_attrs:
         effect = Effect(**action_attrs)
-        effect.update(type=EffectType.SPELL)  # 기본적으로 주문 효과형 단독 구문으로 대입
+        effect.update(type=EffectType.SPELL)
         return effect
 
-    # 3.5. 독립 타겟팅 구문(예: "all allied followers on the field")일 수 있으므로 parse_target 대입
+    # 3.5 Target-only statements
     target_attrs = parse_target(text_clean)
     if 'raw_target_text' not in target_attrs:
         effect = Effect(**target_attrs)
@@ -296,8 +344,8 @@ ACTION_PATTERNS = [
     # 드로우
     {'regex': r"Draw (\d+|X) cards", 'process': ProcessType.DRAW, 'groups': ['value'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Draw a card", 'process': ProcessType.DRAW, 'groups': [], 'value': 1, 'target': TargetType.OWN_LEADER},
-    {'regex': r"Draw a follower", 'process': ProcessType.DRAW, 'groups': [], 'value': "follower", 'target': TargetType.OWN_LEADER},
-    {'regex': r"Draw a spell", 'process': ProcessType.DRAW, 'groups': [], 'value': "spell", 'target': TargetType.OWN_LEADER},
+    {'regex': r"Draw a follower", 'process': ProcessType.DRAW, 'groups': [], 'value': 1, 'condition': 'CARD_TYPE_FOLLOWER', 'target': TargetType.OWN_LEADER},
+    {'regex': r"Draw a spell", 'process': ProcessType.DRAW, 'groups': [], 'value': 1, 'condition': 'CARD_TYPE_SPELL', 'target': TargetType.OWN_LEADER},
     {'regex': r"Draw (\d+) (.*)", 'process': ProcessType.DRAW, 'groups': ['value', 'card_name'], 'target': TargetType.OWN_LEADER},
 
     # 회복
@@ -323,7 +371,7 @@ ACTION_PATTERNS = [
     {'regex': r"Give (.*?) (Ward|Storm|Rush|Bane|Drain|Barrier|Ambush|Intimidate|Aura)", 'process': ProcessType.ADD_EFFECT, 'groups': ['target_text', 'value']},
     {'regex': r"Remove (Ward|Storm|Rush|Bane|Drain|Barrier|Ambush|Intimidate|Aura) from (.*)", 'process': ProcessType.REMOVE_KEYWORD, 'groups': ['value', 'target_text']},
     
-    {'regex': r"Select a card in your hand and return it to deck", 'process': ProcessType.RETURN_TO_DECK, 'groups': []},
+    {'regex': r"Select a card in your hand and return it to deck", 'process': ProcessType.RETURN_TO_DECK, 'target': TargetType.OWN_HAND_CHOICE, 'groups': []},
     {'regex': r"Select a (?:card|follower|spell|amulet) in your hand and discard it", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_HAND_CHOICE, 'groups': []},
     {'regex': r"Discard a card", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_LEADER, 'groups': []},
     {'regex': r"Discard (\d+) cards", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_LEADER, 'groups': ['value']},
@@ -440,6 +488,8 @@ def parse_action(text: str):
                 action['value'] = pattern['value']
             if 'target' in pattern:
                 action['target'] = pattern['target']
+            if 'condition' in pattern:
+                action['condition'] = pattern['condition']
 
             if pattern.get('special_handling') == 'neg_def_buff':
                 try:

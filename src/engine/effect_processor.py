@@ -1,8 +1,17 @@
 import random
+import logging
 
 import src.common.card_data as card_data
-from typing import Any, List
+from typing import Any, List, Union
 
+def to_target_type(val):
+    """문자열 혹은 enum을 TargetType enum으로 변환합니다."""
+    if isinstance(val, TargetType):
+        return val
+    try:
+        return TargetType[val]
+    except KeyError:
+        raise ValueError(f"Unknown target type '{val}'")
 from src.models.deck import Deck
 from src.common.enums import CardType, EventType, Zone, TargetType, ProcessType, EffectType, TribeType
 from src.models.card import Card
@@ -17,6 +26,9 @@ class EffectProcessor:
     def __init__(self, event_manager: 'EventManager'):
         """EffectProcessor 클래스의 생성자입니다."""
         self.event_manager = event_manager
+        # Initialize logger for unified logging
+        self.logger = logging.getLogger(__name__)
+
         self.target_handlers = {
             TargetType.SELF: self._get_target_self,
             TargetType.OWN_LEADER: self._get_target_own_leader,
@@ -75,14 +87,34 @@ class EffectProcessor:
             ProcessType.CONDITIONAL_EFFECT: self._process_conditional_effect,
         }
 
+    def _log_info(self, msg: str) -> None:
+        self.logger.info(msg)
+
+    def _log_error(self, msg: str) -> None:
+        self.logger.error(msg)
+
+    def _invoke_target_handler(self, target_type: TargetType, caster_card: Card, gsm: 'GameStateManager') -> List[Any]:
+        try:
+            target_type = to_target_type(target_type)
+        except ValueError as e:
+            self._log_error(str(e))
+            return []
+        handler = self.target_handlers.get(target_type)
+        if not handler:
+            self._log_error(f"Target type {target_type} has no handler.")
+            return []
+        targets = handler(caster_card, gsm)
+        self._log_info(f"Target type {target_type.value} resolved to {[t.get_display_name() for t in targets]}")
+        return targets
+
     def _can_target_with_ability(self, target_card_id: str, game_state_manager: 'GameStateManager') -> bool:
         """능력의 대상으로 추종자를 선택할 수 있는지 확인 (오라, 잠복)"""
         target_card = game_state_manager.get_entity_by_id(target_card_id)
         if target_card.has_keyword(EffectType.AURA):
-            print(f"[LOG] {target_card.get_display_name()} (ID: {target_card_id})는 '오라'로 능력의 대상이 될 수 없습니다.")
+            self._log_info(f"[LOG] {target_card.get_display_name()} (ID: {target_card_id})는 '오라'로 능력의 대상이 될 수 없습니다.")
             return False
         if target_card.has_keyword(EffectType.AMBUSH):
-            print(f"[LOG] {target_card.get_display_name()} (ID: {target_card_id})는 '잠복'으로 능력의 대상이 될 수 없습니다.")
+            self._log_info(f"[LOG] {target_card.get_display_name()} (ID: {target_card_id})는 '잠복'으로 능력의 대상이 될 수 없습니다.")
             return False
         return True
 
@@ -196,8 +228,8 @@ class EffectProcessor:
         selected_card = opponent_followers.pop()
 
         # 사용자에게 어떤 카드가 선택되었는지 보여주는 선택창 (확인 버튼만 있는)
-        choices = {f"{selected_card.get_display_name()} (ID: {selected_card.card_id})": selected_card.card_id}
-        game_state_manager.game.request_user_choice("추종자가 랜덤으로 선택되었습니다:", choices)
+        # choices = {f"{selected_card.get_display_name()} (ID: {selected_card.card_id})": selected_card.card_id}
+        # game_state_manager.game.request_user_choice("추종자가 랜덤으로 선택되었습니다:", choices)
 
         return [selected_card]
 
@@ -216,8 +248,8 @@ class EffectProcessor:
         selected_card = max_attack_followers.pop()
 
         # 사용자에게 어떤 카드가 선택되었는지 보여주는 선택창 (확인 버튼만 있는)
-        choices = {f"{selected_card.get_display_name()} (ID: {selected_card.card_id})": selected_card.card_id}
-        game_state_manager.game.request_user_choice("가장 공격력이 높은 추종자가 선택되었습니다:", choices)
+        # choices = {f"{selected_card.get_display_name()} (ID: {selected_card.card_id})": selected_card.card_id}
+        # game_state_manager.game.request_user_choice("가장 공격력이 높은 추종자가 선택되었습니다:", choices)
 
         return [selected_card]
 
@@ -284,16 +316,10 @@ class EffectProcessor:
         """타겟 타입을 해석하고 타겟 리스트를 반환합니다."""
         caster_card = game_state_manager.get_entity_by_id(caster_id)
         if not caster_card:
-            print(f"[ERROR] list_target - caster card with id {caster_id} not found.")
+            self._log_error(f"list_target - caster card with id {caster_id} not found.")
             return []
-
-        handler = self.target_handlers.get(target_type)
-        if handler:
-            targets = handler(caster_card, game_state_manager)
-            print(f"[LOG] 타겟 타입 {target_type.value}에 대한 타겟 리스트: {[t.get_display_name() for t in targets]}")
-            return targets
-        print(f"[ERROR] 타겟 타입 {target_type.value}에 대한 핸들러가 정의되지 않았습니다.")
-        return []
+        # Use unified handler invocation (string -> enum conversion handled inside)
+        return self._invoke_target_handler(target_type, caster_card, game_state_manager)
 
 
     def _process_stat_buff(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
@@ -303,23 +329,25 @@ class EffectProcessor:
         target.current_attack += attack
         target.current_defense += defense
         target.max_defense += defense
-        print(f"[LOG] 처리 내용: 스텟 버프, 타겟: {target.get_display_name()}, 증가량: {value}")
+        self._log_info(f"[LOG] 처리 내용: 스텟 버프, 타겟: {target.get_display_name()}, 증가량: {value}")
 
     def _process_draw(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
         """처리: 카드 드로우"""
         value = effect_data.value
         target_id = target.player_id
-        condition = (lambda x: True)
-        if 'condition' in effect_data.attributes.keys():
-            condition = effect_data.get('condition')
+        condition_val = effect_data.get('condition')
+        if condition_val and isinstance(condition_val, str):
+            condition = lambda x: card_data.evaluate_condition(x, condition_val)
+        else:
+            condition = (lambda x: True)
         deck = game_state_manager.get_cards_in_zone(target_id, Zone.DECK, condition)
 
         for _ in range(value):
             if not deck:
                 if effect_data.get('condition'):
-                    print(f"[LOG] : {target_id} 덱에서 조건에 맞는 카드가 검색되지 않았습니다.")
+                    self._log_info(f"[LOG] : {target_id} 덱에서 조건에 맞는 카드가 검색되지 않았습니다.")
                     return
-                print(f"[LOG] : {target_id} 덱 아웃!")
+                self._log_info(f"[LOG] : {target_id} 덱 아웃!")
                 return
             drawn_card = deck.pop(0)
             game_state_manager.move_card(drawn_card.card_id, Zone.DECK, Zone.HAND)
@@ -330,7 +358,7 @@ class EffectProcessor:
                 if handler:
                     handler(post_action, drawn_card, game_state_manager)
                 else:
-                    print(f"[ERROR] 처리 타입 {post_action['process'].value}에 대한 핸들러가 정의되지 않았습니다.")
+                    self._log_error(f"[ERROR] 처리 타입 {post_action['process'].value}에 대한 핸들러가 정의되지 않았습니다.")
 
         print(f"[LOG] 처리 내용: 카드 드로우, 타겟: {target_id}, 드로우 장수: {value}")
 
@@ -354,8 +382,9 @@ class EffectProcessor:
             print(f"[LOG] 처리 내용: 패에 카드 추가, 타겟: {target_id}, 추가 카드: {card.get_display_name()}")
 
         elif isinstance(value, list):
-            while value:
-                data = value.pop()
+            value_copy = list(value)
+            while value_copy:
+                data = value_copy.pop()
                 card = game_state_manager.create_card_instance(data, target_id)
                 if len(game_state_manager.get_cards_in_zone(target_id, Zone.HAND)) < 9:
                     game_state_manager.add_card(card, Zone.HAND, target_id)
@@ -375,8 +404,9 @@ class EffectProcessor:
             print(f"[LOG] 처리 내용: 필드에 카드 소환, 타겟: {target_id}, 소환 카드: {card.get_display_name()}")
 
         elif isinstance(value, list):
-            while value:
-                data = value.pop()
+            value_copy = list(value)
+            while value_copy:
+                data = value_copy.pop()
                 card = game_state_manager.create_card_instance(data, target_id)
                 if len(game_state_manager.get_cards_in_zone(target_id, Zone.FIELD)) < 5:
                     game_state_manager.add_card(card, Zone.FIELD, target_id)

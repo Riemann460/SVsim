@@ -7,7 +7,7 @@ from src.common import card_data
 
 # --- 게임 실행 예시 ---
 if __name__ == "__main__":
-    card_data.load_card_databases()
+    card_data.load_card_databases('card_database/3_parsed_database/card_database_parsed.json')
     game = Game("player1", "player2")
     current_player = "player1"
     opponent_id = game.opponent_id[current_player]

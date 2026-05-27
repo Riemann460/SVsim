@@ -42,62 +42,86 @@ class CardDatabase(dict):
         except KeyError:
             return default
 
-
 # 전역 변수
 BASIC_CARD_DATABASE = CardDatabase()
 LEGENDS_RISE_CARD_DATABASE = CardDatabase()
 TOKEN_CARD_DATABASE = CardDatabase()
 
-
 class CardData:
     """카드의 정적 데이터를 정의합니다."""
-    def __init__(self, card_id: str, name: str, cost: int, card_type: CardType, class_type: ClassType, attack: int = 0, defense: int = 0, tribes: List = None, effects: List[Effect] = None, raw_effects_text: str = "", required_listeners: List[EventType] = None, fuse_condition: str = None, name_ko: str = None):
-        self.card_id = card_id  # 카드의 영문 식별자입니다.
-        self.name = name  # 카드의 영문 이름입니다.
+    def __init__(self, card_id: str, name: str, cost: int,
+                 card_type: CardType, class_type: ClassType,
+                 attack: int = 0, defense: int = 0,
+                 tribes: List = None, effects: List[Effect] = None,
+                 raw_effects_text: str = "", required_listeners: List[EventType] = None,
+                 fuse_condition: str = None, name_ko: str = None):
+        self.card_id = card_id
+        self.name = name
         self.cost = cost
         self.card_type = card_type
         self.class_type = class_type
-        self.attack = attack  # 추종자 전용 공격력입니다.
-        self.defense = defense  # 추종자 전용 체력입니다.
+        self.attack = attack
+        self.defense = defense
         self.tribes = tribes if tribes is not None else []
-        self.effects = effects if effects is not None else []  # 효과 객체 목록입니다.
+        self.effects = effects if effects is not None else []
         self.raw_effects_text = raw_effects_text
         self.required_listeners = required_listeners if required_listeners is not None else []
         self.fuse_condition = fuse_condition
-        self.name_ko = name_ko  # 카드의 한글 이름입니다.
+        self.name_ko = name_ko
 
     def get(self, key: str, default: Any = None) -> Any:
         """객체의 속성 값을 가져옵니다."""
         return getattr(self, key, default)
 
     def __repr__(self):
-        """CardData 객체를 대표하는 문자열을 반환합니다."""
         effects_repr = repr(self.effects)
         tribe = self.tribes[0] if self.tribes and len(self.tribes) > 0 else None
         tribe_str = str(tribe) if tribe else ""
-
-        return (f'CardData("{self.card_id}", "{self.name}", {self.cost}, CardType.{self.card_type.name}, '
-                f'ClassType.{self.class_type.name}, {self.attack}, {self.defense}, tribes=[{tribe_str}], effects={effects_repr}), raw_effects_text={self.raw_effects_text}')
+        return (f'CardData("{self.card_id}", "{self.name}", {self.cost}, '
+                f'CardType.{self.card_type.name}, '
+                f'ClassType.{self.class_type.name}, {self.attack}, {self.defense}, '
+                f'tribes=[{tribe_str}], effects={effects_repr}), '
+                f'raw_effects_text={self.raw_effects_text}')
 
     def __getitem__(self, key: str) -> Any:
-        """키를 사용하여 객체의 속성에 접근할 수 있게 합니다."""
         if hasattr(self, key):
             return getattr(self, key)
         raise KeyError(f"CardData에 '{key}' 속성이 없습니다.")
 
-
 def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
     """딕셔너리에서 Effect 객체를 로드합니다."""
     attrs = effect_dict
-    # Enum 값은 문자열로 저장되어 있으므로 변환
     if "type" in effect_dict and effect_dict["type"] is not None:
-        attrs["type"] = EffectType[effect_dict["type"]]
+        try:
+            attrs["type"] = EffectType[effect_dict["type"]]
+        except KeyError:
+            print(f"[WARNING] EffectType '{effect_dict['type']}' not recognized. Keeping as string.")
+            attrs["type"] = effect_dict["type"]
     if "target" in effect_dict and effect_dict["target"] is not None:
-        attrs["target"] = TargetType[effect_dict["target"]]
+        try:
+            attrs["target"] = TargetType[effect_dict["target"]]
+        except KeyError:
+            print(f"[WARNING] TargetType '{effect_dict['target']}' not recognized. Keeping as string.")
+            attrs["target"] = effect_dict["target"]
     if "process" in effect_dict and effect_dict["process"] is not None:
-        attrs["process"] = ProcessType[effect_dict["process"]]
+        try:
+            attrs["process"] = ProcessType[effect_dict["process"]]
+        except KeyError:
+            print(f"[WARNING] ProcessType '{effect_dict['process']}' not recognized. Keeping as string.")
+            attrs["process"] = effect_dict["process"]
 
-    # target이 누락된 경우에 대한 보정을 처리합니다.
+    if isinstance(attrs.get("type"), str):
+        original = attrs["type"]
+        attrs["type"] = EffectType.FANFARE
+        attrs["raw_type"] = original
+    if isinstance(attrs.get("target"), str):
+        original = attrs["target"]
+        attrs["target"] = TargetType.SELF
+        attrs["raw_target"] = original
+    if isinstance(attrs.get("process"), str):
+        original = attrs["process"]
+        attrs["process"] = ProcessType.ADD_CARD_TO_HAND
+        attrs["raw_process"] = original
     if attrs.get("target") is None:
         effect_type = attrs.get("type")
         process_type = attrs.get("process")
@@ -105,62 +129,29 @@ def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
             attrs["target"] = TargetType.SELF
         elif process_type == ProcessType.RETURN_TO_DECK:
             attrs["target"] = TargetType.OWN_HAND_CHOICE
-
-    # effect 인스턴스 처리
     for key, value in effect_dict.items():
         if isinstance(value, dict):
             attrs[key] = _load_effect_from_dict(value)
         elif isinstance(value, list) and key == "choices":
             attrs[key] = [_load_effect_from_dict(item) for item in value if isinstance(item, dict)]
-
-    # REMOVE_KEYWORD와 TRIGGER_EFFECT의 EffectType enum value 처리
     if "process" in effect_dict and (attrs["process"] in [ProcessType.REMOVE_KEYWORD, ProcessType.TRIGGER_EFFECT]) and "value" in effect_dict and isinstance(effect_dict["value"], str):
         try:
             attrs["value"] = EffectType[effect_dict["value"].upper()]
         except KeyError:
             print(f"[WARNING] EffectType '{effect_dict['value']}' not found for {attrs['process'].name} effect.")
-            pass  # 찾지 못한 경우 문자열을 유지합니다.
-
-    # condition 처리
     condition = effect_dict.get("condition")
-    if condition and isinstance(condition, str):
-        if condition.startswith("CARD_TYPE_"):
-            card_type_str = condition.replace("CARD_TYPE_", "")
-            try:
-                condition = lambda x: x.get_type() == CardType[card_type_str]
-            except KeyError:
-                print(f"[WARNING] CardType '{card_type_str}' not found for condition.")
-                condition = None
-        elif condition.startswith("CLASS_TYPE_"):
-            class_type_str = condition.replace("CLASS_TYPE_", "")
-            try:
-                condition = lambda x: x.card_data['class_type'] == ClassType[class_type_str]
-            except KeyError:
-                print(f"[WARNING] ClassType '{class_type_str}' not found for condition.")
-                condition = None
-        elif condition.startswith("NAME_"):
-            name_str = condition.replace("NAME_", "")
-            try:
-                condition = lambda x: x.card_data['name'] == name_str
-            except KeyError:
-                print(f"[WARNING] Name '{name_str}' not found for condition.")
-                condition = None
+    if condition:
         attrs["condition"] = condition
-
     return Effect(**attrs)
-
 
 def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
     """딕셔너리에서 카드 데이터를 읽어들입니다."""
     effects = []
     for e_dict in card_dict.get("effects", []):
         if "raw_effect_text" in e_dict:
-            # 원본 텍스트 효과는 딕셔너리로 우선 유지합니다.
             effects.append(e_dict)
         else:
             effects.append(_load_effect_from_dict(e_dict))
-
-    # 융합 조건을 텍스트에서 파싱합니다.
     fuse_condition = card_dict.get("fuse_condition", None)
     if not fuse_condition:
         for e_dict in card_dict.get("effects", []):
@@ -171,9 +162,7 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
                     break
             if fuse_condition:
                 break
-
     required_listeners_from_json = card_dict.get("required_listeners", [])
-    
     effect_to_event_map = {
         EffectType.FANFARE: EventType.CARD_PLAYED,
         EffectType.SPELL: EventType.CARD_PLAYED,
@@ -192,19 +181,18 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
         EffectType.ON_OPPONENTS_TURN_END: EventType.TURN_END,
         EffectType.DRAIN: EventType.DAMAGE_DEALT_BY_COMBAT,
     }
-    
-    listeners = set()
+    listeners = []
     for effect in effects:
         if isinstance(effect, Effect):
             if effect.type in effect_to_event_map:
                 event_type = effect_to_event_map[effect.type]
                 if event_type.name in required_listeners_from_json:
-                    listeners.add((event_type, effect))
-            
+                    if (event_type, effect) not in listeners:
+                        listeners.append((event_type, effect))
             if effect.type in [EffectType.ON_EVOLVE, EffectType.EVOLVED, EffectType.ON_SUPER_EVOLVE, EffectType.SUPER_EVOLVED]:
                 if EventType.FOLLOWER_SUPER_EVOLVED.name in required_listeners_from_json:
-                    listeners.add((EventType.FOLLOWER_SUPER_EVOLVED, effect))
-
+                    if (EventType.FOLLOWER_SUPER_EVOLVED, effect) not in listeners:
+                        listeners.append((EventType.FOLLOWER_SUPER_EVOLVED, effect))
     card_data_obj = CardData(
         card_id=card_dict["card_id"],
         name=card_dict["name"],
@@ -219,65 +207,92 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
         fuse_condition=fuse_condition,
         name_ko=KOR_NAME_MAP.get(card_dict["name"], card_dict["name"])
     )
-    
     return card_data_obj
-
 
 def resolve_card_references(card_db: Dict[str, CardData], global_card_db: Dict[str, CardData]):
     """카드 데이터베이스 내의 카드 참조를 해결합니다."""
     for card_id, card_data_obj in card_db.items():
         for effect in card_data_obj.effects:
             if isinstance(effect, Effect):
-                # 카드 인스턴스를 생성하는 이펙트 체크
                 if "process" in effect.attributes.keys() and effect.process in [ProcessType.ADD_CARD_TO_HAND, ProcessType.SUMMON, ProcessType.REPLACE_DECK]:
-                    # 단일 카드 생성
-                    if isinstance(effect.value, str):
-                        if effect.value in global_card_db:
-                            effect.value = global_card_db[effect.value]
+                    effect_value = getattr(effect, "value", None)
+                    if isinstance(effect_value, str):
+                        if effect_value in global_card_db:
+                            effect.value = global_card_db[effect_value]
                         else:
-                            print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name}에서 카드 데이터 '{effect.value}'을(를) 찾을 수 없습니다.")
-
-                    # 복수 카드 생성
-                    elif isinstance(effect.value, list):
+                            print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name}에서 카드 데이터 '{effect_value}'을(를) 찾을 수 없습니다.")
+                    elif isinstance(effect_value, list):
                         resolved_list = []
-                        for item in effect.value:
+                        for item in effect_value:
                             if isinstance(item, str) and item in global_card_db:
                                 resolved_list.append(global_card_db[item])
                             else:
                                 print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name}에서 아이템 '{item}'을(를) 찾을 수 없습니다.")
                                 resolved_list.append(item)
                         effect.value = resolved_list
-
-                # 나머지 이펙트에 카드 이름이 입력된 경우 체크
                 elif "value" in effect.attributes.keys() and isinstance(effect.value, str):
                     process_name = effect.process.name if getattr(effect, 'process', None) else 'None'
                     print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name})에 예기치 않은 스트링 입력 '{effect.value}'.")
 
-
-def load_card_databases(json_path: str = 'card_database/3_parsed_database/card_database_parsed.json'):
-    """JSON 파일에서 모든 카드 데이터베이스를 로드합니다."""
+def load_card_databases(path: str = 'card_database/4_manual_database/card_database_manual.json'):
+    """Loads card databases from a single merged manual JSON file.
+    The JSON contains top‑level keys for each database (e.g. \"BASIC_CARD_DATABASE\",
+    \"LEGENDS_RISE_CARD_DATABASE\", \"TOKEN_CARD_DATABASE\").
+    All cards are loaded into the corresponding global databases."""
     global BASIC_CARD_DATABASE, LEGENDS_RISE_CARD_DATABASE, TOKEN_CARD_DATABASE
     load_kor_names()
-    with open(json_path, 'r', encoding='utf-8') as f:
+    import os, json
+    if not os.path.isfile(path):
+        print(f"[WARNING] {path} not found. No card data loaded.")
+        return
+    with open(path, 'r', encoding='utf-8') as f:
         data = json.load(f)
+    section_map = {
+        'BASIC_CARD_DATABASE': BASIC_CARD_DATABASE,
+        'LEGENDS_RISE_CARD_DATABASE': LEGENDS_RISE_CARD_DATABASE,
+        'TOKEN_CARD_DATABASE': TOKEN_CARD_DATABASE,
+    }
+    for section_name, card_dict in data.items():
+        target_db = section_map.get(section_name)
+        if target_db is None:
+            print(f"[WARNING] Unknown section '{section_name}' in {path}. Skipping.")
+            continue
+        for card_id, card_info in card_dict.items():
+            target_db[card_id] = _load_card_data_from_dict(card_info)
+    resolve_all_card_references()
 
-    # 1차 로딩: 모든 CardData 객체 생성 (참조는 아직 해결하지 않음)
-    for db_name, db_data in data.items():
-        if db_name == "BASIC_CARD_DATABASE":
-            for card_id, card_dict in db_data.items():
-                BASIC_CARD_DATABASE[card_id] = _load_card_data_from_dict(card_dict)
-        elif db_name == "LEGENDS_RISE_CARD_DATABASE":
-            for card_id, card_dict in db_data.items():
-                LEGENDS_RISE_CARD_DATABASE[card_id] = _load_card_data_from_dict(card_dict)
-        elif db_name == "TOKEN_CARD_DATABASE":
-            for card_id, card_dict in db_data.items():
-                TOKEN_CARD_DATABASE[card_id] = _load_card_data_from_dict(card_dict)
-
-    # 2차 로딩: 카드 참조 해결
+def resolve_all_card_references():
+    """Resolve cross‑card references for all loaded card databases.
+    This builds a combined view of all cards and invokes `resolve_card_references`
+    for each top‑level database."""
     all_cards = {**BASIC_CARD_DATABASE, **LEGENDS_RISE_CARD_DATABASE, **TOKEN_CARD_DATABASE}
     resolve_card_references(BASIC_CARD_DATABASE, all_cards)
     resolve_card_references(LEGENDS_RISE_CARD_DATABASE, all_cards)
     resolve_card_references(TOKEN_CARD_DATABASE, all_cards)
 
-
-# load_card_databases()
+def evaluate_condition(card: Any, condition_str: str) -> bool:
+    """카드가 주어진 condition_str 조건을 만족하는지 검사합니다."""
+    if not condition_str:
+        return True
+    
+    if condition_str.startswith("CARD_TYPE_"):
+        card_type_str = condition_str.replace("CARD_TYPE_", "")
+        try:
+            target_type = CardType[card_type_str]
+            return card.get_type() == target_type
+        except KeyError:
+            return False
+            
+    elif condition_str.startswith("CLASS_TYPE_"):
+        class_type_str = condition_str.replace("CLASS_TYPE_", "")
+        try:
+            target_class = ClassType[class_type_str]
+            return card.card_data.class_type == target_class
+        except KeyError:
+            return False
+            
+    elif condition_str.startswith("NAME_"):
+        name_str = condition_str.replace("NAME_", "")
+        return card.card_data.name == name_str
+        
+    return True
