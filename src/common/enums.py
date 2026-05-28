@@ -163,6 +163,8 @@ class TargetType(Enum):
     OPPONENT_LEADER = "상대 리더"
     ANOTHER_ALLY_FOLLOWER_CHOICE = "자신 제외 아군 추종자 단일 선택"
     ALLY_FOLLOWER_CHOICE = "아군 추종자 단일 선택"
+    ALLY_CARD_CHOICE = "아군 카드 단일 선택"
+    ANOTHER_ALLY_CARD_CHOICE = "자신 제외 아군 카드 단일 선택"
     OPPONENT_FOLLOWER_CHOICE = "상대 추종자 단일 선택"
     OPPONENT_FOLLOWER_CHOICE2 = "상대 추종자 중 둘 선택"
     ALL_OTHER_ALLY_FOLLOWERS = "나머지 아군 추종자 전체"

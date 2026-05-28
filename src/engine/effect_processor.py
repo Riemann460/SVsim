@@ -37,6 +37,8 @@ class EffectProcessor:
             TargetType.OPPONENT_LEADER: self._get_target_opponent_leader,
             TargetType.ALLY_FOLLOWER_CHOICE: self._get_target_ally_follower_choice,
             TargetType.ANOTHER_ALLY_FOLLOWER_CHOICE: self._get_target_another_ally_follower_choice,
+            TargetType.ALLY_CARD_CHOICE: self._get_target_ally_card_choice,
+            TargetType.ANOTHER_ALLY_CARD_CHOICE: self._get_target_another_ally_card_choice,
             TargetType.OPPONENT_FOLLOWER_CHOICE: self._get_target_opponent_follower_choice,
             TargetType.OPPONENT_FOLLOWER_CHOICE2: self._get_target_opponent_follower_choice2,
             TargetType.OPPONENT_FOLLOWER_RANDOM: self._get_target_opponent_follower_random,
@@ -96,6 +98,7 @@ class EffectProcessor:
             ProcessType.ADVANCE_COUNTDOWN: self._process_advance_countdown,
             ProcessType.INCREASE_COMBO: self._process_increase_combo,
             ProcessType.MULTI_ATTACK: self._process_multi_attack,
+            ProcessType.SELECT: self._process_select,
         }
 
     def _get_owner_id(self, caster_card: Any) -> str:
@@ -173,6 +176,36 @@ class EffectProcessor:
 
         choices = {f"{f.get_display_name()} (ID: {f.card_id})": f.card_id for f in ally_followers}
         selected_card_id = game_state_manager.game.request_user_choice("아군 추종자를 선택하세요:", choices)
+
+        if selected_card_id:
+            return [game_state_manager.get_entity_by_id(selected_card_id)]
+        return []
+
+    def _get_target_ally_card_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """아군 필드 카드를 선택합니다."""
+        owner_id = self._get_owner_id(caster_card)
+        ally_cards = game_state_manager.get_cards_in_zone(owner_id, Zone.FIELD)
+        if not ally_cards:
+            return []
+
+        choices = {f"{c.get_display_name()} (ID {c.card_id})": c.card_id for c in ally_cards}
+        selected_card_id = game_state_manager.game.request_user_choice("아군 카드를 선택하십시오.", choices)
+
+        if selected_card_id:
+            return [game_state_manager.get_entity_by_id(selected_card_id)]
+        return []
+
+    def _get_target_another_ally_card_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """자신을 제외한 아군 필드 카드를 선택합니다."""
+        owner_id = self._get_owner_id(caster_card)
+        ally_cards = game_state_manager.get_cards_in_zone(owner_id, Zone.FIELD)
+        # 자신을 제외한 아군 카드들을 필터링합니다.
+        valid_cards = [c for c in ally_cards if c.card_id != caster_card.card_id]
+        if not valid_cards:
+            return []
+
+        choices = {f"{c.get_display_name()} (ID {c.card_id})": c.card_id for c in valid_cards}
+        selected_card_id = game_state_manager.game.request_user_choice("아군 카드를 선택하십시오.", choices)
 
         if selected_card_id:
             return [game_state_manager.get_entity_by_id(selected_card_id)]
@@ -465,6 +498,18 @@ class EffectProcessor:
         game_state_manager.move_card(target.card_id, Zone.FIELD, Zone.GRAVEYARD)
         self.event_manager.publish(DestroyedOnFieldEvent(target.card_id))
         print(f"[LOG] 처리 내용: 파괴, 타겟: {target.get_display_name()}")
+
+    def _process_select(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리 - 선택. 선택된 아군 카드를 파괴 처리합니다."""
+        # 선택된 타겟 카드를 필드에서 묘지로 파괴 이동합니다.
+        if target and hasattr(target, 'card_id'):
+            if target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
+                print(f"[LOG] 처리 내용: 선택 파괴 실패, 타겟 {target.get_display_name()}")
+                print(f"[LOG] {target.get_display_name()} 초진화 효과로 파괴되지 않음.")
+                return
+            game_state_manager.move_card(target.card_id, Zone.FIELD, Zone.GRAVEYARD)
+            self.event_manager.publish(DestroyedOnFieldEvent(target.card_id))
+            print(f"[LOG] 처리 내용: 선택 파괴, 타겟 {target.get_display_name()}")
 
     def _process_recover_pp(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
         """처리 - PP 회복."""

@@ -57,8 +57,8 @@
             "raw_effects_text": "Ward\nLast Words: Draw a card.\nEvolve: Draw a card.",
             "required_listeners": [
                 "DESTROYED_ON_FIELD",
-                "FOLLOWER_EVOLVED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "FOLLOWER_EVOLVED"
             ]
         },
         "10001130": {
@@ -268,7 +268,7 @@
             "name": "Wild Profusion",
             "name_kr": "꽃이 만발한 정원",
             "cost": 2,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "FORESTCRAFT",
             "attack": 0,
             "defense": 0,
@@ -360,7 +360,7 @@
             "effects": [
                 {
                     "process": "RETURN_TO_HAND",
-                    "target": "ALLY_FOLLOWER_CHOICE",
+                    "target": "ALLY_CARD_CHOICE",
                     "type": "SPELL"
                 },
                 {
@@ -519,7 +519,7 @@
             "name": "Ancestral Crown",
             "name_kr": "정통성의 왕관",
             "cost": 4,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "SWORDCRAFT",
             "attack": 0,
             "defense": 0,
@@ -1185,7 +1185,7 @@
             "name": "Avian Statue",
             "name_kr": "투영의 새 동상",
             "cost": 4,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "HAVENCRAFT",
             "attack": 0,
             "defense": 0,
@@ -1210,8 +1210,8 @@
             ],
             "raw_effects_text": "Countdown (2)\nLast Words: Summon a Regal Falcon.\nEngage (2): Advance this amulet's count by 2.",
             "required_listeners": [
-                "CARD_ENGAGED",
                 "DESTROYED_ON_FIELD",
+                "CARD_ENGAGED",
                 "TURN_START"
             ]
         },
@@ -1276,7 +1276,7 @@
             "name": "Winged Statue",
             "name_kr": "날개 달린 석상",
             "cost": 1,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "HAVENCRAFT",
             "attack": 0,
             "defense": 0,
@@ -1301,8 +1301,8 @@
             ],
             "raw_effects_text": "Countdown (4)\nLast Words: Summon a Holy Falcon.\nEngage (1): Advance this amulet's count by 1.",
             "required_listeners": [
-                "CARD_ENGAGED",
                 "DESTROYED_ON_FIELD",
+                "CARD_ENGAGED",
                 "TURN_START"
             ]
         },
@@ -1468,7 +1468,7 @@
             "name": "Puppet Theater",
             "name_kr": "인형들의 극장",
             "cost": 2,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "PORTALCRAFT",
             "attack": 0,
             "defense": 0,
@@ -1493,9 +1493,9 @@
             ],
             "raw_effects_text": "Fanfare: Add a Puppet to your hand.\nCountdown (2)\nAt the end of your turn, add a Puppet to your hand.",
             "required_listeners": [
-                "TURN_END",
                 "CARD_PLAYED",
-                "TURN_START"
+                "TURN_START",
+                "TURN_END"
             ]
         }
     },
@@ -1994,7 +1994,7 @@
                 {
                     "type": "FANFARE",
                     "process": "RETURN_TO_HAND",
-                    "target": "ANOTHER_ALLY_FOLLOWER_CHOICE"
+                    "target": "ANOTHER_ALLY_CARD_CHOICE"
                 },
                 {
                     "process": "RECOVER_PP",
@@ -2245,14 +2245,14 @@
                 },
                 {
                     "process": "RETURN_TO_HAND",
-                    "target": "ANOTHER_ALLY_FOLLOWER_CHOICE",
+                    "target": "ANOTHER_ALLY_CARD_CHOICE",
                     "type": "ENGAGE"
                 }
             ],
             "raw_effects_text": "At the end of your turn, Combo (3) - Draw a card.\nEngage: Destroy this card. Select another allied card on the field and return it to hand.",
             "required_listeners": [
-                "TURN_END",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "TURN_END"
             ]
         },
         "10114110": {
@@ -2575,9 +2575,9 @@
             ],
             "raw_effects_text": "Whenever an allied Officer follower enters the field, give this follower +1/+0 until the end of the turn.\nEvolve: Summon a Knight.",
             "required_listeners": [
+                "FOLLOWER_SUPER_EVOLVED",
                 "FOLLOWER_ENTER_FIELD",
-                "FOLLOWER_EVOLVED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_EVOLVED"
             ]
         },
         "10122120": {
@@ -4647,9 +4647,9 @@
             "raw_effects_text": "Fanfare: Necromancy (8) - Evolve this follower.\nWhenever an allied Departed follower enters the field, give it Bane.\nWhen this follower evolves, summon a Ghost.",
             "required_listeners": [
                 "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED",
                 "CARD_PLAYED",
-                "FOLLOWER_EVOLVED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_EVOLVED"
             ]
         },
         "10153140": {
@@ -4929,7 +4929,7 @@
             "name": "Serene Sanctuary",
             "name_kr": "평온한 교회",
             "cost": 1,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "HAVENCRAFT",
             "attack": 0,
             "defense": 0,
@@ -4954,8 +4954,8 @@
             ],
             "raw_effects_text": "Countdown (3)\nLast Words: Draw 2 cards.\nEngage (1): Advance this amulet's count by 1.",
             "required_listeners": [
-                "CARD_ENGAGED",
                 "DESTROYED_ON_FIELD",
+                "CARD_ENGAGED",
                 "TURN_START"
             ]
         },
@@ -5224,7 +5224,7 @@
             "name": "Pact of the Beast Princess",
             "name_kr": "야수 공주의 서약",
             "cost": 2,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "HAVENCRAFT",
             "attack": 0,
             "defense": 0,
@@ -5249,8 +5249,8 @@
             ],
             "raw_effects_text": "Countdown (2)\nLast Words: Summon a Holyflame Tiger.\nEngage (1): Advance this amulet's count by 1.",
             "required_listeners": [
-                "CARD_ENGAGED",
                 "DESTROYED_ON_FIELD",
+                "CARD_ENGAGED",
                 "TURN_START"
             ]
         },
@@ -5942,8 +5942,8 @@
             "raw_effects_text": "Fanfare: Summon a Lloyd.\nWhenever an allied Puppetry follower enters the field, give it Storm and Bane.\nSuper-Evolve: Summon 2 copies of Enhanced Puppet.",
             "required_listeners": [
                 "FOLLOWER_ENTER_FIELD",
-                "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "CARD_PLAYED"
             ]
         },
         "10174130": {
@@ -6736,9 +6736,9 @@
             "raw_effects_text": "Fanfare: Rally (20) - Super-evolve this follower.\nWhenever another allied follower enters the field, deal 1 damage to all enemy followers.\nWhen this follower evolves, summon 2 copies of Steelclad Knight and give them Rush.",
             "required_listeners": [
                 "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED",
                 "CARD_PLAYED",
-                "FOLLOWER_EVOLVED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_EVOLVED"
             ]
         },
         "10224120": {
@@ -6994,8 +6994,8 @@
             "raw_effects_text": "Ward\nClash: Spellboost your hand.\nEvolve: Draw 2 followers.",
             "required_listeners": [
                 "COMBAT_INITIATED",
-                "FOLLOWER_EVOLVED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "FOLLOWER_EVOLVED"
             ]
         },
         "10233310": {
@@ -7733,8 +7733,8 @@
             "raw_effects_text": "Fanfare: Reanimate (2) and Reanimate (1).\nWhenever an allied Departed follower enters the field, give it Ward.\nSuper-Evolve: Gain Crest: Charon, Stygian Oarswoman.",
             "required_listeners": [
                 "FOLLOWER_ENTER_FIELD",
-                "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "CARD_PLAYED"
             ]
         },
         "10261110": {
@@ -8023,8 +8023,8 @@
             "raw_effects_text": "Ward\nLast Words: Summon 2 copies of Holy Cavalier.\nEvolve: Gain Crest: Wilbert, Desolate Paladin.",
             "required_listeners": [
                 "DESTROYED_ON_FIELD",
-                "FOLLOWER_EVOLVED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "FOLLOWER_EVOLVED"
             ]
         },
         "10271110": {
@@ -8118,7 +8118,7 @@
                     "target": "OWN_LEADER",
                     "value": [
                         "exact copy of it",
-                        "d give the exact copy At the end of your opponent's turn",
+                        "give the exact copy At the end of your opponent's turn",
                         "destroy this card"
                     ],
                     "type": "ENGAGE"
@@ -8537,9 +8537,9 @@
             ],
             "raw_effects_text": "Fanfare: Select another follower on the field and give it +2/-2. If both players have 10 max play points, add a Sweetness of Voracity to your hand.\nDrain\nEvolve: Select a follower on the field and give it +2/-2.",
             "required_listeners": [
-                "DAMAGE_DEALT_BY_COMBAT",
                 "FOLLOWER_SUPER_EVOLVED",
                 "CARD_PLAYED",
+                "DAMAGE_DEALT_BY_COMBAT",
                 "FOLLOWER_EVOLVED"
             ]
         },
@@ -9329,7 +9329,7 @@
             "name": "Institute of Truth",
             "name_kr": "진실의 연구시설",
             "cost": 3,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "RUNECRAFT",
             "attack": 0,
             "defense": 0,
@@ -9354,8 +9354,8 @@
             ],
             "raw_effects_text": "Countdown (5)\nWhenever you play a follower whose cost has been changed, draw a card and advance this amulet's count by 1.\nEngage: Select a follower in your hand, increase its cost by 1, and give it +1/+1.",
             "required_listeners": [
-                "CARD_ENGAGED",
                 "CARD_PLAYED",
+                "CARD_ENGAGED",
                 "TURN_START"
             ]
         },
@@ -9657,7 +9657,7 @@
             "name": "Nation of Disdain",
             "name_kr": "모멸의 나라",
             "cost": 2,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "DRAGONCRAFT",
             "attack": 0,
             "defense": 0,
@@ -9710,8 +9710,8 @@
             ],
             "raw_effects_text": "Fanfare: Deal 3 damage to all followers.\nAt the end of your turn, if this follower's defense is 3 or less, give all Dragoncraft followers in your hand +1/+1.",
             "required_listeners": [
-                "TURN_END",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_END"
             ]
         },
         "10343310": {
@@ -10323,7 +10323,7 @@
             "name": "Temple of Repose",
             "name_kr": "안식의 신전",
             "cost": 3,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "HAVENCRAFT",
             "attack": 0,
             "defense": 0,
@@ -10358,9 +10358,9 @@
             ],
             "raw_effects_text": "Countdown (4)\nLast Words: Restore 2 defense to your leader. Give your leader Barrier.\nEngage: Advance this amulet's count by X. X is the number of crests you have.",
             "required_listeners": [
-                "CARD_ENGAGED",
                 "DESTROYED_ON_FIELD",
                 "CARD_PLAYED",
+                "CARD_ENGAGED",
                 "TURN_START"
             ]
         },
@@ -10369,7 +10369,7 @@
             "name": "Winged Lion Statue",
             "name_kr": "날개 달린 사자상",
             "cost": 3,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "HAVENCRAFT",
             "attack": 0,
             "defense": 0,
@@ -10397,8 +10397,8 @@
             ],
             "raw_effects_text": "Countdown (3)\nLast Words: Summon a Holy Falcon and Holyflame Tiger.\nEngage (1): Advance this amulet's count by 1.",
             "required_listeners": [
-                "CARD_ENGAGED",
                 "DESTROYED_ON_FIELD",
+                "CARD_ENGAGED",
                 "TURN_START"
             ]
         },
@@ -10436,7 +10436,7 @@
             "name": "Shining Disenchantment",
             "name_kr": "빛나는 실의",
             "cost": 4,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "HAVENCRAFT",
             "attack": 0,
             "defense": 0,
@@ -10471,9 +10471,9 @@
             ],
             "raw_effects_text": "Countdown (4)\nLast Words: Deal 4 damage split between all enemies. Restore 4 defense to your leader.\nEngage: Advance this amulet's count by X. X is the number of crests you have.",
             "required_listeners": [
-                "CARD_ENGAGED",
                 "DESTROYED_ON_FIELD",
                 "CARD_PLAYED",
+                "CARD_ENGAGED",
                 "TURN_START"
             ]
         },
@@ -10658,7 +10658,7 @@
                 {
                     "type": "FANFARE",
                     "process": "SELECT",
-                    "target": "ANOTHER_ALLY_FOLLOWER_CHOICE"
+                    "target": "ANOTHER_ALLY_CARD_CHOICE"
                 },
                 {
                     "process": "DEAL_DAMAGE",
@@ -10721,7 +10721,7 @@
                 {
                     "type": "FANFARE",
                     "process": "SELECT",
-                    "target": "ANOTHER_ALLY_FOLLOWER_CHOICE"
+                    "target": "ANOTHER_ALLY_CARD_CHOICE"
                 },
                 {
                     "process": "DRAW",
@@ -10788,7 +10788,7 @@
             "effects": [
                 {
                     "process": "DESTROY",
-                    "target": "ALLY_FOLLOWER_CHOICE",
+                    "target": "ALLY_CARD_CHOICE",
                     "type": "SPELL"
                 },
                 {
@@ -11684,8 +11684,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Necromancy</color> (6)</b> - <b><color=Keyword>Reanimate</color> (2)</b>, <b><color=Keyword>Reanimate</color> (1)</b>, and evolve them.\n<hr>At the end of your turn, give all enemy followers on the field -2/-2.",
             "required_listeners": [
-                "TURN_END",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_END"
             ]
         },
         "10422130": {
@@ -11735,8 +11735,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Ward</color></b>\nCan't attack followers or leaders.\nAt the end of your turn, if you've unlocked super-evolution, evolve a random unevolved allied follower on the field that didn't attack this turn.",
             "required_listeners": [
-                "TURN_END",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_END"
             ]
         },
         "10423110": {
@@ -12066,8 +12066,8 @@
             ],
             "raw_effects_text": "At the end of your turn, if this follower is evolved, deal 2 damage to all followers.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Give this follower \"Can't attack followers or leaders\" until the end of the turn.</ev>",
             "required_listeners": [
-                "TURN_END",
                 "FOLLOWER_SUPER_EVOLVED",
+                "TURN_END",
                 "FOLLOWER_EVOLVED"
             ]
         },
@@ -12170,8 +12170,8 @@
             ],
             "raw_effects_text": "At the end of your turn, evolve this follower.\n<hr><ev>When this follower evolves, deal 1 damage to all enemy followers.</ev>",
             "required_listeners": [
-                "TURN_END",
                 "FOLLOWER_SUPER_EVOLVED",
+                "TURN_END",
                 "FOLLOWER_EVOLVED"
             ]
         },
@@ -12206,8 +12206,8 @@
             ],
             "raw_effects_text": "Activates in hand. Whenever a 3-base-cost allied follower super-evolves, set the cost of this card to 0 until the end of the turn.\n<hr>At the end of your turn, give a random super-evolved allied follower on the field +1/+1.",
             "required_listeners": [
-                "TURN_END",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_END"
             ]
         },
         "10442310": {
@@ -12381,8 +12381,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Evolve all unevolved allied followers on the field. Deal 2 damage to your leader.\n<hr><b><color=Keyword>Drain</color></b>",
             "required_listeners": [
-                "DAMAGE_DEALT_BY_COMBAT",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "DAMAGE_DEALT_BY_COMBAT"
             ]
         },
         "10452110": {
@@ -12814,9 +12814,9 @@
             ],
             "raw_effects_text": "At the end of your turn, spellboost your hand X times. X is this follower's attack.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Give this follower \"Can't attack followers or leaders.\"</ev>",
             "required_listeners": [
-                "TURN_END",
                 "FOLLOWER_SUPER_EVOLVED",
                 "CARD_PLAYED",
+                "TURN_END",
                 "FOLLOWER_EVOLVED"
             ]
         },
@@ -13347,8 +13347,8 @@
             ],
             "raw_effects_text": "At the end of your turn, if you have at least 2 spells in your hand, deal 5 damage to all enemy followers.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Add 2 copies of <b><i><color=Keyword>Glittering Gold</color></i></b> to your hand.</ev>",
             "required_listeners": [
-                "TURN_END",
                 "FOLLOWER_SUPER_EVOLVED",
+                "TURN_END",
                 "FOLLOWER_EVOLVED"
             ]
         },
@@ -13422,9 +13422,9 @@
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Fairy</color></i></b>.\n<hr>Whenever an allied Pixie follower enters the field, deal 1 damage to the enemy leader.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Replicate the effects of this card's <b><color=Keyword>Fanfare</color></b> ability.</ev>",
             "required_listeners": [
                 "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED",
                 "CARD_PLAYED",
-                "FOLLOWER_EVOLVED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_EVOLVED"
             ]
         },
         "10502120": {
@@ -13659,8 +13659,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Ward</color></b>\nAt the end of your turn, if this follower is unevolved, deal 8 damage to 2 random enemy followers and restore 8 defense to your leader. If this follower is evolved, deal 8 damage to the enemy leader.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Remove <b><color=Keyword>Ward</color></b> from this follower. Give it <b><color=Keyword>Intimidate</color></b>.</ev>",
             "required_listeners": [
-                "TURN_END",
                 "FOLLOWER_SUPER_EVOLVED",
+                "TURN_END",
                 "FOLLOWER_EVOLVED"
             ]
         },
@@ -15172,8 +15172,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Ambush</color></b>\nAt the end of your turn, if this follower is evolved, give your opponent <b><i>Crest: Slaus, Revolving Wheel of Fortune</i></b> and banish this card.\nAt the start of your turn, activate a random ability that hasn't been activated yet from the following.\n<ridx=0>1. Reduce the cost of all cards in your hand by 1 until the end of the turn.</ridx>\n<ridx=1>2. Give all allied followers on the field +2/+2.</ridx>\n<ridx=2>3. Restore 3 defense to your leader.</ridx>",
             "required_listeners": [
-                "TURN_END",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_END"
             ]
         },
         "10543310": {
@@ -15281,8 +15281,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Evolve this follower.</ridx>\n<ridx=1>2. Evolve another random unevolved allied follower with <b><color=Keyword>Ward</color></b> and give it +1/+1.</ridx>\n<hr><b><color=Keyword>Ward</color></b>\nAt the end of your turn, if this follower is evolved, give all other followers on the field -1/-1.",
             "required_listeners": [
-                "TURN_END",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_END"
             ]
         },
         "10513110": {
@@ -15607,9 +15607,9 @@
             ],
             "raw_effects_text": "Can't attack followers or leaders.\nAt the end of your turn, summon a <b><i><color=Keyword>Steelclad Knight</color></i></b>.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Give all other allied followers on the field +3/+3.</sev>",
             "required_listeners": [
-                "TURN_END",
                 "FOLLOWER_SUPER_EVOLVED",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_END"
             ]
         },
         "10551310": {
@@ -15754,7 +15754,7 @@
             "name": "World of Games",
             "name_kr": "대유희 세계",
             "cost": 1,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "NEUTRAL",
             "attack": 0,
             "defense": 0,
@@ -16159,8 +16159,8 @@
             "raw_effects_text": "<b><color=Keyword>Aura</color></b>\nCan't be destroyed by abilities.\n<hr><b><color=Keyword>Clash</color></b>: Destroy the opposing follower.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Give this follower \"Can attack 3 times per turn.\"</sev>",
             "required_listeners": [
                 "COMBAT_INITIATED",
-                "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "CARD_PLAYED"
             ]
         },
         "10603110": {
@@ -16223,7 +16223,7 @@
                     "value": [
                         "Beheading Eld Blades to your hand",
                         "set its cost to 5 If this card's cost is 5",
-                        "dd a Beheading Eld Blades"
+                        "add a Beheading Eld Blades"
                     ],
                     "type": "SPELL"
                 },
@@ -16386,9 +16386,9 @@
             "raw_effects_text": "Activates in hand. Whenever an allied <b><i><color=Keyword>Crystalspawn</color></i></b> enters the field, reduce the cost of this card by 1.\n<hr><b><color=Keyword>Fanfare</color></b>: Summon 2 copies of <b><i><color=Keyword>Crystalspawn</color></i></b> and give them <b><color=Keyword>Storm</color></b>.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Add a <b><i><color=Keyword>Depths of the Eld Crystals</color></i></b> to your hand.</ev>",
             "required_listeners": [
                 "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED",
                 "CARD_PLAYED",
-                "FOLLOWER_EVOLVED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_EVOLVED"
             ]
         },
         "10674110": {
@@ -16432,8 +16432,8 @@
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Shoddy Plaything</color></i></b> and <b><i><color=Keyword>Substandard Puppet</color></i></b>.\n<hr>Whenever another allied follower with a base cost of 5 or more enters the field, evolve it.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Deal X damage to the enemy leader. X is the number of allied followers on the field with a base cost of 5 or more.</sev>",
             "required_listeners": [
                 "FOLLOWER_ENTER_FIELD",
-                "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "CARD_PLAYED"
             ]
         },
         "10631110": {
@@ -16459,7 +16459,7 @@
             "name": "Dark Dimensions",
             "name_kr": "암흑차원",
             "cost": 4,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "NEUTRAL",
             "attack": 0,
             "defense": 0,
@@ -16478,8 +16478,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Countdown</color> (2)</b>\nAt the end of your turn, deal 2 damage to all non-Encroacher followers.",
             "required_listeners": [
-                "TURN_END",
-                "TURN_START"
+                "TURN_START",
+                "TURN_END"
             ]
         },
         "10631120": {
@@ -16994,7 +16994,7 @@
                 },
                 {
                     "process": "DESTROY",
-                    "target": "ANOTHER_ALLY_FOLLOWER_CHOICE",
+                    "target": "ANOTHER_ALLY_CARD_CHOICE",
                     "type": "ON_SUPER_EVOLVE"
                 },
                 {
@@ -17106,9 +17106,9 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon 2 copies of <b><i><color=Keyword>Ludicrous Ordnance</color></i></b>.\n<hr>At the end of your turn, deal 3 damage split between all enemy followers.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Deal 3 damage split between all enemy followers.</ev>",
             "required_listeners": [
-                "TURN_END",
                 "FOLLOWER_SUPER_EVOLVED",
                 "CARD_PLAYED",
+                "TURN_END",
                 "FOLLOWER_EVOLVED"
             ]
         },
@@ -17290,7 +17290,7 @@
                     "value": [
                         "10673110",
                         "10671110",
-                        "d Substandard Puppet",
+                        "10672110",
                         "give them +0/+1"
                     ],
                     "type": "SPELL"
@@ -17727,8 +17727,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Reduce your faith's value by 10 to add a <b><i><color=Keyword>Depths of the Eld Lance</color></i></b> to your hand and give your faith \"Whenever an allied follower evolves, deal 1 damage to all enemies.\"\n<hr><b><color=Keyword>Drain</color></b>",
             "required_listeners": [
-                "DAMAGE_DEALT_BY_COMBAT",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "DAMAGE_DEALT_BY_COMBAT"
             ]
         },
         "10662210": {
@@ -17736,7 +17736,7 @@
             "name": "Scripture of Salvation",
             "name_kr": "구제의 성전",
             "cost": 2,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "HAVENCRAFT",
             "attack": 0,
             "defense": 0,
@@ -17828,9 +17828,9 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon 2 copies of <b><i><color=Keyword>Crystalspawn</color></i></b>.\n<hr><b><color=Keyword>Drain</color></b>\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Gain <b><i>Crest: Shymm, Love Bewitched</i></b>.</sev>",
             "required_listeners": [
-                "DAMAGE_DEALT_BY_COMBAT",
                 "FOLLOWER_SUPER_EVOLVED",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "DAMAGE_DEALT_BY_COMBAT"
             ]
         },
         "10633110": {
@@ -17894,8 +17894,8 @@
             ],
             "raw_effects_text": "At the end of your turn, evolve this follower.\n<hr><ev>When this follower evolves, deal 3 damage to all enemies.</ev>",
             "required_listeners": [
-                "TURN_END",
                 "FOLLOWER_SUPER_EVOLVED",
+                "TURN_END",
                 "FOLLOWER_EVOLVED"
             ]
         },
@@ -17931,7 +17931,7 @@
             "name": "Sublime Eld Tome",
             "name_kr": "숭고의 천서",
             "cost": 4,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "HAVENCRAFT",
             "attack": 0,
             "defense": 0,
@@ -17940,7 +17940,7 @@
                 {
                     "type": "FANFARE",
                     "process": "DESTROY",
-                    "target": "ANOTHER_ALLY_FOLLOWER_CHOICE"
+                    "target": "ANOTHER_ALLY_CARD_CHOICE"
                 },
                 {
                     "process": "RECOVER_PP",
@@ -18065,7 +18065,7 @@
             "name": "Unholy Water",
             "name_kr": "오염된 성수",
             "cost": 2,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "HAVENCRAFT",
             "attack": 0,
             "defense": 0,
@@ -18095,8 +18095,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Countdown</color> (3)</b>\n<b><color=Keyword>Last Words</color></b>: Draw a card. Destroy a random enemy follower.\n<hr><b><color=Keyword>Engage</color> (1)</b>: Advance this amulet's count by 1.",
             "required_listeners": [
-                "CARD_ENGAGED",
                 "DESTROYED_ON_FIELD",
+                "CARD_ENGAGED",
                 "TURN_START"
             ]
         },
@@ -18329,8 +18329,8 @@
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon 2 random differently named Abysscraft followers that cost 2 or less from your deck.\n<hr>Whenever another allied Abysscraft follower enters the field, give it <b><color=Keyword>Rush</color></b>.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Give all other allied Abysscraft followers on the field +2/+2.</sev>",
             "required_listeners": [
                 "FOLLOWER_ENTER_FIELD",
-                "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "CARD_PLAYED"
             ]
         },
         "10701110": {
@@ -18482,8 +18482,8 @@
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Rotting Zombie</color></i></b> and <b><i><color=Keyword>Skeleton</color></i></b>.\n<hr>Whenever an allied Departed follower enters the field, give it <b><color=Keyword>Storm</color></b>.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Select another allied follower on the field. If you selected one, destroy it and a random enemy follower.</sev>",
             "required_listeners": [
                 "FOLLOWER_ENTER_FIELD",
-                "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "CARD_PLAYED"
             ]
         },
         "10771120": {
@@ -18554,8 +18554,8 @@
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Deal 6 damage to all enemy followers. \n<hr><b><color=Keyword>Ward</color></b>\n<b><color=Keyword>Last Words</color></b>: <b><color=Keyword>Earth Rite</color> (2)</b> - Deal 3 damage to the enemy leader.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Summon a <b><i><color=Keyword>Beloved Masterpiece</color></i></b>.</sev>",
             "required_listeners": [
                 "DESTROYED_ON_FIELD",
-                "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "CARD_PLAYED"
             ]
         },
         "10743310": {
@@ -18751,9 +18751,9 @@
             ],
             "raw_effects_text": "Whenever an allied Artifact follower enters the field, restore 1 defense to your leader.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Summon a <b><i><color=Keyword>Mystic Artifact</color></i></b>.</ev>",
             "required_listeners": [
+                "FOLLOWER_SUPER_EVOLVED",
                 "FOLLOWER_ENTER_FIELD",
-                "FOLLOWER_EVOLVED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_EVOLVED"
             ]
         },
         "10744110": {
@@ -18945,7 +18945,7 @@
             "name": "City of Babelon",
             "name_kr": "바베론 시티",
             "cost": 1,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "NEUTRAL",
             "attack": 0,
             "defense": 0,
@@ -18996,10 +18996,10 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\nAt the end of your turn, activate an ability in sequence from the following.\n<ridx=0>1. Deal 2 damage to a random enemy follower.</ridx>\n<ridx=1>2. Restore 2 defense to your leader.</ridx>\n<ridx=2>3. Deal 2 damage to the enemy leader. Destroy this card.</ridx>\n<hr><b><color=Keyword>Engage</color> (1)</b>: Select a card in your hand and discard it. Delay the count of this amulet by 1.",
             "required_listeners": [
-                "CARD_ENGAGED",
-                "TURN_END",
                 "CARD_PLAYED",
-                "TURN_START"
+                "CARD_ENGAGED",
+                "TURN_START",
+                "TURN_END"
             ]
         },
         "10711310": {
@@ -19155,8 +19155,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: If you have 10 max play points, evolve this follower.\n<hr>At the end of your turn, restore 1 defense to your leader. If this follower is evolved, restore 2 defense instead.",
             "required_listeners": [
-                "TURN_END",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_END"
             ]
         },
         "10744120": {
@@ -19405,8 +19405,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field and deal it X damage. X is this follower's attack.\n<hr>At the end of your turn, <b><color=Keyword>Combo</color> (3)</b> - Draw a card.",
             "required_listeners": [
-                "TURN_END",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_END"
             ]
         },
         "10742110": {
@@ -19522,9 +19522,9 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Add 2 copies of <b><i><color=Keyword>Deepwood Bounty</color></i></b> to your hand.\n<hr>At the end of your turn, deal X damage split between all enemy followers. X is this follower's attack.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Gain <b><i>Crest: Great Hart of the Glacial Realm</i></b>.</sev>",
             "required_listeners": [
-                "TURN_END",
                 "FOLLOWER_SUPER_EVOLVED",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_END"
             ]
         },
         "10732310": {
@@ -19612,7 +19612,7 @@
                     "value": [
                         "90051130",
                         "90051120",
-                        "d Skeleton",
+                        "90051110",
                         "evolve them"
                     ],
                     "type": "SPELL"
@@ -20403,9 +20403,9 @@
             ],
             "raw_effects_text": "Whenever an allied Artifact follower enters the field, deal 3 damage to a random enemy follower.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Summon an <b><i><color=Keyword>Ancient Artifact</color></i></b>.</ev>\n<sev><b><color=Keyword>Super-Evolve</color></b>: Then, if at least 3 differently named allied Artifact followers have entered the field this match, give this follower <b><color=Keyword>Storm</color></b>.</sev>",
             "required_listeners": [
+                "FOLLOWER_SUPER_EVOLVED",
                 "FOLLOWER_ENTER_FIELD",
-                "FOLLOWER_EVOLVED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_EVOLVED"
             ]
         },
         "10722310": {
@@ -20491,8 +20491,8 @@
             "raw_effects_text": "<b><color=Keyword>Last Words</color></b>: Summon a <b><i><color=Keyword>Skeleton</color></i></b>. \n<hr><ev><b><color=Keyword>Evolve</color></b>: Select an enemy follower on the field and deal it 3 damage.</ev>",
             "required_listeners": [
                 "DESTROYED_ON_FIELD",
-                "FOLLOWER_EVOLVED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "FOLLOWER_EVOLVED"
             ]
         },
         "10761110": {
@@ -20626,8 +20626,8 @@
             "raw_effects_text": "<b><color=Keyword>Last Words</color></b>: Summon a <b><i><color=Keyword>Knight</color></i></b>.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Select an enemy follower on the field and deal it 3 damage.</ev>",
             "required_listeners": [
                 "DESTROYED_ON_FIELD",
-                "FOLLOWER_EVOLVED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "FOLLOWER_EVOLVED"
             ]
         },
         "10762110": {
@@ -21113,7 +21113,7 @@
             "name": "Black Psalm, New Revelation",
             "name_kr": "신약 흑의 노래",
             "cost": 3,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "PORTALCRAFT",
             "attack": 0,
             "defense": 0,
@@ -21793,8 +21793,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Storm</color></b>\nWhen this card leaves the field, banish it.\nAt the end of your turn, banish this card.",
             "required_listeners": [
-                "TURN_END",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_END"
             ]
         },
         "90021310": {
@@ -22231,7 +22231,7 @@
             "effects": [
                 {
                     "process": "DESTROY",
-                    "target": "ALLY_FOLLOWER_CHOICE",
+                    "target": "ALLY_CARD_CHOICE",
                     "type": "SPELL"
                 },
                 {
@@ -22398,8 +22398,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fuse</color></b>: <b><i><color=Keyword>Ominous Artifact β</color></i></b> and <b><i><color=Keyword>Ominous Artifact γ</color></i></b>\nWhen you've <b><color=Keyword>Fuse</color><color=Keyword>d</color></b> both to this card, transform it into a <b><i><color=Keyword>Masterwork Artifact Ω</color></i></b>.\n<hr>At the end of your turn, restore 3 defense to your leader.",
             "required_listeners": [
-                "TURN_END",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_END"
             ]
         },
         "90073120": {
@@ -22632,7 +22632,7 @@
             "name": "Rings of Moonlight",
             "name_kr": "월영의 반지",
             "cost": 8,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "HAVENCRAFT",
             "attack": 0,
             "defense": 0,
@@ -22656,8 +22656,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Aura</color></b>\nAt the end of your turn, if there are at least 3 allied amulets on the field, deal 3 damage to all enemies.",
             "required_listeners": [
-                "TURN_END",
-                "TURN_START"
+                "TURN_START",
+                "TURN_END"
             ]
         },
         "90051140": {
@@ -22992,7 +22992,7 @@
             "name": "White Psalm, New Revelation",
             "name_kr": "신약 백의 노래",
             "cost": 3,
-            "card_type": "FOLLOWER",
+            "card_type": "AMULET",
             "class_type": "PORTALCRAFT",
             "attack": 0,
             "defense": 0,

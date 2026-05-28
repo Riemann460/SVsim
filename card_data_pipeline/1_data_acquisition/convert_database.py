@@ -28,7 +28,7 @@ def convert_json_to_class_script(json_file_path: str, output_json_path: str) -> 
     """
     # 변환을 위한 역방향 Enum 맵을 정의합니다.
     class_map = {e.value: e for e in ClassType}
-    type_map = {"Follower": CardType.FOLLOWER, "Spell": CardType.AMULET, "4": CardType.SPELL}
+    type_map = {"Follower": CardType.FOLLOWER, "Amulet": CardType.AMULET, "Spell": CardType.AMULET, "4": CardType.SPELL}
     tribe_map = {e.value: e for e in TribeType}
 
     # 기본 예외 처리 값들을 설정합니다.
