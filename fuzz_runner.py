@@ -190,6 +190,12 @@ def get_all_possible_actions(game: Game, current_player: str) -> List[Dict[str, 
 
 def validate_game_state_invariants(game: Game):
     """게임 플레이 중 상태 이상 정합성을 검증하는 불변 조건 어설션 함수입니다."""
+    # 이미 승부가 난 경우 검증을 수행하지 않고 리턴합니다.
+    p1_hp = game.game_state_manager.players["player1"].current_defense
+    p2_hp = game.game_state_manager.players["player2"].current_defense
+    if p1_hp <= 0 or p2_hp <= 0:
+        return
+
     for player_id in ["player1", "player2"]:
         player = game.game_state_manager.players[player_id]
 
@@ -277,6 +283,12 @@ def run_fuzzing(runs: int = 1, max_turns: int = 20) -> Tuple[bool, Optional[Exce
                     max_actions_per_turn = 30
                     
                     while True:
+                        # 승리 조건 등으로 한쪽 플레이어 체력이 0 이하가 되면 턴 루프를 빠져나갑니다.
+                        p1_hp = game.game_state_manager.players["player1"].current_defense
+                        p2_hp = game.game_state_manager.players["player2"].current_defense
+                        if p1_hp <= 0 or p2_hp <= 0:
+                            break
+
                         # 턴 시작 상태의 특수 카드 선택 효과 등을 먼저 자동 처리합니다.
                         game.process_player_choice()
 
@@ -319,6 +331,12 @@ def run_fuzzing(runs: int = 1, max_turns: int = 20) -> Tuple[bool, Optional[Exce
                             game.engage_card(action["card_id"], current_player)
                         elif action["type"] == "END_TURN":
                             game.end_turn(current_player)
+                            break
+
+                        # 액션 실행 직후 한쪽 플레이어 체력이 0 이하가 되면 루프를 조기 종료합니다.
+                        p1_hp = game.game_state_manager.players["player1"].current_defense
+                        p2_hp = game.game_state_manager.players["player2"].current_defense
+                        if p1_hp <= 0 or p2_hp <= 0:
                             break
                     
                     # 플레이어 턴을 전환합니다.
