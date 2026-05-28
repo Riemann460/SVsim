@@ -187,7 +187,7 @@
         "name": "Black Psalm, New Revelation",
         "name_kr": "신약 흑의 노래",
         "cost": 3,
-        "card_type": "FOLLOWER",
+        "card_type": "AMULET",
         "class_type": "PORTALCRAFT",
         "attack": 0,
         "defense": 0,
@@ -210,13 +210,12 @@
                     "White Psalm",
                     "New Revelation"
                 ],
-                "type": "SPELL"
+                "type": "LAST_WORDS"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Last Words</color></b>: Deal 1 damage to the enemy leader. Summon a <b><i><color=Keyword>White Psalm, New Revelation</color></i></b>.",
         "required_listeners": [
             "DESTROYED_ON_FIELD",
-            "CARD_PLAYED",
             "TURN_START"
         ]
     },
@@ -347,10 +346,10 @@
         "tribes": [],
         "effects": [
             {
+                "type": "FANFARE",
                 "process": "DEAL_DAMAGE",
                 "target": "OPPONENT_LEADER",
-                "value": 6,
-                "type": "FANFARE"
+                "value": 6
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select 2 enemy followers on the field and deal 6 damage to them and the enemy leader.",
@@ -984,20 +983,19 @@
             {
                 "type": "SPELL",
                 "process": "CHOOSE",
-                "choices": [
-                    {
-                        "process": "DRAW",
-                        "value": 1,
-                        "target": "OWN_LEADER",
-                        "type": "SPELL"
-                    },
-                    {
-                        "process": "DEAL_DAMAGE",
-                        "target": "OPPONENT_FOLLOWER_RANDOM",
-                        "value": 2,
-                        "type": "SPELL"
-                    }
-                ]
+                "choices": []
+            },
+            {
+                "process": "DRAW",
+                "value": 1,
+                "target": "OWN_LEADER",
+                "type": "SPELL"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "value": 2,
+                "type": "SPELL"
             }
         ],
         "raw_effects_text": "Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Draw a card.</ridx>\n<ridx=1>2. Deal 2 damage to a random enemy follower.</ridx>",
@@ -1268,16 +1266,16 @@
         ],
         "effects": [
             {
+                "type": "FANFARE",
                 "process": "DEAL_DAMAGE",
                 "target": "ALL_OPPONENT_FOLLOWERS",
-                "value": 5,
-                "type": "FANFARE"
+                "value": 5
             },
             {
                 "process": "HEAL",
                 "target": "OWN_LEADER",
                 "value": 5,
-                "type": "SPELL"
+                "type": "FANFARE"
             },
             {
                 "type": "STORM"
@@ -1307,7 +1305,7 @@
         "effects": [
             {
                 "process": "DESTROY",
-                "target": "ALLY_FOLLOWER_CHOICE",
+                "target": "ALLY_CARD_CHOICE",
                 "type": "SPELL"
             },
             {
@@ -1387,7 +1385,8 @@
                 "process": "ADD_EFFECT"
             },
             {
-                "raw_effect_text": "X/Y is the total base attack/defense of allied Shikigami followers destroyed this turn."
+                "raw_effect_text": "X/Y is the total base attack/defense of allied Shikigami followers destroyed this turn.",
+                "type": "SPELL"
             },
             {
                 "type": "WARD"
@@ -1415,13 +1414,21 @@
         ],
         "effects": [
             {
+                "type": "FANFARE",
+                "raw_action_text": "If there's an allied Prim"
+            },
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Princess's Picnic on the field"
+            },
+            {
+                "type": "FANFARE",
                 "process": "STAT_BUFF",
                 "target": "SELF",
                 "value": [
                     1,
                     1
-                ],
-                "type": "FANFARE"
+                ]
             },
             {
                 "type": "WARD"
@@ -1699,7 +1706,7 @@
         "name": "Rings of Moonlight",
         "name_kr": "월영의 반지",
         "cost": 8,
-        "card_type": "FOLLOWER",
+        "card_type": "AMULET",
         "class_type": "HAVENCRAFT",
         "attack": 0,
         "defense": 0,
@@ -1723,8 +1730,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Aura</color></b>\nAt the end of your turn, if there are at least 3 allied amulets on the field, deal 3 damage to all enemies.",
         "required_listeners": [
-            "TURN_END",
-            "TURN_START"
+            "TURN_START",
+            "TURN_END"
         ]
     },
     "90051140": {
@@ -2059,7 +2066,7 @@
         "name": "White Psalm, New Revelation",
         "name_kr": "신약 백의 노래",
         "cost": 3,
-        "card_type": "FOLLOWER",
+        "card_type": "AMULET",
         "class_type": "PORTALCRAFT",
         "attack": 0,
         "defense": 0,
@@ -2082,13 +2089,12 @@
                     "Black Psalm",
                     "New Revelation"
                 ],
-                "type": "SPELL"
+                "type": "LAST_WORDS"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Last Words</color></b>: Restore 1 defense to your leader. Summon a <b><i><color=Keyword>Black Psalm, New Revelation</color></i></b>.",
         "required_listeners": [
             "DESTROYED_ON_FIELD",
-            "CARD_PLAYED",
             "TURN_START"
         ]
     },
@@ -2106,19 +2112,18 @@
             {
                 "type": "SPELL",
                 "process": "CHOOSE",
-                "choices": [
-                    {
-                        "process": "DESTROY",
-                        "target": "ALL_OPPONENT_FOLLOWERS_DAMAGED",
-                        "type": "SPELL"
-                    },
-                    {
-                        "process": "STAT_BUFF",
-                        "raw_target_text": "the cost of all cards in your opponent's hand",
-                        "value": 1,
-                        "type": "SPELL"
-                    }
-                ]
+                "choices": []
+            },
+            {
+                "process": "DESTROY",
+                "target": "ALL_OPPONENT_FOLLOWERS_DAMAGED",
+                "type": "SPELL"
+            },
+            {
+                "process": "STAT_BUFF",
+                "raw_target_text": "the cost of all cards in your opponent's hand",
+                "value": 1,
+                "type": "SPELL"
             }
         ],
         "raw_effects_text": "Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Destroy all damaged enemy followers.</ridx>\n<ridx=1>2. Increase the cost of all cards in your opponent's hand by 1 until the end of their turn.</ridx>",
