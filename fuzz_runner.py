@@ -58,6 +58,62 @@ from src.engine.main_game_logic import Game
 import src.common.card_data as card_data
 
 
+class Tee:
+    """출력 스트림을 가로채어 콘솔 화면과 파일에 동시 기록하는 헬퍼 클래스입니다."""
+
+    def __init__(self, filepath: str, stream: Any):
+        """출력할 로그 파일 경로와 기존 시스템 스트림을 바인딩합니다."""
+        self.filepath = filepath
+        self.stream = stream
+        self.file = open(filepath, "a", encoding="utf-8")
+
+    def write(self, data: str):
+        """데이터가 들어오면 기존 화면 스트림과 지정된 파일에 동시에 기입합니다."""
+        self.stream.write(data)
+        self.file.write(data)
+        self.file.flush()
+
+    def flush(self):
+        """스트림과 파일의 내부 버퍼 데이터를 강제로 출력해 비웁니다."""
+        self.stream.flush()
+        self.file.flush()
+
+    def close(self):
+        """출력 완료된 로그 파일의 핸들을 안전하게 닫아줍니다."""
+        if not self.file.closed:
+            self.file.close()
+
+
+class LogMonitor:
+    """로그 파일에 누적 기록되는 새로운 라인을 실시간으로 파싱하여 에러를 탐색하는 감시 클래스입니다."""
+
+    def __init__(self, filepath: str = "error.log"):
+        """감시 대상이 될 에러 로그 파일 경로를 설정합니다."""
+        self.filepath = filepath
+        self.last_position = 0
+
+    def start(self):
+        """감시를 시작하기 전 파일이 존재할 시 마지막 위치 포인터를 초기화합니다."""
+        if os.path.exists(self.filepath):
+            self.last_position = os.path.getsize(self.filepath)
+        else:
+            self.last_position = 0
+
+    def check_for_errors(self) -> Optional[str]:
+        """마지막으로 읽은 이후 시점부터 추가된 파일 내용을 파싱하여 에러 문자열을 반환합니다."""
+        if not os.path.exists(self.filepath):
+            return None
+        with open(self.filepath, "r", encoding="utf-8") as f:
+            f.seek(self.last_position)
+            new_lines = f.readlines()
+            self.last_position = f.tell()
+
+        for line in new_lines:
+            if "[ERROR]" in line or "AssertionError" in line:
+                return line.strip()
+        return None
+
+
 def get_all_possible_actions(game: Game, current_player: str) -> List[Dict[str, Any]]:
     """현재 활성화된 플레이어가 수행 가능한 모든 유효한 액션을 수집하여 리스트로 반환합니다."""
     possible_actions = []
@@ -132,74 +188,161 @@ def get_all_possible_actions(game: Game, current_player: str) -> List[Dict[str, 
     return possible_actions
 
 
+def validate_game_state_invariants(game: Game):
+    """게임 플레이 중 상태 이상 정합성을 검증하는 불변 조건 어설션 함수입니다."""
+    for player_id in ["player1", "player2"]:
+        player = game.game_state_manager.players[player_id]
+
+        # 1 리더의 음수 체력을 검증합니다.
+        if player.current_defense < 0:
+            raise AssertionError(f"리더 {player_id}의 체력이 음수가 되었습니다. 현재 체력 {player.current_defense}.")
+
+        # 2 기본 자원의 정상적인 범위 상태를 검증합니다.
+        if player.current_pp < 0:
+            raise AssertionError(f"플레이어 {player_id}의 PP가 음수가 되었습니다. 현재 PP {player.current_pp}.")
+        if player.current_pp > player.max_pp:
+            raise AssertionError(f"플레이어 {player_id}의 PP가 최대 한도를 초과했습니다. PP {player.current_pp}, 최대 {player.max_pp}.")
+        if player.current_ep < 0:
+            raise AssertionError(f"플레이어 {player_id}의 EP가 음수가 되었습니다. 현재 EP {player.current_ep}.")
+        if player.current_sep < 0:
+            raise AssertionError(f"플레이어 {player_id}의 SEP가 음수가 되었습니다. 현재 SEP {player.current_sep}.")
+
+        # 3 진화 및 초진화 상태 추종자의 공격력과 체력 스탯 상승 무결성을 검증합니다.
+        for card in player.field.get_cards():
+            if card.get_type() == CardType.FOLLOWER:
+                base_atk = card.card_data.get("attack", 0)
+                base_def = card.card_data.get("defense", 0)
+                if card.is_super_evolved:
+                    if card.max_defense < base_def + 3:
+                        raise AssertionError(f"초진화 추종자 {card.get_display_name()} (ID {card.card_id})의 max_defense({card.max_defense})가 기본 스탯 상승폭인 +3 미만입니다.")
+                elif card.is_evolved:
+                    if card.max_defense < base_def + 2:
+                        raise AssertionError(f"진화 추종자 {card.get_display_name()} (ID {card.card_id})의 max_defense({card.max_defense})가 기본 스탯 상승폭인 +2 미만입니다.")
+
+        # 4 직접소환(Invoke) 조건이 만족되었으나 누락된 채 덱에 머물러 있는 비정상 케이스를 검증합니다.
+        deck_cards = player.deck.get_cards()
+        field_count = len(player.field.get_cards())
+        if field_count < 5:
+            for card in deck_cards:
+                for effect in card.effects:
+                    if effect.type == EffectType.INVOKE:
+                        if hasattr(effect, "condition") and effect.condition is not None:
+                            try:
+                                condition_met = effect.condition(game)
+                            except Exception:
+                                condition_met = False
+                            if condition_met:
+                                raise AssertionError(f"직접소환 조건을 만족한 카드 {card.get_display_name()} (ID {card.card_id})가 전장 자리가 존재함에도 필드로 진입하지 못했습니다.")
+
+
 def run_fuzzing(runs: int = 1, max_turns: int = 20) -> Tuple[bool, Optional[Exception]]:
     """지정된 횟수만큼 게임 세션을 반복 생성하여 퍼징 테스트를 수행합니다. 오류 발생 시 예외 객체를 반환합니다."""
     card_data.load_card_databases('card_database/3_parsed_database/card_database_parsed.json')
     
-    for run_idx in range(runs):
-        game = None
-        try:
-            # 게임 클래스 초기화 시 Monkey Patching된 GameGUI가 MockGUI로 구동되어 자동 선택됩니다.
-            game = Game("player1", "player2")
-            
-            current_player = "player1"
-            
-            for turn_num in range(1, max_turns + 1):
-                # 승리 조건 등으로 한쪽 플레이어 체력이 0 이하가 되면 조기 종료합니다.
-                p1_hp = game.game_state_manager.players["player1"].current_defense
-                p2_hp = game.game_state_manager.players["player2"].current_defense
-                if p1_hp <= 0 or p2_hp <= 0:
-                    break
+    # 실시간 로깅을 수집하기 위해 출력을 가로채 error.log에 동시에 기록합니다.
+    log_filepath = "error.log"
+    old_stdout = sys.stdout
+    old_stderr = sys.stderr
+    
+    # 새 세션 시작 시 파일 내용을 지우고 깨끗하게 준비합니다.
+    with open(log_filepath, "w", encoding="utf-8") as f:
+        f.write("")
+        
+    tee_stdout = Tee(log_filepath, old_stdout)
+    tee_stderr = Tee(log_filepath, old_stderr)
+    
+    sys.stdout = tee_stdout
+    sys.stderr = tee_stderr
+    
+    log_monitor = LogMonitor(log_filepath)
+    log_monitor.start()
 
-                action_count = 0
-                max_actions_per_turn = 30
+    try:
+        for run_idx in range(runs):
+            game = None
+            try:
+                # 게임 클래스 초기화 시 Monkey Patching된 GameGUI가 MockGUI로 구동되어 자동 선택됩니다.
+                game = Game("player1", "player2")
                 
-                while True:
-                    # 턴 시작 상태의 특수 카드 선택 효과 등을 먼저 자동 처리합니다.
-                    game.process_player_choice()
-
-                    # 가능한 모든 유효 액션을 수집합니다.
-                    possible_actions = get_all_possible_actions(game, current_player)
-                    if not possible_actions:
-                        game.end_turn(current_player)
+                current_player = "player1"
+                
+                for turn_num in range(1, max_turns + 1):
+                    # 승리 조건 등으로 한쪽 플레이어 체력이 0 이하가 되면 조기 종료합니다.
+                    p1_hp = game.game_state_manager.players["player1"].current_defense
+                    p2_hp = game.game_state_manager.players["player2"].current_defense
+                    if p1_hp <= 0 or p2_hp <= 0:
                         break
 
-                    # 무한 루프 방지를 위해 일정량 이상 액션이 지속되면 강제로 턴을 종료시킵니다.
-                    action_count += 1
-                    if action_count > max_actions_per_turn:
-                        game.end_turn(current_player)
-                        break
-
-                    # 무작위 액션 하나를 선택하여 진행합니다.
-                    action = random.choice(possible_actions)
+                    action_count = 0
+                    max_actions_per_turn = 30
                     
-                    if action["type"] == "PLAY_CARD":
-                        game.play_card(current_player, action["card_id"], action["enhanced_cost"], action["use_extra_pp"])
-                    elif action["type"] == "ATTACK":
-                        target_type = game.game_state_manager.get_type(action["target_id"])
-                        if target_type == CardType.LEADER:
-                            game.attack_leader(action["attacker_id"])
-                        else:
-                            game.attack_follower(action["attacker_id"], action["target_id"])
-                    elif action["type"] == "EVOLVE":
-                        game.evolve_follower(action["card_id"], current_player)
-                    elif action["type"] == "SUPER_EVOLVE":
-                        game.super_evolve_follower(action["card_id"], current_player)
-                    elif action["type"] == "ENGAGE":
-                        game.engage_card(action["card_id"], current_player)
-                    elif action["type"] == "END_TURN":
-                        game.end_turn(current_player)
-                        break
-                
-                # 플레이어 턴을 전환합니다.
-                current_player = game.opponent_id[current_player]
+                    while True:
+                        # 턴 시작 상태의 특수 카드 선택 효과 등을 먼저 자동 처리합니다.
+                        game.process_player_choice()
 
-        except Exception as e:
-            # 예외 감지 시 현재의 게임 상태와 분석 보고서를 즉시 작성합니다.
-            exc_info = analyze_exception(e)
-            state_snapshot = extract_state_snapshot(game)
-            generate_report(exc_info, state_snapshot)
-            return False, e
+                        # 매 행동 단위 직후 게임 불변 조건(Invariant)을 검증하여 상태 이상을 진단합니다.
+                        validate_game_state_invariants(game)
+
+                        # 실시간으로 기입된 error.log 파일 내용을 읽어와서 파싱하여 검출된 에러를 감지합니다.
+                        logged_error = log_monitor.check_for_errors()
+                        if logged_error:
+                            raise AssertionError(f"error.log 실시간 파싱 중 이상 에러 검출 - {logged_error}")
+
+                        # 가능한 모든 유효 액션을 수집합니다.
+                        possible_actions = get_all_possible_actions(game, current_player)
+                        if not possible_actions:
+                            game.end_turn(current_player)
+                            break
+
+                        # 무한 루프 방지를 위해 일정량 이상 액션이 지속되면 강제로 턴을 종료시킵니다.
+                        action_count += 1
+                        if action_count > max_actions_per_turn:
+                            game.end_turn(current_player)
+                            break
+
+                        # 무작위 액션 하나를 선택하여 진행합니다.
+                        action = random.choice(possible_actions)
+                        
+                        if action["type"] == "PLAY_CARD":
+                            game.play_card(current_player, action["card_id"], action["enhanced_cost"], action["use_extra_pp"])
+                        elif action["type"] == "ATTACK":
+                            target_type = game.game_state_manager.get_type(action["target_id"])
+                            if target_type == CardType.LEADER:
+                                game.attack_leader(action["attacker_id"])
+                            else:
+                                game.attack_follower(action["attacker_id"], action["target_id"])
+                        elif action["type"] == "EVOLVE":
+                            game.evolve_follower(action["card_id"], current_player)
+                        elif action["type"] == "SUPER_EVOLVE":
+                            game.super_evolve_follower(action["card_id"], current_player)
+                        elif action["type"] == "ENGAGE":
+                            game.engage_card(action["card_id"], current_player)
+                        elif action["type"] == "END_TURN":
+                            game.end_turn(current_player)
+                            break
+                    
+                    # 플레이어 턴을 전환합니다.
+                    current_player = game.opponent_id[current_player]
+
+            except Exception as e:
+                # 예외 감지 시 현재의 게임 상태와 분석 보고서를 즉시 작성합니다.
+                exc_info = analyze_exception(e)
+                state_snapshot = extract_state_snapshot(game)
+                generate_report(exc_info, state_snapshot)
+                
+                # 가로챈 콘솔 출력 환경을 복구합니다.
+                sys.stdout = old_stdout
+                sys.stderr = old_stderr
+                tee_stdout.close()
+                tee_stderr.close()
+                return False, e
+
+    finally:
+        # 가로챈 콘솔 출력 환경을 무조건 다시 정상화해 둡니다.
+        sys.stdout = old_stdout
+        sys.stderr = old_stderr
+        tee_stdout.close()
+        tee_stderr.close()
 
     return True, None
 
