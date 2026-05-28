@@ -132,7 +132,7 @@ def get_all_possible_actions(game: Game, current_player: str) -> List[Dict[str, 
     return possible_actions
 
 
-def run_fuzzing(runs: int = 1) -> Tuple[bool, Optional[Exception]]:
+def run_fuzzing(runs: int = 1, max_turns: int = 20) -> Tuple[bool, Optional[Exception]]:
     """지정된 횟수만큼 게임 세션을 반복 생성하여 퍼징 테스트를 수행합니다. 오류 발생 시 예외 객체를 반환합니다."""
     card_data.load_card_databases('card_database/3_parsed_database/card_database_parsed.json')
     
@@ -143,7 +143,6 @@ def run_fuzzing(runs: int = 1) -> Tuple[bool, Optional[Exception]]:
             game = Game("player1", "player2")
             
             current_player = "player1"
-            max_turns = 20
             
             for turn_num in range(1, max_turns + 1):
                 # 승리 조건 등으로 한쪽 플레이어 체력이 0 이하가 되면 조기 종료합니다.
@@ -294,3 +293,20 @@ def load_agent_config(filepath: str = "agent.json") -> Dict[str, Any]:
             return json.load(f)
     except Exception:
         return {}
+
+
+if __name__ == "__main__":
+    # 에이전트 설정 파일 경로를 탐색하여 로드합니다.
+    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".agents", "agents", "svsim-debug-fuzz", "agent.json")
+    config = load_agent_config(config_path)
+    run_count = config.get("parameters", {}).get("run_count", 10)
+    max_turns = config.get("parameters", {}).get("max_turns", 20)
+    
+    print(f"퍼징 테스트를 {run_count}회 시작합니다.")
+    success, error = run_fuzzing(run_count, max_turns)
+    if success:
+        print("퍼징 테스트가 오류 없이 완료되었습니다.")
+        sys.exit(0)
+    else:
+        print(f"퍼징 테스트 도중 오류가 발생했습니다. {error}")
+        sys.exit(1)

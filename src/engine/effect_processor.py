@@ -553,9 +553,24 @@ class EffectProcessor:
 
     def _process_add_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 키워드 부여."""
-        value = effect_data.value  # value 자체가 Effect 객체입니다.
-        target.effects.append(value)
-        print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {value.type.value}")
+        value = effect_data.value  # value 자체가 Effect 객체이거나 EffectType Enum 혹은 str일 수 있습니다.
+        if isinstance(value, Effect):
+            target.effects.append(value)
+            print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {value.type.value}")
+        else:
+            keyword_type = None
+            if isinstance(value, str):
+                if value in EffectType.__members__:
+                    keyword_type = EffectType[value]
+            elif isinstance(value, EffectType):
+                keyword_type = value
+
+            if keyword_type is not None:
+                effect_obj = Effect(type=keyword_type, value=None)
+                target.effects.append(effect_obj)
+                print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {keyword_type.value}")
+            else:
+                print(f"[LOG] 경고: 지원하지 않는 키워드 타입 부여 시도, 값: {value}")
 
     def _process_remove_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 키워드 제거."""
