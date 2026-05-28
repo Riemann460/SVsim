@@ -1,0 +1,10 @@
+{
+  "name": "SVsim-Fuzz-Agent",
+  "description": "자동 랜덤 플레이(Fuzzing)를 수행하고 에러 감지 및 원인 분석 보고서를 생성하는 에이전트입니다.",
+  "entry_point": "fuzz_runner.py",
+  "output_report": "fuzzing_report.md",
+  "parameters": {
+    "run_count": 10,
+    "max_turns": 20
+  }
+}
