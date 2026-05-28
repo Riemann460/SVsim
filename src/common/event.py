@@ -89,3 +89,8 @@ class FuseDeclaredEvent(CardPlayerEvent):
     """융합을 선언했을 때 발생하는 이벤트입니다."""
     material_card_ids: list
     event_type: EventType = EventType.FUSE_DECLARED
+
+@dataclass
+class LeaveFieldEvent(CardPlayerEvent):
+    """카드가 필드를 벗어날 때 발생하는 이벤트입니다."""
+    event_type: EventType = EventType.LEAVE_FIELD

@@ -1,0 +1,2399 @@
+{
+    "10422110": {
+        "card_id": "10422110",
+        "name": "Aglovale, Lord of Frost",
+        "name_kr": "빙심의 패왕 아글로베일",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 5,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "DEAL_DAMAGE",
+                "target": "ALL_OPPONENT_FOLLOWERS",
+                "value": 3
+            },
+            {
+                "type": "INTIMIDATE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Deal 3 damage to all enemy followers.\n<hr><b><color=Keyword>Intimidate</color></b>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10433310": {
+        "card_id": "10433310",
+        "name": "Alchemic Flare",
+        "name_kr": "알케믹 플레어",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "RUNECRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_CHOICE",
+                "value": 4,
+                "type": "SPELL"
+            },
+            {
+                "process": "GAIN_EARTH_SIGIL",
+                "type": "SPELL"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_LEADER",
+                "value": 2,
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Select an enemy follower on the field and deal it 4 damage. Gain an earth sigil. <b><color=Keyword>Skybound Art</color></b> - Deal 2 damage to the enemy leader.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10413310": {
+        "card_id": "10413310",
+        "name": "Alfheimr",
+        "name_kr": "알프헤임",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "FORESTCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "process": "CHOOSE",
+                "choices": []
+            },
+            {
+                "process": "TRIGGER_EFFECT",
+                "type": "SPELL"
+            },
+            {
+                "process": "DRAW",
+                "value": 1,
+                "target": "OWN_LEADER",
+                "type": "SPELL"
+            },
+            {
+                "process": "HEAL",
+                "target": "OWN_LEADER",
+                "value": 1,
+                "type": "SPELL"
+            },
+            {
+                "process": "STAT_BUFF",
+                "target": "ALL_ALLY_FOLLOWERS",
+                "value": [
+                    1,
+                    0
+                ],
+                "type": "SPELL"
+            },
+            {
+                "process": "STAT_BUFF",
+                "target": "ALL_ALLY_FOLLOWERS",
+                "value": [
+                    0,
+                    1
+                ],
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Select a <b><color=Keyword>Mode</color></b> to activate. <b><color=Keyword>Super Skybound Art</color></b> - Activate all of them instead.\n<ridx=0>1. Draw a card. Restore 1 defense to your leader.</ridx>\n<ridx=1>2. Give all allied followers on the field +1/+0 and <b><color=Keyword>Rush</color></b>.</ridx>\n<ridx=2>3. Give all allied followers on the field +0/+1 and <b><color=Keyword>Ward</color></b>.</ridx>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10451110": {
+        "card_id": "10451110",
+        "name": "Almeida, Headstrong Miner",
+        "name_kr": "동경의 쇠망치 알메이다",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 3,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "enhance_cost": 4,
+                "process": "STAT_BUFF",
+                "target": "SELF",
+                "value": [
+                    1,
+                    1
+                ],
+                "type": "ENHANCE"
+            },
+            {
+                "type": "RUSH"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Enhance</color> (4)</b>: Evolve this follower and give it +1/+1.\n<hr><b><color=Keyword>Rush</color></b>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10412120": {
+        "card_id": "10412120",
+        "name": "Anthuria, Toe-Tapping Torch",
+        "name_kr": "적염의 무희 안스리아",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 5,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "ADD_EFFECT",
+                "target": "ALL_ALLY_FOLLOWERS",
+                "value": "Barrier"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Give all allied followers on the field <b><color=Keyword>Barrier</color></b>.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10421120": {
+        "card_id": "10421120",
+        "name": "Arthur, Staunch Dragon",
+        "name_kr": "결의의 휘룡 아서",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 2,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "WARD"
+            },
+            {
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Mordred",
+                    "Illusory Lion"
+                ],
+                "type": "ON_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Ward</color></b>\n<hr><ev><b><color=Keyword>Evolve</color></b>: Summon a <b><i><color=Keyword>Mordred, Illusory Lion</color></i></b>.</ev>",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
+        ]
+    },
+    "10461210": {
+        "card_id": "10461210",
+        "name": "Awed and Inspired",
+        "name_kr": "릴리에 라이츠",
+        "cost": 0,
+        "card_type": "AMULET",
+        "class_type": "HAVENCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "cost": 2,
+                "process": "DESTROY",
+                "target": "SELF",
+                "type": "ENGAGE"
+            },
+            {
+                "process": "TRANSFORM",
+                "target": "SELF",
+                "value": "an Awed and Inspired",
+                "type": "ENGAGE"
+            },
+            {
+                "process": "DRAW",
+                "value": 1,
+                "target": "OWN_LEADER",
+                "type": "ENGAGE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Engage</color> (2)</b>: Destroy this card. Select an allied follower on the field and transform it into an <b><i><color=Keyword>Awed and Inspired</color></i></b>. Draw a card.",
+        "required_listeners": [
+            "CARD_ENGAGED"
+        ]
+    },
+    "10452130": {
+        "card_id": "10452130",
+        "name": "Baal, Elemental Resonance",
+        "name_kr": "원소의 공명 바알",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "CHOOSE",
+                "choices": []
+            },
+            {
+                "process": "STAT_BUFF",
+                "target": "SELF",
+                "value": [
+                    1,
+                    1
+                ],
+                "type": "SPELL"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "value": 3,
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Give this follower and another random allied follower on the field +1/+1.</ridx>\n<ridx=1>2. Deal 3 damage to a random enemy follower.</ridx>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10474120": {
+        "card_id": "10474120",
+        "name": "Beelzebub, Supreme King",
+        "name_kr": "완전한 왕 벨제붑",
+        "cost": 9,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 9,
+        "defense": 9,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "CHOOSE",
+                "value": 2
+            },
+            {
+                "type": "FANFARE",
+                "raw_action_text": "remove all abilities from them"
+            },
+            {
+                "type": "FANFARE",
+                "raw_action_text": "and deal them 9 damage"
+            },
+            {
+                "target": "OPPONENT_LEADER",
+                "type": "FANFARE",
+                "process": "ADD_EFFECT"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select 2 enemy followers on the field, remove all abilities from them, and deal them 9 damage. Give the enemy leader \"Takes 1 more damage.\"",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10454120": {
+        "card_id": "10454120",
+        "name": "Belial, Archangel of Cunning",
+        "name_kr": "교지의 타천사 벨리알",
+        "cost": 7,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 7,
+        "defense": 6,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "DEAL_DAMAGE",
+                "target": "ALL_FOLLOWERS",
+                "value": 10
+            },
+            {
+                "process": "GAIN_CREST",
+                "value": "Belial, Archangel of Cunning",
+                "type": "SUPER_SKYBOUND_ART"
+            },
+            {
+                "process": "ADVANCE_CREST",
+                "value": [
+                    "Belial, Archangel of Cunning",
+                    1
+                ],
+                "type": "ON_SUPER_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Deal 10 damage to all other followers. <b><color=Keyword>Super Skybound Art</color></b> - Gain <b><i>Crest: Belial, Archangel of Cunning</i></b>.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Advance the count of your <b><i>Crest: Belial, Archangel of Cunning</i></b> by 1.</sev>",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10434120": {
+        "card_id": "10434120",
+        "name": "Cagliostro, Genius Alchemist",
+        "name_kr": "천재 미소녀 연금술사 칼리오스트로",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 5,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "GAIN_EARTH_SIGIL",
+                "value": 2
+            },
+            {
+                "process": "ADD_CARD_TO_HAND",
+                "target": "OWN_LEADER",
+                "value": "Ars Magna",
+                "type": "FANFARE"
+            },
+            {
+                "process": "SUPER_EVOLVE",
+                "type": "FANFARE"
+            },
+            {
+                "process": "GAIN_CREST",
+                "value": "Cagliostro, Genius Alchemist",
+                "type": "SUPER_SKYBOUND_ART"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Gain 2 earth sigils. Add an <b><i><color=Keyword>Ars Magna</color></i></b> to your hand. <b><color=Keyword>Skybound Art</color></b> - Evolve this follower. <b><color=Keyword>Super Skybound Art</color></b> - Gain <b><i>Crest: Cagliostro, Genius Alchemist</i></b>.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10473110": {
+        "card_id": "10473110",
+        "name": "Cassius, Sky-Yearning Arrival",
+        "name_kr": "하늘을 그리워하는 귀환자 카시우스",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 3,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "DEAL_DAMAGE",
+                "target": "ALL_OPPONENT_FOLLOWERS",
+                "value": "X"
+            },
+            {
+                "value": "the selected follower's attack",
+                "process": "DEFINE_VARIABLE",
+                "type": "SPELL"
+            },
+            {
+                "process": "ADD_CARD_TO_HAND",
+                "target": "OWN_LEADER",
+                "value": "Fortifier Artifact",
+                "type": "LAST_WORDS"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an Artifact follower in your hand and deal X damage to all enemy followers. X is the selected follower's attack.\n<hr><b><color=Keyword>Last Words</color></b>: Add a <b><i><color=Keyword>Fortifier Artifact</color></i></b> to your hand.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD",
+            "CARD_PLAYED"
+        ]
+    },
+    "10473310": {
+        "card_id": "10473310",
+        "name": "Chaos Legion",
+        "name_kr": "카오스 레기온",
+        "cost": 6,
+        "card_type": "SPELL",
+        "class_type": "PORTALCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "ALL_OPPONENTS",
+                "value": 3,
+                "type": "SPELL"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "value": 6,
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Deal 3 damage to all enemies. <b><color=Keyword>Super Skybound Art</color></b> - Deal 6 damage instead.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10412110": {
+        "card_id": "10412110",
+        "name": "Chloe, What a Gal",
+        "name_kr": "치장하는 소녀 클로에",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "enhance_cost": 8,
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": "it",
+                "type": "ENHANCE"
+            },
+            {
+                "target": "SELF",
+                "type": "ENHANCE",
+                "process": "ADD_EFFECT"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Enhance</color> (8)</b>: Select a follower in your hand and summon it. Return this card to hand.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10411310": {
+        "card_id": "10411310",
+        "name": "Comet Drive",
+        "name_kr": "혜성",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "FORESTCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_CHOICE",
+                "value": 4,
+                "type": "SPELL"
+            },
+            {
+                "process": "DRAW",
+                "value": 1,
+                "target": "OWN_LEADER",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Select an enemy follower on the field and deal it 4 damage. If there's an evolved allied follower on the field, draw a card.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10453310": {
+        "card_id": "10453310",
+        "name": "Corruption",
+        "name_kr": "커럽션",
+        "cost": 5,
+        "card_type": "SPELL",
+        "class_type": "ABYSSCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "STAT_BUFF",
+                "target": "ALL_FOLLOWERS",
+                "value": [
+                    -2,
+                    -2
+                ],
+                "type": "SPELL"
+            },
+            {
+                "process": "DESTROY_CREST",
+                "value": "Corruption",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Give all followers on the field -2/-2. Give yourself and your opponent <b><i>Crest: Corruption</i></b>. <b><color=Keyword>Super Skybound Art</color></b> - Destroy your <b><i>Crest: Corruption</i></b>.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10441310": {
+        "card_id": "10441310",
+        "name": "Crescent Tube Ride",
+        "name_kr": "크레센트 튜브 라이드",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "DRAGONCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "GAIN_CREST",
+                "value": "Crescent Tube Ride",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Gain <b><i>Crest: Crescent Tube Ride</i></b>.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10413110": {
+        "card_id": "10413110",
+        "name": "Cupitan, Iridescent Archer",
+        "name_kr": "무지갯빛 궁수 쿠피탄",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 3,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUPER_EVOLVE"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_LEADER",
+                "value": 3,
+                "type": "SUPER_SKYBOUND_ART"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "value": 1,
+                "type": "EVOLVED"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Skybound Art</color></b> - Evolve this follower. <b><color=Keyword>Super Skybound Art</color></b> - Deal 3 damage to the enemy leader.\n<hr><ev>When this follower evolves, do this 7 times: \"Deal 1 damage to a random enemy follower.\"</ev>",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10463210": {
+        "card_id": "10463210",
+        "name": "De La Fille's Gleaming Gems",
+        "name_kr": "레 피에의 보석",
+        "cost": 3,
+        "card_type": "AMULET",
+        "class_type": "HAVENCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "DESTROY",
+                "target": "SELF",
+                "type": "ENGAGE"
+            },
+            {
+                "type": "CHOOSE",
+                "process": "CHOOSE",
+                "choices": []
+            },
+            {
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "type": "SPELL",
+                "process": "ADD_EFFECT"
+            },
+            {
+                "process": "DRAW",
+                "value": 2,
+                "target": "OWN_LEADER",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Engage</color></b>: Destroy this card. Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Destroy a random enemy follower.</ridx>\n<ridx=1>2. Draw 2 cards.</ridx>",
+        "required_listeners": [
+            "CARD_ENGAGED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10433110": {
+        "card_id": "10433110",
+        "name": "Elmott, Remembrance Aflame",
+        "name_kr": "회고의 등불 엘모트",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 2,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SELECT",
+                "target": "OPPONENT_FOLLOWER_CHOICE"
+            },
+            {
+                "type": "FANFARE",
+                "raw_action_text": "remove all abilities from it"
+            },
+            {
+                "type": "FANFARE",
+                "raw_action_text": "and deal it 3 damage"
+            },
+            {
+                "process": "GAIN_CREST",
+                "value": "Elmott, Remembrance Aflame",
+                "type": "ON_SUPER_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field, remove all abilities from it, and deal it 3 damage.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Gain <b><i>Crest: Elmott, Remembrance Aflame</i></b>.</sev>",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10472110": {
+        "card_id": "10472110",
+        "name": "Eustace, Howl of Thunder",
+        "name_kr": "굉뢰의 섬랑 유스테스",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 5,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUPER_EVOLVE",
+                "target": "SELF"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_CHOICE",
+                "value": 3,
+                "type": "CLASH"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Skybound Art</color></b> - Select another unevolved allied follower on the field and evolve it and this follower.\n<hr><b><color=Keyword>Clash</color></b>: Deal 3 damage to the opposing follower.",
+        "required_listeners": [
+            "COMBAT_INITIATED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10414110": {
+        "card_id": "10414110",
+        "name": "Ewiyar, Wind Personified",
+        "name_kr": "바람의 섭리 이위야",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 2,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "RECOVER_EP",
+                "value": 1,
+                "target": "OWN_LEADER"
+            },
+            {
+                "type": "RUSH"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Skybound Art</color></b> - Recover 1 evolution point.\n<hr><b><color=Keyword>Rush</color></b>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10432110": {
+        "card_id": "10432110",
+        "name": "Ezecrain, Portent of Vengeance",
+        "name_kr": "복수의 점술사 에제크레인",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 6,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "CHOOSE",
+                "value": 2
+            },
+            {
+                "process": "GAIN_EARTH_SIGIL",
+                "value": 2,
+                "type": "FANFARE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select 2 enemy followers on the field and deal them 4 damage. Gain 2 earth sigils.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10422120": {
+        "card_id": "10422120",
+        "name": "Feather, Bombastic Brawler",
+        "name_kr": "타오르는 투지 페더",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 5,
+        "defense": 4,
+        "tribes": [],
+        "effects": [],
+        "raw_effects_text": "",
+        "required_listeners": []
+    },
+    "10454110": {
+        "card_id": "10454110",
+        "name": "Fediel, Darkness Personified",
+        "name_kr": "어둠의 섭리 페디엘",
+        "cost": 7,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 5,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "REANIMATE",
+                "value": 2
+            },
+            {
+                "type": "FANFARE",
+                "process": "REANIMATE",
+                "value": 1
+            },
+            {
+                "type": "FANFARE",
+                "process": "SUPER_EVOLVE",
+                "target": "SELF"
+            },
+            {
+                "process": "STAT_BUFF",
+                "target": "ALL_OPPONENT_FOLLOWERS",
+                "value": [
+                    -2,
+                    -2
+                ],
+                "type": "ON_MY_TURN_END"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Necromancy</color> (6)</b> - <b><color=Keyword>Reanimate</color> (2)</b>, <b><color=Keyword>Reanimate</color> (1)</b>, and evolve them.\n<hr>At the end of your turn, give all enemy followers on the field -2/-2.",
+        "required_listeners": [
+            "TURN_END",
+            "CARD_PLAYED"
+        ]
+    },
+    "10422130": {
+        "card_id": "10422130",
+        "name": "Fiorito, Muscles in Bloom",
+        "name_kr": "꽃피는 근육 피오리토",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 2,
+        "defense": 6,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "AMBUSH"
+            },
+            {
+                "type": "BANE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Ambush</color></b>\n<b><color=Keyword>Bane</color></b>",
+        "required_listeners": []
+    },
+    "10464110": {
+        "card_id": "10464110",
+        "name": "Galleon, Earth Personified",
+        "name_kr": "흙의 섭리 갈레온",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 5,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "WARD"
+            },
+            {
+                "process": "IMMUNITY",
+                "type": "SPELL"
+            },
+            {
+                "process": "SUPER_EVOLVE",
+                "target": "ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED_NO_ATTACK",
+                "type": "ON_MY_TURN_END"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Ward</color></b>\nCan't attack followers or leaders.\nAt the end of your turn, if you've unlocked super-evolution, evolve a random unevolved allied follower on the field that didn't attack this turn.",
+        "required_listeners": [
+            "TURN_END",
+            "CARD_PLAYED"
+        ]
+    },
+    "10423110": {
+        "card_id": "10423110",
+        "name": "Golden Knight, True King's Blade",
+        "name_kr": "진왕의 칼날 황금의 기사",
+        "cost": 7,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 6,
+        "defense": 6,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "CHOOSE",
+                "choices": []
+            },
+            {
+                "process": "SUPER_EVOLVE",
+                "type": "SPELL"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "ALL_OPPONENT_FOLLOWERS",
+                "value": 4,
+                "type": "SPELL"
+            },
+            {
+                "process": "HEAL",
+                "target": "OWN_LEADER",
+                "value": 4,
+                "type": "SPELL"
+            },
+            {
+                "enhance_cost": 9,
+                "process": "TRIGGER_EFFECT",
+                "type": "ENHANCE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Super-evolve this follower.</ridx>\n<ridx=1>2. Deal 4 damage to all enemy followers.</ridx>\n<ridx=2>3. Restore 4 defense to your leader.</ridx>\n<b><color=Keyword>Enhance</color> (9)</b>: Activate all of them instead.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10403110": {
+        "card_id": "10403110",
+        "name": "Gran & Djeeta, Valiant Skyfarers",
+        "name_kr": "푸른 하늘을 나아가는 기공사 그랑&지타",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 3,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "CHOOSE",
+                "choices": []
+            },
+            {
+                "process": "SUPER_EVOLVE",
+                "type": "FANFARE"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "value": 5,
+                "type": "SPELL"
+            },
+            {
+                "process": "DRAW",
+                "value": [
+                    "followers",
+                    "followers"
+                ],
+                "target": "OWN_LEADER",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select a <b><color=Keyword>Mode</color></b> to activate. <b><color=Keyword>Skybound Art</color></b> - Evolve this follower.\n<ridx=0>1. Deal 5 damage to a random enemy follower.</ridx>\n<ridx=1>2. Draw 2 followers.</ridx>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10472120": {
+        "card_id": "10472120",
+        "name": "Ilsa, Brutal Drill Sergeant",
+        "name_kr": "엄격한 교관 일루자",
+        "cost": 7,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 7,
+        "defense": 6,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "CHOOSE",
+                "choices": []
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "value": 4,
+                "type": "SPELL"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_LEADER",
+                "value": 4,
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Do this 3 times: \"Deal 4 damage to a random enemy follower.\"</ridx>\n<ridx=1>2. Deal 4 damage to the enemy leader.</ridx>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10471130": {
+        "card_id": "10471130",
+        "name": "Isaac, Congenial Engineer",
+        "name_kr": "보은의 엔지니어 아이작",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "ADD_CARD_TO_HAND",
+                "target": "OWN_LEADER",
+                "value": "Striker Artifact",
+                "type": "LAST_WORDS"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Last Words</color></b>: Add a <b><i><color=Keyword>Striker Artifact</color></i></b> to your hand.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD"
+        ]
+    },
+    "10442110": {
+        "card_id": "10442110",
+        "name": "Izmir, Frigid Fate",
+        "name_kr": "얼어붙는 숙명 이슈미르",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 5,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "If you have 10 max play points"
+            },
+            {
+                "type": "FANFARE",
+                "process": "SUPER_EVOLVE"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "ALL_OPPONENT_FOLLOWERS",
+                "value": 3,
+                "type": "EVOLVED"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: If you have 10 max play points, evolve this follower.\n<hr><ev>When this follower evolves, deal 3 damage to all enemy followers.</ev>",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10441110": {
+        "card_id": "10441110",
+        "name": "Joel, Wave Chaser",
+        "name_kr": "대해를 좇는 자 조엘",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "WARD"
+            },
+            {
+                "type": "AURA"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Ward</color></b>\n<b><color=Keyword>Aura</color></b>",
+        "required_listeners": []
+    },
+    "10401110": {
+        "card_id": "10401110",
+        "name": "Katalina, Sky's Protector",
+        "name_kr": "하늘을 누비는 비호자 카타리나",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 5,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "value": 5
+            },
+            {
+                "type": "WARD"
+            },
+            {
+                "process": "IMMUNITY",
+                "value": 3,
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Skybound Art</color></b> - Deal 5 damage to 2 random enemy followers.\n<hr><b><color=Keyword>Ward</color></b>\nCan't take more than 3 damage at a time.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10423310": {
+        "card_id": "10423310",
+        "name": "Knightly Ardor",
+        "name_kr": "리터 슈나이트",
+        "cost": 5,
+        "card_type": "SPELL",
+        "class_type": "SWORDCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "process": "CHOOSE",
+                "choices": []
+            },
+            {
+                "process": "MULTI_ATTACK",
+                "value": 2,
+                "type": "SPELL"
+            },
+            {
+                "process": "STAT_BUFF",
+                "target": "ALL_ALLY_FOLLOWERS",
+                "value": [
+                    1,
+                    1
+                ],
+                "type": "SPELL"
+            },
+            {
+                "process": "RECOVER_PP",
+                "value": 2,
+                "target": "OWN_LEADER",
+                "type": "SPELL"
+            },
+            {
+                "process": "HEAL",
+                "target": "OWN_LEADER",
+                "value": 6,
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Give the leftmost allied Swordcraft follower on the field \"Can attack 2 times per turn.\"</ridx>\n<ridx=1>2. Give all allied Swordcraft followers on the field +1/+1 and <b><color=Keyword>Barrier</color></b>.</ridx>\n<ridx=2>3. Recover 2 play points and 1 evolution point.</ridx>\n<ridx=3>4. Restore 6 defense to your leader.</ridx>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10411110": {
+        "card_id": "10411110",
+        "name": "Kou & You, Love and Hatred",
+        "name_kr": "애증의 무용수 코우&요우",
+        "cost": 7,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 8,
+        "defense": 6,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "MULTI_ATTACK",
+                "value": 2,
+                "type": "SPELL"
+            },
+            {
+                "process": "HEAL",
+                "target": "ALL_ALLY_FOLLOWERS",
+                "value": 3,
+                "type": "STRIKE"
+            }
+        ],
+        "raw_effects_text": "Can attack 2 times per turn.\n<b><color=Keyword>Strike</color></b>: Restore 3 defense to all allies.",
+        "required_listeners": [
+            "ATTACK_DECLARED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10461120": {
+        "card_id": "10461120",
+        "name": "Lamretta, Sisterly Shepherd",
+        "name_kr": "청렴하고 바른 수녀 람레다",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 1,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "ALL_FOLLOWERS",
+                "value": 2,
+                "type": "ON_MY_TURN_END"
+            },
+            {
+                "process": "IMMUNITY",
+                "type": "ON_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "At the end of your turn, if this follower is evolved, deal 2 damage to all followers.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Give this follower \"Can't attack followers or leaders\" until the end of the turn.</ev>",
+        "required_listeners": [
+            "TURN_END",
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
+        ]
+    },
+    "10474110": {
+        "card_id": "10474110",
+        "name": "Lu Woh, Light Personified",
+        "name_kr": "빛의 섭리 루 오",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 6,
+        "defense": 6,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "value": 1
+            },
+            {
+                "type": "FANFARE",
+                "process": "STAT_BUFF",
+                "target": "ALL_FOLLOWERS",
+                "value": [
+                    1,
+                    0
+                ]
+            },
+            {
+                "type": "FANFARE",
+                "process": "GAIN_CREST",
+                "value": "Lu Woh"
+            },
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Light Personified"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Do this 6 times: \"Deal 1 damage to a random enemy follower.\" Give all followers in your opponent's hand +1/+0. <b><color=Keyword>Skybound Art</color></b> - Gain <b><i>Crest: Lu Woh, Light Personified</i></b>.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10403120": {
+        "card_id": "10403120",
+        "name": "Lyria, Skydestined",
+        "name_kr": "하늘의 운명을 쥔 소녀 루리아",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "enhance_cost": 8,
+                "process": "DRAW",
+                "value": 1,
+                "target": "OWN_LEADER",
+                "condition": "CARD_TYPE_FOLLOWER",
+                "type": "ENHANCE"
+            },
+            {
+                "process": "RECOVER_PP",
+                "value": 7,
+                "target": "OWN_LEADER",
+                "type": "ENHANCE"
+            },
+            {
+                "type": "BARRIER"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Enhance</color> (8)</b>: Draw a follower that costs 7 or more. Recover 7 play points.\n<hr><b><color=Keyword>Barrier</color></b>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10411120": {
+        "card_id": "10411120",
+        "name": "Manamel, Super Cutest",
+        "name_kr": "참 귀여워요 마나마루",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 2,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "SUPER_EVOLVE",
+                "type": "ON_MY_TURN_END"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "ALL_OPPONENT_FOLLOWERS",
+                "value": 1,
+                "type": "EVOLVED"
+            }
+        ],
+        "raw_effects_text": "At the end of your turn, evolve this follower.\n<hr><ev>When this follower evolves, deal 1 damage to all enemy followers.</ev>",
+        "required_listeners": [
+            "TURN_END",
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
+        ]
+    },
+    "10441120": {
+        "card_id": "10441120",
+        "name": "Mari, Meg's Bestie",
+        "name_kr": "메구의 절친 마릿페",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL"
+            },
+            {
+                "target": "SELF",
+                "type": "SPELL",
+                "process": "ADD_EFFECT"
+            },
+            {
+                "process": "STAT_BUFF",
+                "target": "ALLY_FOLLOWER_RANDOM_SUPER_EVOLVED",
+                "value": [
+                    1,
+                    1
+                ],
+                "type": "ON_MY_TURN_END"
+            }
+        ],
+        "raw_effects_text": "Activates in hand. Whenever a 3-base-cost allied follower super-evolves, set the cost of this card to 0 until the end of the turn.\n<hr>At the end of your turn, give a random super-evolved allied follower on the field +1/+1.",
+        "required_listeners": [
+            "TURN_END",
+            "CARD_PLAYED"
+        ]
+    },
+    "10442310": {
+        "card_id": "10442310",
+        "name": "Maximum Love Bomb",
+        "name_kr": "러브 맥스 봄버",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "DRAGONCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "IMMUNITY",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Select an enemy follower on the field, deal it 3 damage, and give it \"Can't attack followers or leaders\" until the end of your opponent's turn.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10443110": {
+        "card_id": "10443110",
+        "name": "Meg, Girl Next Door",
+        "name_kr": "어디에나 있는 평범한 여자아이 메구",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 2,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUPER_EVOLVE"
+            },
+            {
+                "condition_text": "a 2-base-cost allied follower",
+                "process": "ADD_EFFECT",
+                "target": "SELF",
+                "value": "Ward",
+                "type": "ON_FOLLOWER_ENTER_FIELD"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Skybound Art</color></b> - Super-evolve this follower.\n<hr>Whenever a 2-base-cost allied follower enters the field, give this follower <b><color=Keyword>Ward</color></b>.",
+        "required_listeners": [
+            "FOLLOWER_ENTER_FIELD",
+            "CARD_PLAYED"
+        ]
+    },
+    "10432120": {
+        "card_id": "10432120",
+        "name": "Mireille & Risette, Penitent Duo",
+        "name_kr": "고단한 여행길 미레유&리제트",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": "Mireille & Risette"
+            },
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Penitent Duo"
+            },
+            {
+                "value": 2,
+                "process": "SUPER_EVOLVE",
+                "target": "SELF",
+                "type": "EARTH_RITE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Mireille & Risette, Penitent Duo</color></i></b>. <b><color=Keyword>Earth Rite</color> (2)</b> - Evolve it and this follower.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10421130": {
+        "card_id": "10421130",
+        "name": "Mordred, Illusory Lion",
+        "name_kr": "미몽의 사자 모드레드",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 2,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "STORM"
+            },
+            {
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Arthur",
+                    "Staunch Dragon"
+                ],
+                "type": "ON_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Storm</color></b>\n<hr><ev><b><color=Keyword>Evolve</color></b>: Summon an <b><i><color=Keyword>Arthur, Staunch Dragon</color></i></b>.</ev>",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
+        ]
+    },
+    "10442120": {
+        "card_id": "10442120",
+        "name": "Mugen, Steel-Bodied Honesty",
+        "name_kr": "순박한 강철육체 무겐",
+        "cost": 8,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 10,
+        "defense": 8,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "ADD_EFFECT",
+                "target": "SELF",
+                "value": "Storm"
+            },
+            {
+                "process": "DESTROY",
+                "value": 2,
+                "target": "OPPONENT_FOLLOWER_CHOICE2",
+                "type": "ON_SUPER_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Super Skybound Art</color></b> - Give this follower <b><color=Keyword>Storm</color></b>.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Select 2 enemy followers on the field and destroy them.</sev>",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10453110": {
+        "card_id": "10453110",
+        "name": "Nehan, Dispenser of Samsara",
+        "name_kr": "생멸의 기교 네한",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 2,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUPER_EVOLVE",
+                "target": "ALLY_FOLLOWER_CHOICE_UNEVOLVED"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OWN_LEADER",
+                "value": 2,
+                "type": "FANFARE"
+            },
+            {
+                "type": "DRAIN"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Evolve all unevolved allied followers on the field. Deal 2 damage to your leader.\n<hr><b><color=Keyword>Drain</color></b>",
+        "required_listeners": [
+            "DAMAGE_DEALT_BY_COMBAT",
+            "CARD_PLAYED"
+        ]
+    },
+    "10452110": {
+        "card_id": "10452110",
+        "name": "Nezha, Soaring War God",
+        "name_kr": "패공의 무신 나타",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 8,
+        "defense": 6,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "RUSH"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "value": 4,
+                "type": "ON_MY_TURN_END"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Rush</color></b>\nAt the end of your turn, deal 4 damage to a random enemy follower, then deal 2 damage to a random enemy follower.",
+        "required_listeners": [
+            "TURN_END"
+        ]
+    },
+    "10431110": {
+        "card_id": "10431110",
+        "name": "Philosophia, Cryptic Sophist",
+        "name_kr": "불가사의한 철학자 필라소피라",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 1,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "DRAW",
+                "value": 1,
+                "target": "OWN_LEADER",
+                "condition": "CARD_TYPE_SPELL"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Draw a spell.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10443310": {
+        "card_id": "10443310",
+        "name": "Primal Beast Absorption",
+        "name_kr": "성정수의 흡수",
+        "cost": 5,
+        "card_type": "SPELL",
+        "class_type": "DRAGONCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "ADD_CARD_TO_HAND",
+                "target": "OWN_LEADER",
+                "value": "copy of it",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Select an enemy card on the field, banish it, and add a copy of it to your hand.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10421110": {
+        "card_id": "10421110",
+        "name": "Randall, Feet Fighter",
+        "name_kr": "신념의 발차기 랜들",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 3,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "enhance_cost": 5,
+                "process": "ADD_EFFECT",
+                "target": "SELF",
+                "value": "Storm",
+                "type": "ENHANCE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Enhance</color> (5)</b>: Give this follower <b><color=Keyword>Storm</color></b>.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10431310": {
+        "card_id": "10431310",
+        "name": "Rune Portal",
+        "name_kr": "룬 리추얼",
+        "cost": 7,
+        "card_type": "SPELL",
+        "class_type": "RUNECRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "ALL_OPPONENT_FOLLOWERS",
+                "value": 6,
+                "type": "SPELL"
+            },
+            {
+                "process": "HEAL",
+                "target": "OWN_LEADER",
+                "value": 3,
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Deal 6 damage to all enemy followers. Restore 3 defense to your leader.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10404110": {
+        "card_id": "10404110",
+        "name": "Sandalphon, Primarch Successor",
+        "name_kr": "천사장의 후계 산달폰",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 7,
+        "defense": 6,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL"
+            },
+            {
+                "process": "CONDITIONAL_EFFECT",
+                "type": "SPELL"
+            },
+            {
+                "process": "GAIN_CREST",
+                "value": "Sandalphon, Primarch Successor and return this card to hand",
+                "type": "SPELL"
+            },
+            {
+                "type": "FANFARE",
+                "process": "DEAL_DAMAGE",
+                "raw_target_text": "a random enemy",
+                "value": 2
+            }
+        ],
+        "raw_effects_text": "Activates in deck. At the start of your turn, if allied followers have evolved at least 6 times this match, <b><color=Keyword>Invoke</color></b> this card.\n<hr>When this card is <b><color=Keyword>Invoke</color><color=Keyword>d</color></b>, gain <b><i>Crest: Sandalphon, Primarch Successor</i></b> and return this card to hand.\n<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Super Skybound Art</color></b> - Do this 5 times: \"Deal 2 damage to a random enemy.\"",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10462110": {
+        "card_id": "10462110",
+        "name": "Sara, Graphos's Chosen",
+        "name_kr": "모래신의 무녀 사라",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 4,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "enhance_cost": 6,
+                "process": "STAT_BUFF",
+                "target": "SELF",
+                "value": [
+                    0,
+                    10
+                ],
+                "type": "ENHANCE"
+            },
+            {
+                "type": "WARD"
+            },
+            {
+                "process": "DESTROY",
+                "target": "OPPONENT_FOLLOWER_CHOICE",
+                "type": "ON_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Enhance</color> (6)</b>: Give this follower +0/+10.\n<hr><b><color=Keyword>Ward</color></b>\n<hr><ev><b><color=Keyword>Evolve</color></b>: Select a damaged enemy follower on the field and destroy it.</ev>",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10452120": {
+        "card_id": "10452120",
+        "name": "Satyr, Open-Hearted Rover",
+        "name_kr": "사랑의 여행자 사티로스",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "If there's an evolved allied follower on the field"
+            },
+            {
+                "type": "FANFARE",
+                "process": "SUPER_EVOLVE"
+            },
+            {
+                "type": "AURA"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: If there's an evolved allied follower on the field, evolve this follower.\n<hr><b><color=Keyword>Aura</color></b>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10424120": {
+        "card_id": "10424120",
+        "name": "Seofon, Leader of the Eternals",
+        "name_kr": "십천중 두목 시에테",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 4,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUPER_EVOLVE",
+                "target": "ALLY_FOLLOWER_CHOICE_UNEVOLVED"
+            },
+            {
+                "process": "SUPER_EVOLVE",
+                "raw_target_text": "them instead",
+                "type": "SUPER_SKYBOUND_ART"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Skybound Art</color></b> - Evolve all unevolved allied followers on the field. <b><color=Keyword>Super Skybound Art</color></b> - Super-evolve them instead.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10471110": {
+        "card_id": "10471110",
+        "name": "Sho, Reborn Night King",
+        "name_kr": "갱생한 야왕 쇼",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 2,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "If you've unlocked super-evolution"
+            },
+            {
+                "type": "FANFARE",
+                "process": "ADD_EFFECT",
+                "target": "SELF",
+                "value": "Barrier"
+            },
+            {
+                "type": "STORM"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: If you've unlocked super-evolution, give this follower <b><color=Keyword>Barrier</color></b>.\n<hr><b><color=Keyword>Storm</color></b>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10462210": {
+        "card_id": "10462210",
+        "name": "Skyfaring Vessel",
+        "name_kr": "하늘을 나아가는 배",
+        "cost": 4,
+        "card_type": "AMULET",
+        "class_type": "HAVENCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL"
+            },
+            {
+                "process": "REDUCE_COST",
+                "target": "SELF",
+                "value": 1,
+                "type": "SPELL"
+            },
+            {
+                "process": "DESTROY",
+                "target": "SELF",
+                "type": "ENGAGE"
+            },
+            {
+                "process": "SUPER_EVOLVE",
+                "target": "SELF",
+                "type": "ENGAGE"
+            }
+        ],
+        "raw_effects_text": "Activates in hand. Whenever you <b><color=Keyword>Engage</color></b> an amulet, reduce the cost of this card by 1.\n<hr><b><color=Keyword>Engage</color></b>: Destroy this card. Select an unevolved allied follower on the field and evolve it.",
+        "required_listeners": [
+            "CARD_ENGAGED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10462120": {
+        "card_id": "10462120",
+        "name": "Sophia, Zeyen Priestess",
+        "name_kr": "제엔교 수도자 소피아",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 3,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": "random Havencraft follower that costs 2 or less from your deck"
+            },
+            {
+                "process": "ADD_EFFECT",
+                "target": "ALL_OTHER_ALLY_FOLLOWERS",
+                "value": "Barrier",
+                "type": "ON_SUPER_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a random Havencraft follower that costs 2 or less from your deck.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Give all other allied followers on the field <b><color=Keyword>Barrier</color></b>.</sev>",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10412310": {
+        "card_id": "10412310",
+        "name": "Starry Sky",
+        "name_kr": "기라성",
+        "cost": 1,
+        "card_type": "SPELL",
+        "class_type": "FORESTCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "value": 2,
+                "type": "SPELL"
+            },
+            {
+                "value": "Starry Sky",
+                "process": "GAIN_CREST",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Deal 2 damage to a random enemy follower. <b><color=Keyword>Combo</color> (5)</b> - Gain <b><i>Crest: Starry Sky</i></b>.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10472310": {
+        "card_id": "10472310",
+        "name": "Stone Breaker",
+        "name_kr": "스톤 브레이크",
+        "cost": 3,
+        "card_type": "SPELL",
+        "class_type": "PORTALCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "value": 1,
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Do this 6 times: \"Deal 1 damage to a random enemy follower.\"",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10431120": {
+        "card_id": "10431120",
+        "name": "Suframare, Wandering Tutor",
+        "name_kr": "떠돌이 가정교사 스플러마르",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 1,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "SPELLBOOST_HAND",
+                "target": "OWN_LEADER",
+                "type": "ON_MY_TURN_END"
+            },
+            {
+                "value": "this follower's attack",
+                "process": "DEFINE_VARIABLE",
+                "type": "SPELL"
+            },
+            {
+                "process": "IMMUNITY",
+                "type": "ON_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "At the end of your turn, spellboost your hand X times. X is this follower's attack.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Give this follower \"Can't attack followers or leaders.\"</ev>",
+        "required_listeners": [
+            "TURN_END",
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10463110": {
+        "card_id": "10463110",
+        "name": "Tikoh, Asclepian Surgeon",
+        "name_kr": "마법지팡이를 든 외과의 티코",
+        "cost": 1,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 0,
+        "defense": 4,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "HEAL",
+                "target": "OWN_LEADER",
+                "value": 1,
+                "type": "SPELL"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_CHOICE",
+                "value": 3,
+                "type": "ON_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "Whenever you <b><color=Keyword>Engage</color></b> an amulet, restore 1 defense to your leader.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Select an enemy follower on the field and deal it 3 damage.</ev>",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10461110": {
+        "card_id": "10461110",
+        "name": "Troue, Heroic Visionary",
+        "name_kr": "영웅환시 토루",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 2,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "STORM"
+            },
+            {
+                "process": "ADD_EFFECT",
+                "target": "SELF",
+                "value": "Drain",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Storm</color></b>\nWhenever you <b><color=Keyword>Engage</color></b> an amulet, give this follower <b><color=Keyword>Drain</color></b>.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10471120": {
+        "card_id": "10471120",
+        "name": "Tsubasa, Blazing Gearcyclist",
+        "name_kr": "폭연의 총장 츠바사",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "PORTALCRAFT",
+        "attack": 3,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "STAT_BUFF",
+                "target": "OWN_HAND_CHOICE",
+                "value": 1
+            },
+            {
+                "type": "RUSH"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Increase the Skybound Art gauges of all cards in your hand by 1.\n<hr><b><color=Keyword>Rush</color></b>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10432310": {
+        "card_id": "10432310",
+        "name": "Unleashed",
+        "name_kr": "언리쉬",
+        "cost": 4,
+        "card_type": "SPELL",
+        "class_type": "RUNECRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "SPELL",
+                "process": "CHOOSE",
+                "choices": []
+            },
+            {
+                "process": "DRAW",
+                "value": 1,
+                "target": "OWN_LEADER",
+                "type": "SPELL"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "value": 4,
+                "type": "SPELL"
+            },
+            {
+                "process": "DRAW",
+                "value": 2,
+                "target": "OWN_LEADER",
+                "type": "SPELL"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OWN_LEADER",
+                "value": 4,
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Draw a card. Deal 4 damage to a random enemy follower.</ridx>\n<ridx=1>2. Draw 2 cards. Deal 4 damage to 2 random enemy followers and 2 damage to your leader.</ridx>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10451310": {
+        "card_id": "10451310",
+        "name": "Valiant Edge",
+        "name_kr": "밸리언트 에지",
+        "cost": 2,
+        "card_type": "SPELL",
+        "class_type": "ABYSSCRAFT",
+        "attack": 0,
+        "defense": 0,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OWN_LEADER",
+                "value": 2,
+                "type": "SPELL"
+            },
+            {
+                "process": "GAIN_CREST",
+                "value": "Valiant Edge",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "Deal 2 damage to your leader. Gain <b><i>Crest: Valiant Edge</i></b>.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10451120": {
+        "card_id": "10451120",
+        "name": "Vaseraga, Unyielding Scythe",
+        "name_kr": "불굴의 서슬 바자라가",
+        "cost": 6,
+        "card_type": "FOLLOWER",
+        "class_type": "ABYSSCRAFT",
+        "attack": 2,
+        "defense": 7,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "INTIMIDATE"
+            },
+            {
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": [
+                    "Vaseraga",
+                    "Unyielding Scythe"
+                ],
+                "type": "LAST_WORDS"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "OWN_LEADER",
+                "value": 2,
+                "type": "LAST_WORDS"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Intimidate</color></b>\n<b><color=Keyword>Last Words</color></b>: Summon a <b><i><color=Keyword>Vaseraga, Unyielding Scythe</color></i></b>. Deal 2 damage to your leader.",
+        "required_listeners": [
+            "DESTROYED_ON_FIELD"
+        ]
+    },
+    "10464120": {
+        "card_id": "10464120",
+        "name": "Vira, Luminous Primal Knight",
+        "name_kr": "위엄찬 성정기사 비라",
+        "cost": 8,
+        "card_type": "FOLLOWER",
+        "class_type": "HAVENCRAFT",
+        "attack": 6,
+        "defense": 8,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "CHOOSE",
+                "value": 2
+            },
+            {
+                "process": "SUPER_EVOLVE",
+                "type": "SUPER_SKYBOUND_ART"
+            },
+            {
+                "type": "WARD"
+            },
+            {
+                "process": "IMMUNITY",
+                "value": 3,
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select 2 enemy followers on the field and banish them. <b><color=Keyword>Super Skybound Art</color></b> - Super-evolve this follower.\n<hr><b><color=Keyword>Ward</color></b>\nCan't take more than 3 damage at a time.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10401120": {
+        "card_id": "10401120",
+        "name": "Vyrn, Bestest Pal",
+        "name_kr": "소중한 단짝 비",
+        "cost": 2,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 2,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "raw_action_text": "If you've unlocked super-evolution"
+            },
+            {
+                "type": "FANFARE",
+                "process": "SUPER_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: If you've unlocked super-evolution, evolve this follower.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10434110": {
+        "card_id": "10434110",
+        "name": "Wamdus, Water Personified",
+        "name_kr": "물의 섭리 웜듀스",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "RUNECRAFT",
+        "attack": 0,
+        "defense": 1,
+        "tribes": [],
+        "effects": [
+            {
+                "process": "STAT_BUFF",
+                "target": "SELF",
+                "value": [
+                    1,
+                    1
+                ],
+                "type": "SPELLBOOST"
+            },
+            {
+                "type": "FANFARE",
+                "process": "SPELLBOOST_HAND",
+                "target": "OWN_LEADER"
+            },
+            {
+                "process": "CHOOSE",
+                "choices": [],
+                "type": "ON_SUPER_EVOLVE"
+            },
+            {
+                "process": "ADD_EFFECT",
+                "target": "ALL_OTHER_ALLY_FOLLOWERS",
+                "value": "Barrier",
+                "type": "SPELL"
+            },
+            {
+                "process": "DEAL_DAMAGE",
+                "target": "ALL_OPPONENT_FOLLOWERS",
+                "value": "X",
+                "type": "SPELL"
+            },
+            {
+                "value": "this follower's attack",
+                "process": "DEFINE_VARIABLE",
+                "type": "SPELL"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>On Spellboost</color></b>: Give this follower +1/+1.\n<hr><b><color=Keyword>Fanfare</color></b>: Spellboost your hand.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Give all other allied followers on the field <b><color=Keyword>Barrier</color></b>.</ridx>\n<ridx=1>2. Deal X damage split between all enemy followers. X is this follower's attack.</ridx></sev>",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10444110": {
+        "card_id": "10444110",
+        "name": "Wilnas, Flame Personified",
+        "name_kr": "불의 섭리 윌나스",
+        "cost": 7,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 8,
+        "defense": 6,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_CHOICE",
+                "value": 8
+            },
+            {
+                "type": "INTIMIDATE"
+            },
+            {
+                "process": "TRIGGER_EFFECT",
+                "value": "FANFARE",
+                "type": "ON_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field and deal it 8 damage.\n<hr><b><color=Keyword>Intimidate</color></b>\n<hr><ev><b><color=Keyword>Evolve</color></b>: Replicate the effects of this card's <b><color=Keyword>Fanfare</color></b> ability.</ev>",
+        "required_listeners": [
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10414120": {
+        "card_id": "10414120",
+        "name": "Yuel & Societte, Dancing Duo",
+        "name_kr": "조화의 무용수 유엘&소시에",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "FORESTCRAFT",
+        "attack": 4,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "DEAL_DAMAGE",
+                "target": "OPPONENT_FOLLOWER_RANDOM",
+                "value": 4
+            },
+            {
+                "process": "GAIN_CREST",
+                "value": "Yuel & Societte, Dancing Duo",
+                "type": "ON_SUPER_EVOLVE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Do this 2 times: \"Deal 4 damage to a random enemy follower.\"\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Gain <b><i>Crest: Yuel & Societte, Dancing Duo</i></b>.</sev>",
+        "required_listeners": [
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
+        ]
+    },
+    "10402110": {
+        "card_id": "10402110",
+        "name": "Yuni, Cosmic Legacy",
+        "name_kr": "코스모스의 사도 유니",
+        "cost": 3,
+        "card_type": "FOLLOWER",
+        "class_type": "NEUTRAL",
+        "attack": 3,
+        "defense": 3,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "AURA"
+            },
+            {
+                "process": "HEAL",
+                "target": "ALL_ALLY_FOLLOWERS",
+                "value": 1,
+                "type": "ON_MY_TURN_END"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Aura</color></b>\nAt the end of your turn, restore 1 defense to all allies.",
+        "required_listeners": [
+            "TURN_END"
+        ]
+    },
+    "10424110": {
+        "card_id": "10424110",
+        "name": "Zeta & Bea, Crimson and Blue",
+        "name_kr": "진홍과 군청 제타&베아트릭스",
+        "cost": 4,
+        "card_type": "FOLLOWER",
+        "class_type": "SWORDCRAFT",
+        "attack": 3,
+        "defense": 2,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "SUMMON",
+                "target": "OWN_LEADER",
+                "value": "Zeta & Bea"
+            },
+            {
+                "type": "FANFARE",
+                "raw_action_text": "Crimson and Blue"
+            },
+            {
+                "enhance_cost": 6,
+                "process": "ADD_EFFECT",
+                "target": "SELF",
+                "value": "Bane",
+                "type": "ENHANCE"
+            },
+            {
+                "type": "RUSH"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Zeta & Bea, Crimson and Blue</color></i></b>.\n<b><color=Keyword>Enhance</color> (6)</b>: Give it <b><color=Keyword>Bane</color></b> and this follower <b><color=Keyword>Storm</color></b>.\n<hr><b><color=Keyword>Rush</color></b>",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    },
+    "10444120": {
+        "card_id": "10444120",
+        "name": "Zooey, Ally of the World",
+        "name_kr": "세계의 편에 선 자 조이",
+        "cost": 5,
+        "card_type": "FOLLOWER",
+        "class_type": "DRAGONCRAFT",
+        "attack": 5,
+        "defense": 5,
+        "tribes": [],
+        "effects": [
+            {
+                "type": "FANFARE",
+                "process": "GAIN_MAX_PP",
+                "value": 1
+            },
+            {
+                "enhance_cost": 10,
+                "process": "ADD_EFFECT",
+                "target": "SELF",
+                "value": "Storm",
+                "type": "ENHANCE"
+            },
+            {
+                "process": "IMMUNITY",
+                "value": 0,
+                "type": "ENHANCE"
+            }
+        ],
+        "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Gain 1 max play point.\n<b><color=Keyword>Enhance</color> (10)</b>: Give this follower <b><color=Keyword>Storm</color></b>. Set your leader's max defense to 1. Give your leader \"Can't take more than 0 damage at a time\" until the end of your opponent's turn.",
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
+    }
+}

@@ -6,7 +6,7 @@ from src.common.enums import GamePhase, CardType, Zone, EffectType, TargetType
 from src.models.card import Card
 from src.models.player import Player
 from src.common.effect import Effect
-from src.common.event import FollowerEnterFieldEvent
+from src.common.event import FollowerEnterFieldEvent, LeaveFieldEvent
 
 
 class GameStateManager:
@@ -72,6 +72,8 @@ class GameStateManager:
 
     def move_card(self, card_id: str, from_zone: Zone, to_zone: Zone):
         """카드를 한 영역에서 다른 영역으로 이동시킵니다."""
+        if from_zone == to_zone:
+            return
         card = self.get_entity_by_id(card_id, from_zone)
         if not card:
             print(f"[ERROR] move_card - card with id {card_id} from zone {from_zone} not found.")
@@ -81,6 +83,8 @@ class GameStateManager:
         
         # 필드를 벗어날 때 리스너를 해제합니다.
         if from_zone == Zone.FIELD:
+            if self.game and hasattr(self.game, 'event_manager'):
+                self.game.event_manager.publish(LeaveFieldEvent(card_id=card.card_id, player_id=card.owner_id))
             self.game._unregister_card_listeners(card)
 
         player.zone_dict[from_zone].remove_card(card_id)

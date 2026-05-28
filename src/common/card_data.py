@@ -186,6 +186,7 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
         EffectType.ON_MY_TURN_END: EventType.TURN_END,
         EffectType.ON_OPPONENTS_TURN_END: EventType.TURN_END,
         EffectType.DRAIN: EventType.DAMAGE_DEALT_BY_COMBAT,
+        EffectType.ON_LEAVE_FIELD: EventType.LEAVE_FIELD,
     }
     listeners = []
     for effect in effects:

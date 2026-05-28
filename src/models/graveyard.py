@@ -17,6 +17,16 @@ class Graveyard:
         print(f"[LOG] 묘지에 카드 {card.get_display_name()} (ID: {card.card_id}) 추가됨. 현재 묘지 사이즈: {len(self._cards)}")
         return True
 
+    def remove_card(self, card_id: str) -> bool:
+        """묘지에서 특정 ID를 가진 카드를 제거합니다."""
+        for card in self._cards:
+            if card.card_id == card_id:
+                self._cards.remove(card)
+                print(f"[LOG] 묘지에서 카드 {card.get_display_name()} (ID {card_id}) 제거됨. 남은 묘지 사이즈 {len(self._cards)}.")
+                return True
+        print(f"[LOG] 묘지에서 카드 ID {card_id}를 찾을 수 없어 제거 실패.")
+        return False
+
     def get_cards(self) -> List[Card]:
         """묘지에 있는 모든 카드의 리스트를 반환합니다."""
         return list(self._cards)

@@ -10,6 +10,7 @@ from src.models.deck import Deck
 from src.models.hand import Hand
 from src.models.field import Field
 from src.models.graveyard import Graveyard
+from src.models.banished import Banished
 from src.common.effect import Effect
 
 class Player:
@@ -45,7 +46,14 @@ class Player:
         self.graveyard = Graveyard()
         self.field = Field()
         self.deck = Deck([])  # 덱은 게임 시작 시 동적으로 할당됩니다.
-        self.zone_dict = {Zone.HAND: self.hand, Zone.GRAVEYARD: self.graveyard, Zone.FIELD: self.field, Zone.DECK: self.deck}
+        self.banished = Banished()
+        self.zone_dict = {
+            Zone.HAND: self.hand,
+            Zone.GRAVEYARD: self.graveyard,
+            Zone.FIELD: self.field,
+            Zone.DECK: self.deck,
+            Zone.BANISHED: self.banished
+        }
 
     def take_damage(self, amount: int):
         """리더가 피해를 입었을 때의 처리를 담당합니다."""

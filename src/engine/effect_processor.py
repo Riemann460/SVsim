@@ -68,6 +68,7 @@ class EffectProcessor:
             ProcessType.SUMMON: self._process_summon,
             ProcessType.DEAL_DAMAGE: self._process_deal_damage,
             ProcessType.DESTROY: self._process_destroy,
+            ProcessType.BANISH: self._process_banish,
             ProcessType.RECOVER_PP: self._process_recover_pp,
             ProcessType.SUPER_EVOLVE: self._process_super_evolve,
             ProcessType.REPLACE_DECK: self._process_replace_deck,
@@ -498,6 +499,14 @@ class EffectProcessor:
         game_state_manager.move_card(target.card_id, Zone.FIELD, Zone.GRAVEYARD)
         self.event_manager.publish(DestroyedOnFieldEvent(target.card_id))
         print(f"[LOG] 처리 내용: 파괴, 타겟: {target.get_display_name()}")
+
+    def _process_banish(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리 - 소멸. 주석 규정을 엄격하게 준수합니다."""
+        if not hasattr(target, "card_id"):
+            return
+        current_zone = getattr(target, "current_zone", Zone.FIELD)
+        game_state_manager.move_card(target.card_id, current_zone, Zone.BANISHED)
+        print(f"[LOG] 처리 내용 소멸, 타겟 {target.get_display_name()}.")
 
     def _process_select(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 선택. 선택된 아군 카드를 파괴 처리합니다."""

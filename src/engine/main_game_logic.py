@@ -58,7 +58,8 @@ from src.common.event import (
     TurnStartEvent,
     TurnEndEvent,
     DamageDealtByCombatEvent,
-    FollowerEnterFieldEvent
+    FollowerEnterFieldEvent,
+    LeaveFieldEvent
 )
 
 
@@ -156,7 +157,7 @@ class Game:
             # 카드 관련 리스너를 등록합니다.
             if event_type in [EventType.CARD_PLAYED, EventType.DESTROYED_ON_FIELD, EventType.ATTACK_DECLARED,
                                EventType.COMBAT_INITIATED, EventType.FOLLOWER_EVOLVED, EventType.CARD_ENGAGED,
-                              EventType.DAMAGE_DEALT_BY_COMBAT]:
+                              EventType.DAMAGE_DEALT_BY_COMBAT, EventType.LEAVE_FIELD]:
                 handler = partial(self._handle_card_effect, effect_to_resolve=effect)
                 listener_id = f"{card.card_id}_{effect.type.name}_{id(effect)}"
                 condition = lambda event: True
@@ -194,6 +195,9 @@ class Game:
         target_id = getattr(event, 'target_id', None)
         print(f"[LOG] 핸들러 처리: 이벤트 '{event.event_type.name}' -> 카드 ID '{card_id}'의 이펙트 '{effect_to_resolve.type.name}'")
         self.effect_processor.resolve_effect(effect_to_resolve, card_id, self.game_state_manager, target_id)
+        if event.event_type == EventType.LEAVE_FIELD:
+            listener_id = f"{card_id}_{effect_to_resolve.type.name}_{id(effect_to_resolve)}"
+            self.event_manager.unsubscribe(event.event_type, listener_id)
 
     def _on_follower_super_evolved(self, event: FollowerSuperEvolvedEvent):
         """초진화 효과를 처리합니다."""

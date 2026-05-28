@@ -215,8 +215,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Last Words</color></b>: Deal 1 damage to the enemy leader. Summon a <b><i><color=Keyword>White Psalm, New Revelation</color></i></b>.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "TURN_START"
+            "TURN_START",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "90014310": {
@@ -856,19 +856,20 @@
                 "type": "STORM"
             },
             {
+                "process": "BANISH",
                 "target": "SELF",
-                "type": "SPELL",
-                "process": "ADD_EFFECT"
+                "type": "ON_LEAVE_FIELD"
             },
             {
-                "raw_action_text": "banish this card",
+                "process": "BANISH",
+                "target": "SELF",
                 "type": "ON_MY_TURN_END"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Storm</color></b>\nWhen this card leaves the field, banish it.\nAt the end of your turn, banish this card.",
         "required_listeners": [
-            "CARD_PLAYED",
-            "TURN_END"
+            "TURN_END",
+            "LEAVE_FIELD"
         ]
     },
     "90021310": {
@@ -1472,8 +1473,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fuse</color></b>: <b><i><color=Keyword>Ominous Artifact β</color></i></b> and <b><i><color=Keyword>Ominous Artifact γ</color></i></b>\nWhen you've <b><color=Keyword>Fuse</color><color=Keyword>d</color></b> both to this card, transform it into a <b><i><color=Keyword>Masterwork Artifact Ω</color></i></b>.\n<hr>At the end of your turn, restore 3 defense to your leader.",
         "required_listeners": [
-            "CARD_PLAYED",
-            "TURN_END"
+            "TURN_END",
+            "CARD_PLAYED"
         ]
     },
     "90073120": {
@@ -1730,8 +1731,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Aura</color></b>\nAt the end of your turn, if there are at least 3 allied amulets on the field, deal 3 damage to all enemies.",
         "required_listeners": [
-            "TURN_START",
-            "TURN_END"
+            "TURN_END",
+            "TURN_START"
         ]
     },
     "90051140": {
@@ -2094,8 +2095,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Last Words</color></b>: Restore 1 defense to your leader. Summon a <b><i><color=Keyword>Black Psalm, New Revelation</color></i></b>.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "TURN_START"
+            "TURN_START",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "90044310": {

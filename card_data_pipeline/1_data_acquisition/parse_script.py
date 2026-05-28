@@ -26,6 +26,7 @@ EFFECT_TO_EVENT_MAP = {
     EffectType.ON_MY_TURN_END.name: EventType.TURN_END,
     EffectType.ON_OPPONENTS_TURN_END.name: EventType.TURN_END,
     EffectType.DRAIN.name: EventType.DAMAGE_DEALT_BY_COMBAT,
+    EffectType.ON_LEAVE_FIELD.name: EventType.LEAVE_FIELD,
 }
 
 def parse_effect_text(description: str, card_type_enum):
@@ -143,6 +144,7 @@ EFFECT_PATTERNS = [
     {'regex': r"Last Words: (.*)", 'type': EffectType.LAST_WORDS, 'groups': ['action_text']},
     {'regex': r"At the end of your turn, (.*)", 'type': EffectType.ON_MY_TURN_END, 'groups': ['action_text']},
     {'regex': r"At the end of your opponent's turn, (.*)", 'type': EffectType.ON_OPPONENTS_TURN_END, 'groups': ['action_text']},
+    {'regex': r"When this card leaves the field, (.*)", 'type': EffectType.ON_LEAVE_FIELD, 'groups': ['action_text']},
     {'regex': r"When this follower evolves, (.*)", 'type': EffectType.EVOLVED, 'groups': ['action_text']},
     {'regex': r"On Spellboost: (.*)", 'type': EffectType.SPELLBOOST, 'groups': ['action_text']},
     {'regex': r"Countdown \((\d+)\)", 'type': EffectType.COUNTDOWN, 'groups': ['value']},
@@ -341,6 +343,8 @@ ACTION_PATTERNS = [
     {'regex': r"Destroy a random enemy follower with the highest attack", 'process': ProcessType.DESTROY, 'target': TargetType.OPPONENT_FOLLOWER_MAX_ATTACK_RANDOM, 'groups': []},
     {'regex': r"(.+) and destroy it", 'process': ProcessType.DESTROY, 'groups': ['target_text']},
     {'regex': r"Destroy this card", 'process': ProcessType.DESTROY, 'target': TargetType.SELF, 'groups': []},
+    {'regex': r"Banish this card", 'process': ProcessType.BANISH, 'target': TargetType.SELF, 'groups': []},
+    {'regex': r"banish it", 'process': ProcessType.BANISH, 'target': TargetType.SELF, 'groups': []},
     {'regex': r"Destroy this amulet", 'process': ProcessType.DESTROY, 'target': TargetType.SELF, 'groups': []},
     {'regex': r"Destroy the opposing follower", 'process': ProcessType.DESTROY, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
 

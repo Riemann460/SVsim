@@ -27,6 +27,7 @@ class EventType(Enum):
     FOLLOWER_ENTER_FIELD = "추종자_전장_소환됨"  # 추종자 소환시 능력 발동을 의미합니다.
     CARD_DISCARDED = "카드_버려짐"  # 카드 버려짐을 의미합니다.
     FUSE_DECLARED = "융합_선언됨"  # 융합 발동을 의미합니다.
+    LEAVE_FIELD = "필드_벗어남"  # 필드를 벗어남을 의미합니다.
 
     # 미구현 이벤트를 정의합니다.
     PP_GAINED = "PP_획득됨"
@@ -104,6 +105,7 @@ class EffectType(Enum):
     SKYBOUND_ART = "오의"
     SUPER_SKYBOUND_ART = "해방오의"
     INVOKE = "직접소환"
+    ON_LEAVE_FIELD = "필드를 벗어날 때"
 
 
 class ProcessType(Enum):
