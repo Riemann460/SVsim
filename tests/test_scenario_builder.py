@@ -494,3 +494,44 @@ class TestScenarioBuilderCore(unittest.TestCase):
         
         # 파괴되면서 필드를 벗어났으나 소멸 영역으로 가야 합니다.
         self.assertEqual(ghost2.current_zone, Zone.BANISHED)
+
+    def test_fuzz_crash_snapshot_scenario(self):
+        """퍼징 시뮬레이션 중 무결의 시계 플레이 시 발생한 지연 바인딩 AttributeError 크래시 스냅샷 시나리오를 재현하여 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        builder.set_pp("player1", 4, 6)
+        builder.set_health("player1", 13)
+        builder.set_health("player2", 18)
+        builder.set_pp("player2", 5, 5)
+
+        # 플레이어1 손패 구성.
+        builder.add_to_hand("player1", "Lyanthoth, Eld Tome")
+        builder.add_to_hand("player1", "Missionary of Recruitment")
+        builder.add_to_hand("player1", "Missionary of Recruitment")
+        builder.add_to_hand("player1", "Greatness Ascended")
+        builder.add_to_hand("player1", "Troue, Heroic Visionary")
+        timepiece = builder.add_to_hand("player1", "Timepiece of Perfection")
+
+        # 플레이어2 손패 구성.
+        builder.add_to_hand("player2", "Belial, Archangel of Cunning")
+        builder.add_to_hand("player2", "Harmony of Youth")
+        builder.add_to_hand("player2", "Ephemeral Demon Princess")
+        builder.add_to_hand("player2", "Ginsetsu & Yuzuki, Twin Calamities")
+        builder.add_to_hand("player2", "Belial, Archangel of Cunning")
+
+        # 플레이어1 필드 구성.
+        builder.add_to_field("player1", "Temple of Repose")
+        builder.add_to_field("player1", "Altaro Superfan")
+
+        # 플레이어2 필드 구성.
+        builder.add_to_field("player2", "Altaro Superfan")
+        builder.add_to_field("player2", "Bat")
+
+        game = builder.build()
+
+        # player1이 Timepiece of Perfection을 남은 PP 4를 소모하여 플레이합니다.
+        # 지연 바인딩 버그가 해결되었다면 AttributeError 없이 정상적으로 플레이되고 True를 리턴해야 합니다.
+        played = game.play_card("player1", timepiece.card_id, enhanced_cost=4)
+        self.assertTrue(played)
+        self.assertEqual(timepiece.current_zone, Zone.FIELD)
+        self.assertEqual(game.game_state_manager.players["player1"].current_pp, 0)
