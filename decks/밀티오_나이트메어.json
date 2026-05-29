@@ -1,0 +1,71 @@
+{
+    "deck_name": "밀티오_나이트메어",
+    "format": "Rotation",
+    "class_type": "ABYSSCRAFT",
+    "cards": [
+        {
+            "card_id": "10052110",
+            "count": 3
+        },
+        {
+            "card_id": "10204110",
+            "count": 1
+        },
+        {
+            "card_id": "10251120",
+            "count": 3
+        },
+        {
+            "card_id": "10251310",
+            "count": 3
+        },
+        {
+            "card_id": "10254120",
+            "count": 2
+        },
+        {
+            "card_id": "10303110",
+            "count": 3
+        },
+        {
+            "card_id": "10352210",
+            "count": 3
+        },
+        {
+            "card_id": "10353310",
+            "count": 1
+        },
+        {
+            "card_id": "10501110",
+            "count": 1
+        },
+        {
+            "card_id": "10503210",
+            "count": 3
+        },
+        {
+            "card_id": "10552310",
+            "count": 3
+        },
+        {
+            "card_id": "10554110",
+            "count": 3
+        },
+        {
+            "card_id": "10651120",
+            "count": 3
+        },
+        {
+            "card_id": "10751110",
+            "count": 3
+        },
+        {
+            "card_id": "10751120",
+            "count": 2
+        },
+        {
+            "card_id": "10753310",
+            "count": 3
+        }
+    ]
+}

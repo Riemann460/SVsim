@@ -1,0 +1,79 @@
+{
+    "deck_name": "리셰나_네메시스",
+    "format": "Rotation",
+    "class_type": "PORTALCRAFT",
+    "cards": [
+        {
+            "card_id": "10071120",
+            "count": 2
+        },
+        {
+            "card_id": "10072210",
+            "count": 2
+        },
+        {
+            "card_id": "10204110",
+            "count": 2
+        },
+        {
+            "card_id": "10304120",
+            "count": 1
+        },
+        {
+            "card_id": "10372110",
+            "count": 1
+        },
+        {
+            "card_id": "10372210",
+            "count": 3
+        },
+        {
+            "card_id": "10373110",
+            "count": 3
+        },
+        {
+            "card_id": "10373310",
+            "count": 3
+        },
+        {
+            "card_id": "10374110",
+            "count": 3
+        },
+        {
+            "card_id": "10374120",
+            "count": 3
+        },
+        {
+            "card_id": "10473310",
+            "count": 1
+        },
+        {
+            "card_id": "10474120",
+            "count": 2
+        },
+        {
+            "card_id": "10503210",
+            "count": 3
+        },
+        {
+            "card_id": "10571120",
+            "count": 1
+        },
+        {
+            "card_id": "10573310",
+            "count": 3
+        },
+        {
+            "card_id": "10574120",
+            "count": 3
+        },
+        {
+            "card_id": "10674120",
+            "count": 1
+        },
+        {
+            "card_id": "10771310",
+            "count": 3
+        }
+    ]
+}

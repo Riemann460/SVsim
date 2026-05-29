@@ -1,32 +1,53 @@
 # 퍼징 테스트 에러 분석 리포트
 
 ## 1 에러 기본 요약
-- **에러 유형** AssertionError
-- **에러 메시지** error.log 실시간 파싱 중 이상 에러 검출 - [ERROR] 임시 테스트 에러 로그가 출력되었습니다.
+- **에러 유형** TypeError
+- **에러 메시지** unsupported operand type(s) for -=: 'int' and 'str'
 
 ## 2 에러 발생 시점 게임 상태 스냅샷
-- **현재 진행 턴** 1
+- **현재 진행 턴** 7
 - **현재 턴 플레이어** player1
-- **플레이어 1 체력** 20 (PP 1)
-- **플레이어 2 체력** 20 (PP 0)
+- **플레이어 1 체력** 19 (PP 2)
+- **플레이어 2 체력** 20 (PP 1)
 
 ### 플레이어 1 손패 카드 목록
-['욕심쟁이 지천사 루비', '낙랑의 천궁 필도어', '신의 뇌정', '캐러밴 맘모스', '빛의 연주자 앙리에트']
+['꽃피는 근육 피오리토', '청략의 첩보병', '대담한 부단장 게르트', '결의의 휘룡 아서', '삼장희의 난격', '약탈의 계승자 신세라이즈']
 
 ### 플레이어 2 손패 카드 목록
-['세찬 광명 아폴론', '고블린의 습격', '관찰하는 탐정', '신의 뇌정']
+['저글링 까마귀', '특기표적 헤렘허니', '외줄타기 고양이', '데드 프리젠터 맥밀란', '데드 프리젠터 맥밀란']
 
 ### 플레이어 1 필드 카드 목록
 []
 
 ### 플레이어 2 필드 카드 목록
-[]
+['뱀파 키보디스트 루루미']
 
 ## 3 상세 트레이스백 정보
 ```text
 Traceback (most recent call last):
-  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\fuzz_runner.py", line 289, in run_fuzzing
-    raise AssertionError(f"error.log 실시간 파싱 중 이상 에러 검출 - {logged_error}")
-AssertionError: error.log 실시간 파싱 중 이상 에러 검출 - [ERROR] 임시 테스트 에러 로그가 출력되었습니다.
+  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\fuzz_runner.py", line 329, in run_fuzzing
+    game.play_card(current_player, action["card_id"], action["enhanced_cost"], action["use_extra_pp"])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\engine\main_game_logic.py", line 460, in play_card
+    self.process_events()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\engine\main_game_logic.py", line 141, in process_events
+    self.event_manager.process_events()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\engine\event_manager.py", line 45, in process_events
+    listener.callback(event)
+    ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\engine\main_game_logic.py", line 197, in _handle_card_effect
+    self.effect_processor.resolve_effect(effect_to_resolve, card_id, self.game_state_manager, target_id)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\engine\effect_processor.py", line 849, in resolve_effect
+    handler(effect_data, target, game_state_manager)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\engine\effect_processor.py", line 483, in _process_deal_damage
+    if target.take_damage(value):
+       ~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\models\card.py", line 51, in take_damage
+    self.current_defense -= amount
+TypeError: unsupported operand type(s) for -=: 'int' and 'str'
 
 ```

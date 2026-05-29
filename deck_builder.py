@@ -145,6 +145,80 @@ def validate_deck_rules(deck_cards):
     return True
 
 
+def generate_random_deck(class_type, all_cards):
+    """지정된 직업과 Rotation 제약을 충족하는 무작위 덱을 생성합니다."""
+    # 덱 구성에 필요한 카드 필터를 진행합니다.
+    filtered = filter_cards_by_rules("Rotation", class_type, all_cards)
+    
+    neutral_pool = [c for c in filtered if c.class_type == ClassType.NEUTRAL]
+    class_pool = [c for c in filtered if c.class_type == class_type]
+    
+    deck_counts = {}
+    
+    def add_cards_from_pool(pool, target_total):
+        """지정된 풀에서 target_total 장이 될 때까지 카드를 임의로 1에서 3장씩 추가합니다."""
+        import random
+        if not pool:
+            return 0
+            
+        current_added = 0
+        shuffled_pool = list(pool)
+        random.shuffle(shuffled_pool)
+        
+        # 1차 시도로 카드 종류를 순회하며 1장에서 3장을 추가합니다.
+        for card in shuffled_pool:
+            card_id_str = str(card.card_id)
+            if current_added >= target_total:
+                break
+            
+            max_add = min(3 - deck_counts.get(card_id_str, 0), target_total - current_added)
+            if max_add <= 0:
+                continue
+            
+            add_num = random.randint(1, max_add)
+            deck_counts[card_id_str] = deck_counts.get(card_id_str, 0) + add_num
+            current_added += add_num
+            
+        # 2차 시도로 한도 3장을 채우기 위해 반복해서 탐색합니다.
+        attempts = 0
+        while current_added < target_total and attempts < 100:
+            attempts += 1
+            for card in shuffled_pool:
+                card_id_str = str(card.card_id)
+                if current_added >= target_total:
+                    break
+                current_count = deck_counts.get(card_id_str, 0)
+                if current_count < 3:
+                    deck_counts[card_id_str] = current_count + 1
+                    current_added += 1
+                    
+        return current_added
+
+    # 중립 카드는 6장을 목표로 하여 채웁니다.
+    neutral_added = add_cards_from_pool(neutral_pool, 6)
+    
+    # 직업 카드는 나머지 장수만큼 채웁니다.
+    target_class_count = 40 - neutral_added
+    class_added = add_cards_from_pool(class_pool, target_class_count)
+    
+    # 총 매수가 부족한 극단적 상황에는 전체에서 부족한 만큼 마구 채웁니다.
+    total_added = neutral_added + class_added
+    if total_added < 40:
+        add_cards_from_pool(filtered, 40 - total_added)
+        
+    # 구성된 카드 정보의 객체 리스트를 만들어 최종 반환합니다.
+    deck_list = []
+    card_by_id = {str(c.card_id): c for c in filtered}
+    for card_id, count in deck_counts.items():
+        card_obj = card_by_id.get(card_id)
+        if card_obj:
+            deck_list.extend([card_obj] * count)
+            
+    import random
+    random.shuffle(deck_list)
+    return deck_list
+
+
 class DeckBuilderGUI:
     """Tkinter를 기반으로 한 덱 빌더 사용자 인터페이스 클래스입니다."""
     

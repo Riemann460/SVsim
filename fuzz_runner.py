@@ -11,7 +11,7 @@ from typing import Dict, Any, List, Tuple, Optional
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from src.models.card import Card
-from src.common.enums import Zone, CardType, EffectType
+from src.common.enums import Zone, CardType, EffectType, ClassType
 
 
 class MockGUI:
@@ -56,6 +56,7 @@ main_game_logic.GameGUI = MockGUI
 
 from src.engine.main_game_logic import Game
 import src.common.card_data as card_data
+from deck_builder import generate_random_deck
 
 
 class Tee:
@@ -244,6 +245,7 @@ def validate_game_state_invariants(game: Game):
 def run_fuzzing(runs: int = 1, max_turns: int = 20) -> Tuple[bool, Optional[Exception]]:
     """지정된 횟수만큼 게임 세션을 반복 생성하여 퍼징 테스트를 수행합니다. 오류 발생 시 예외 객체를 반환합니다."""
     card_data.load_card_databases('card_database/3_parsed_database/card_database_parsed.json')
+    all_cards = {**card_data.BASIC_CARD_DATABASE, **card_data.LEGENDS_RISE_CARD_DATABASE}
     
     # 실시간 로깅을 수집하기 위해 출력을 가로채 error.log에 동시에 기록합니다.
     log_filepath = "error.log"
@@ -267,8 +269,16 @@ def run_fuzzing(runs: int = 1, max_turns: int = 20) -> Tuple[bool, Optional[Exce
         for run_idx in range(runs):
             game = None
             try:
-                # 게임 클래스 초기화 시 Monkey Patching된 GameGUI가 MockGUI로 구동되어 자동 선택됩니다.
-                game = Game("player1", "player2")
+                # 무작위로 직업을 선택하여 덱을 생성합니다.
+                class_types = [c for c in ClassType if c != ClassType.NEUTRAL]
+                p1_class = random.choice(class_types)
+                p2_class = random.choice(class_types)
+                
+                p1_deck = generate_random_deck(p1_class, all_cards)
+                p2_deck = generate_random_deck(p2_class, all_cards)
+                
+                # 게임 클래스 초기화 시 생성된 덱 데이터를 주입합니다.
+                game = Game("player1", "player2", p1_deck, p2_deck)
                 
                 current_player = "player1"
                 
