@@ -162,7 +162,8 @@ class Game:
                 listener_id = f"{card.card_id}_{effect.type.name}_{id(effect)}"
                 condition = lambda event: True
                 if effect.type == EffectType.ENHANCE:
-                    condition = lambda event: event.enhanced_cost >= effect.enhance_cost
+                    # 지연 바인딩 버그를 방지하기 위해 디폴트 매개변수로 현재 이펙트를 고정하여 참조합니다.
+                    condition = lambda event, eff=effect: event.enhanced_cost >= eff.enhance_cost
                 elif effect.type == EffectType.ON_EVOLVE:
                     condition = lambda event: event.spend_ep
                 self.event_manager.subscribe(
