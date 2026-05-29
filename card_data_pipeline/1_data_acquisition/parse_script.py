@@ -65,6 +65,8 @@ def parse_effect_text(description: str, card_type_enum):
         
         paragraph_effects = []
         inherited_type = None
+        inherited_enhance_cost = None
+        inherited_cost = None
 
         i = 0
         while i < len(lines):
@@ -76,11 +78,15 @@ def parse_effect_text(description: str, card_type_enum):
                 if isinstance(trigger_effect, list):
                     if trigger_effect:
                         inherited_type = trigger_effect[0].get('type')
+                        inherited_enhance_cost = trigger_effect[0].get('enhance_cost')
+                        inherited_cost = trigger_effect[0].get('cost')
                         trigger_effect = trigger_effect[0]
                     else:
                         trigger_effect = Effect()
                 else:
                     inherited_type = trigger_effect.get('type')
+                    inherited_enhance_cost = trigger_effect.get('enhance_cost')
+                    inherited_cost = trigger_effect.get('cost')
                 
                 trigger_effect.update(process=ProcessType.CHOOSE, choices=[])
 
@@ -89,6 +95,7 @@ def parse_effect_text(description: str, card_type_enum):
                 while i < len(lines) and re.match(r"^\d\.", lines[i]):
                     choice_text = re.sub(r"^\d\.\s*", "", lines[i])
                     action_attrs = parse_action(choice_text)
+                    action_attrs['type'] = EffectType.SPELL
                     trigger_effect.choices.append(Effect(**action_attrs))
                     i += 1
 
@@ -98,6 +105,8 @@ def parse_effect_text(description: str, card_type_enum):
                 if isinstance(result, list):
                     if result:
                         inherited_type = result[0].get('type')
+                        inherited_enhance_cost = result[0].get('enhance_cost')
+                        inherited_cost = result[0].get('cost')
                     for r in result:
                         paragraph_effects.append(r)
                 else:
@@ -113,8 +122,14 @@ def parse_effect_text(description: str, card_type_enum):
                     
                     if not has_explicit_pattern and inherited_type is not None:
                         result.update(type=inherited_type)
+                        if inherited_enhance_cost is not None:
+                            result.update(enhance_cost=inherited_enhance_cost)
+                        if inherited_cost is not None:
+                            result.update(cost=inherited_cost)
                     else:
                         inherited_type = result.get('type')
+                        inherited_enhance_cost = result.get('enhance_cost')
+                        inherited_cost = result.get('cost')
                     
                     paragraph_effects.append(result)
                 i += 1
@@ -377,6 +392,8 @@ ACTION_PATTERNS = [
     {'regex': r"Give (.*?) (Ward|Storm|Rush|Bane|Drain|Barrier|Ambush|Intimidate|Aura)\s+and\s+(Ward|Storm|Rush|Bane|Drain|Barrier|Ambush|Intimidate|Aura)", 'process': ProcessType.ADD_EFFECT, 'groups': ['target_text', 'value', 'value2']},
     {'regex': r"Give (.*?) (Ward|Storm|Rush|Bane|Drain|Barrier|Ambush|Intimidate|Aura)", 'process': ProcessType.ADD_EFFECT, 'groups': ['target_text', 'value']},
     {'regex': r"Remove (Ward|Storm|Rush|Bane|Drain|Barrier|Ambush|Intimidate|Aura) from (.*)", 'process': ProcessType.REMOVE_KEYWORD, 'groups': ['value', 'target_text']},
+    {'regex': r"remove all abilities from (.*)", 'process': ProcessType.REMOVE_KEYWORD, 'groups': ['target_text']},
+    {'regex': r"(?:and\s+)?deal it (\d+|X) damage", 'process': ProcessType.DEAL_DAMAGE, 'target': TargetType.SELF, 'groups': ['value']},
     
     {'regex': r"Select a card in your hand and return it to deck", 'process': ProcessType.RETURN_TO_DECK, 'target': TargetType.OWN_HAND_CHOICE, 'groups': []},
     {'regex': r"Select a (?:card|follower|spell|amulet) in your hand and discard it", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_HAND_CHOICE, 'groups': []},

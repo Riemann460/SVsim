@@ -315,7 +315,9 @@ def resolve_card_references(card_db: Dict[str, CardData], global_card_db: Dict[s
                     process_name = process_type.name if process_type else 'None'
                     if process_type == ProcessType.ADD_EFFECT:
                         try:
-                            effect.value = EffectType[effect.value.upper()]
+                            keyword_enum = EffectType[effect.value.upper()]
+                            effect.value = Effect(type=keyword_enum, value=None)
+                            effect.attributes["value"] = effect.value
                         except KeyError:
                             print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name})에 예기치 않은 스트링 입력 '{effect.value}'.")
                     else:

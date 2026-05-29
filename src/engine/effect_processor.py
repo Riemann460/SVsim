@@ -591,24 +591,9 @@ class EffectProcessor:
 
     def _process_add_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 키워드 부여."""
-        value = effect_data.value  # value 자체가 Effect 객체이거나 EffectType Enum 혹은 str일 수 있습니다.
-        if isinstance(value, Effect):
-            target.effects.append(value)
-            print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {value.type.value}")
-        else:
-            keyword_type = None
-            if isinstance(value, str):
-                if value in EffectType.__members__:
-                    keyword_type = EffectType[value]
-            elif isinstance(value, EffectType):
-                keyword_type = value
-
-            if keyword_type is not None:
-                effect_obj = Effect(type=keyword_type, value=None)
-                target.effects.append(effect_obj)
-                print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {keyword_type.value}")
-            else:
-                print(f"[LOG] 경고: 지원하지 않는 키워드 타입 부여 시도, 값: {value}")
+        value = effect_data.value  # value 자체가 Effect 객체입니다.
+        target.effects.append(value)
+        print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {value.type.value}")
 
     def _process_remove_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 키워드 제거."""
@@ -699,9 +684,10 @@ class EffectProcessor:
             return
 
         effect_data.update(caster_id=caster_id)
+        effect_type = getattr(effect_data, "type", None)
 
         # 대체(instead) 효과 체크 로직입니다.
-        if isinstance(caster_card, Card) and effect_data.type in [EffectType.FANFARE, EffectType.SPELL]:
+        if isinstance(caster_card, Card) and effect_type in [EffectType.FANFARE, EffectType.SPELL]:
             raw_text = caster_card.card_data.get("raw_effects_text", "").lower()
             if "instead" in raw_text:
                 # 콤보 대체 조건 검사.
@@ -712,7 +698,7 @@ class EffectProcessor:
                     req_combo = int(match.group(1)) if match else 3
                     player = game_state_manager.players[self._get_owner_id(caster_card)]
                     if player.combo_count >= req_combo:
-                        print(f"[LOG] 콤보 조건 만족으로 인해 {effect_data.type.value} 효과 발동을 건너뛰고 콤보 효과로 대체합니다.")
+                        print(f"[LOG] 콤보 조건 만족으로 인해 {effect_type.value if effect_type else 'None'} 효과 발동을 건너뛰고 콤보 효과로 대체합니다.")
                         return
 
                 # 오의 대체 조건 검사.
@@ -720,7 +706,7 @@ class EffectProcessor:
                 if has_sa:
                     sa_effects = [e for e in caster_card.effects if e.type == EffectType.SKYBOUND_ART]
                     if any(getattr(e, "skybound_art_gauge", 999) == 0 for e in sa_effects):
-                        print(f"[LOG] 오의 조건 만족으로 인해 {effect_data.type.value} 효과 발동을 건너뛰고 오의 효과로 대체합니다.")
+                        print(f"[LOG] 오의 조건 만족으로 인해 {effect_type.value if effect_type else 'None'} 효과 발동을 건너뛰고 오의 효과로 대체합니다.")
                         return
 
                 # 해방오의 대체 조건 검사.
@@ -728,10 +714,10 @@ class EffectProcessor:
                 if has_ssa:
                     ssa_effects = [e for e in caster_card.effects if e.type == EffectType.SUPER_SKYBOUND_ART]
                     if any(getattr(e, "skybound_art_gauge", 999) == 0 for e in ssa_effects):
-                        print(f"[LOG] 해방오의 조건 만족으로 인해 {effect_data.type.value} 효과 발동을 건너뛰고 해방오의 효과로 대체합니다.")
+                        print(f"[LOG] 해방오의 조건 만족으로 인해 {effect_type.value if effect_type else 'None'} 효과 발동을 건너뛰고 해방오의 효과로 대체합니다.")
                         return
 
-        if effect_data.type == EffectType.COMBO:
+        if effect_type == EffectType.COMBO:
             if isinstance(caster_card, Card):
                 import re
                 match = re.search(r"Combo\s*\((\d+)\)", caster_card.card_data.raw_effects_text, re.IGNORECASE)
@@ -755,28 +741,28 @@ class EffectProcessor:
                     print(f"[LOG] 콤보 효과의 수치 'X'를 기본 효과의 값인 {base_val}로 설정합니다.")
             print(f"[LOG] 콤보 {req_combo} 효과 발동.")
 
-        elif effect_data.type == EffectType.SKYBOUND_ART:
+        elif effect_type == EffectType.SKYBOUND_ART:
             gauge = getattr(effect_data, "skybound_art_gauge", 999)
             if gauge > 0:
                 print(f"[LOG] 오의 게이지({gauge}) 부족으로 효과 발동 실패.")
                 return
             print(f"[LOG] 오의 효과 발동.")
 
-        elif effect_data.type == EffectType.SUPER_SKYBOUND_ART:
+        elif effect_type == EffectType.SUPER_SKYBOUND_ART:
             gauge = getattr(effect_data, "skybound_art_gauge", 999)
             if gauge > 0:
                 print(f"[LOG] 해방오의 게이지({gauge}) 부족으로 효과 발동 실패.")
                 return
             print(f"[LOG] 해방오의 효과 발동.")
 
-        elif effect_data.type == EffectType.OVERFLOW:
+        elif effect_type == EffectType.OVERFLOW:
             player = game_state_manager.players[self._get_owner_id(caster_card)]
             if not player.is_overflow:
                 print(f"[LOG] 각성 조건 미충족으로 효과 발동 실패.")
                 return
             print(f"[LOG] 각성 효과 발동.")
 
-        elif effect_data.type == EffectType.RALLY:
+        elif effect_type == EffectType.RALLY:
             if isinstance(caster_card, Card):
                 import re
                 match = re.search(r"Rally\s*\((\d+)\)", caster_card.card_data.raw_effects_text, re.IGNORECASE)
@@ -789,7 +775,7 @@ class EffectProcessor:
                 return
             print(f"[LOG] 연계 {req_rally} 효과 발동.")
 
-        if effect_data.type == EffectType.NECROMANCY:
+        if effect_type == EffectType.NECROMANCY:
             player = game_state_manager.players[self._get_owner_id(caster_card)]
             req_shadows = int(effect_data.value) if effect_data.value is not None else 0
             if player.graveyard.shadows_count >= req_shadows:
@@ -799,7 +785,7 @@ class EffectProcessor:
                 print(f"[LOG] 그림자 수 부족으로 사령술 {req_shadows} 발동 실패. 현재 그림자 수 {player.graveyard.shadows_count}.")
                 return
 
-        if effect_data.type == EffectType.EARTH_RITE:
+        if effect_type == EffectType.EARTH_RITE:
             player = game_state_manager.players[self._get_owner_id(caster_card)]
             field_cards = player.field.get_cards()
             sigils = [c for c in field_cards if TribeType.EARTH_SIGIL in c.card_data.get("tribes", [])]
@@ -821,13 +807,12 @@ class EffectProcessor:
             print(f"[LOG] {self._get_owner_id(caster_card)}의 선택 대기. 선택지: {effect_data.choices}")
             return  # 여기서 처리를 중단하고 플레이어의 입력을 기다립니다.
 
-        effect_type = effect_data.type
         process_type = effect_data.process
         handler = self.process_handlers.get(process_type)
         if not handler:
             print(f"[ERROR] 처리 타입 {process_type.value}에 대한 핸들러가 정의되지 않았습니다.")
 
-        print(f"[LOG] {caster_card.get_display_name()} (ID: {caster_id})의 키워드 {effect_type.value} 처리 시작")
+        print(f"[LOG] {caster_card.get_display_name()} (ID: {caster_id})의 키워드 {effect_type.value if effect_type else 'None'} 처리 시작")
 
         if target_id:
             target = game_state_manager.get_entity_by_id(target_id)
