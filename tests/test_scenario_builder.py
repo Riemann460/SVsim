@@ -614,3 +614,35 @@ class TestScenarioBuilderCore(unittest.TestCase):
         self.assertEqual(len(field_cards), 1)
         self.assertEqual(field_cards[0].card_data.name, "Fortifier Artifact")
 
+    def test_transform_target_type_deck_random_scenario(self):
+        """침략당한 세계가 상대방 덱의 무작위 카드의 복사본으로 정상 변신하는지 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        builder.set_pp("player1", 2, 2)
+        builder.set_health("player1", 20)
+        builder.set_health("player2", 20)
+        builder.set_pp("player2", 1, 1)
+
+        # player1의 필드에 침략당한 세계를 배치합니다.
+        encroached_world = builder.add_to_field("player1", "10602210")
+
+        # player2의 덱에 무작위 카드를 배치합니다. 예시로 Leah, Bellringer Angel을 배치합니다.
+        builder.add_to_deck("player2", "Leah, Bellringer Angel")
+
+        game = builder.build()
+
+        # 침략당한 세계의 Engage 활성화 효과를 트리거합니다.
+        # Engage 효과를 발동시키면 변신 효과가 트리거됩니다.
+        from src.common.effect import Effect
+        from src.common.enums import EffectType
+        effects = encroached_world.effects
+        engage_effect = [e for e in effects if e.type == EffectType.ENGAGE][0]
+
+        game.effect_processor.resolve_effect(engage_effect, encroached_world.card_id, game.game_state_manager, None)
+        game.process_events()
+
+        # 필드의 카드가 Leah, Bellringer Angel 로 변신했는지 검증합니다.
+        field_cards = game.game_state_manager.get_cards_in_zone("player1", Zone.FIELD)
+        self.assertEqual(len(field_cards), 1)
+        self.assertEqual(field_cards[0].card_data.name, "Leah, Bellringer Angel")
+

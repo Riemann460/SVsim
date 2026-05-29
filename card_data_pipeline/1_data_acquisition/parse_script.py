@@ -255,12 +255,6 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
         effect.update(type=EffectType.SPELL)
         return effect
 
-    # 3.5 대상만을 지정하는 문장을 처리합니다.
-    target_attrs = parse_target(text_clean)
-    if 'raw_target_text' not in target_attrs:
-        effect = Effect(**target_attrs)
-        effect.update(type=EffectType.SPELL, process=ProcessType.ADD_EFFECT)
-        return effect
 
     # 4. 파싱에 완전히 실패한 경우의 대체 처리입니다.
     print(f"[WARNING] Could not parse effect text: '{text}'")
@@ -319,6 +313,8 @@ TARGET_PATTERNS = [
     {'regex': r"\ball non-Encroacher followers\b", 'target': TargetType.ALL_NON_ENCROACHER_FOLLOWERS},
     {'regex': r"\ban allied Crystalspawn\b", 'target': TargetType.ALLY_FOLLOWER_CHOICE},
     {'regex': r"\ba random unevolved allied follower on the field with a base cost of (\d+) or more\b", 'target': TargetType.ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED, 'groups': ['value']},
+    {'regex': r"\b(?:\d+|a)?\s*random cards? in your opponent's deck\b", 'target': TargetType.OPPONENT_DECK_RANDOM},
+    {'regex': r"\brandom followers in your deck\b", 'target': TargetType.OWN_DECK_RANDOM_FOLLOWER},
 ]
 
 # 액션 파싱을 위한 패턴 목록입니다.
@@ -511,7 +507,11 @@ def parse_action(text: str):
                 try:
                     action['value'] = int(groups['value'])
                 except ValueError:
-                    action['value'] = groups['value']
+                    target_res = parse_target(groups['value'])
+                    if 'target' in target_res:
+                        action['value'] = target_res['target']
+                    else:
+                        action['value'] = groups['value']
             if 'value2' in groups:
                 v1 = action.get('value', 0)
                 try:

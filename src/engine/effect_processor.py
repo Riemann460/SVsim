@@ -536,9 +536,21 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 체력 회복, 타겟: {target.get_display_name()}, 회복량: {value}")
 
     def _process_add_card_to_hand(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
-        """처리 - 패에 카드 추가."""
+        """처리 - 패에 카드 추가. 주석 규정을 엄격하게 준수합니다."""
         value = effect_data.value
         target_id = target.player_id
+
+        # TargetType 인 경우 동적으로 대상을 평가합니다.
+        if isinstance(value, TargetType):
+            if value == TargetType.OPPONENT_DECK_RANDOM:
+                opponent_id = "player2" if target_id == "player1" else "player1"
+                opponent_deck = game_state_manager.get_cards_in_zone(opponent_id, Zone.DECK)
+                count = min(5, len(opponent_deck))
+                if count > 0:
+                    chosen_cards = random.sample(opponent_deck, count)
+                    value = [c.card_data for c in chosen_cards]
+                else:
+                    return
 
         if isinstance(value, card_data.CardData):
             card = game_state_manager.create_card_instance(value, target_id)
@@ -702,10 +714,16 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 최대 체력 설정, 타겟: {target.get_display_name()}, 설정값: {value}")
 
     def _process_add_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 키워드 부여."""
-        value = effect_data.value  # value 자체가 Effect 객체입니다.
-        target.effects.append(value)
-        print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {value.type.value}")
+        """처리 - 키워드 부여. 주석 규정을 엄격하게 준수합니다."""
+        value = effect_data.value
+        if isinstance(value, list):
+            for v in value:
+                if isinstance(v, Effect):
+                    target.effects.append(v)
+                    print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {v.type.value}")
+        elif isinstance(value, Effect):
+            target.effects.append(value)
+            print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {value.type.value}")
 
     def _process_remove_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 키워드 제거."""
@@ -1164,6 +1182,27 @@ class EffectProcessor:
         new_card_data = effect_data.value
         owner_id = target.owner_id
         player = game_state_manager.players[owner_id]
+
+        # TargetType 인 경우 동적으로 대상을 평가합니다.
+        if isinstance(new_card_data, TargetType):
+            if new_card_data == TargetType.OPPONENT_DECK_RANDOM:
+                opponent_id = "player2" if owner_id == "player1" else "player1"
+                opponent_deck = game_state_manager.get_cards_in_zone(opponent_id, Zone.DECK)
+                if opponent_deck:
+                    chosen_card = random.choice(opponent_deck)
+                    new_card_data = chosen_card.card_data
+                else:
+                    print("[WARNING] Opponent deck is empty. Cannot transform.")
+                    return
+            elif new_card_data == TargetType.OWN_DECK_RANDOM_FOLLOWER:
+                own_deck = game_state_manager.get_cards_in_zone(owner_id, Zone.DECK)
+                followers = [c for c in own_deck if c.get_type() == CardType.FOLLOWER]
+                if followers:
+                    chosen_card = random.choice(followers)
+                    new_card_data = chosen_card.card_data
+                else:
+                    print("[WARNING] Own deck has no followers. Cannot transform.")
+                    return
 
         new_card = game_state_manager.create_card_instance(new_card_data, owner_id)
         new_card.current_zone = Zone.FIELD

@@ -189,6 +189,8 @@ class TargetType(Enum):
     ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED = "자신 제외 아군 진화전 추종자 중 랜덤"
     ALLY_FOLLOWER_RANDOM_SUPER_EVOLVED = "아군 초진화 추종자 중 랜덤"
     OWN_HAND_RANDOM = "자기 패 중 랜덤"
+    OPPONENT_DECK_RANDOM = "상대 덱 중 랜덤"
+    OWN_DECK_RANDOM_FOLLOWER = "자신 덱 추종자 중 랜덤"
 
     # 미구현 타겟들을 정의합니다.
     ALL_FOLLOWERS_MAX_DEFENSE = "가장 체력이 높은 추종자 전체"
