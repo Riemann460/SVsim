@@ -53,6 +53,9 @@ def parse_effect_text(description: str, card_type_enum):
         # 2. 모든 HTML 태그를 제거합니다.
         p_clean = re.sub(r"<[^>]*>", "", paragraph)
         
+        # and evolve them/it 구문을 마침표로 구분하여 문장을 분리합니다.
+        p_clean = re.sub(r"\s+and\s+evolve\s+(them|it)\b", r". Evolve them", p_clean, flags=re.IGNORECASE)
+        
         # 3. 특수 공백 및 깨진 문자를 필터링합니다.
         p_clean = p_clean.replace("&nbsp;", " ")
         p_clean = p_clean.replace("①", "1").replace("②", "2").replace("③", "3").replace("④", "4")
@@ -385,8 +388,9 @@ ACTION_PATTERNS = [
     {'regex': r"Gain an earth sigil", 'process': ProcessType.GAIN_EARTH_SIGIL, 'groups': []},
     {'regex': r"Reduce the cost of (.*) by (\d+)", 'process': ProcessType.REDUCE_COST, 'groups': ['target_text', 'value']},
     {'regex': r"Advance this amulet's count by (\d+|X)", 'process': ProcessType.ADVANCE_COUNTDOWN, 'groups': ['value']},
-    {'regex': r"Evolve this follower", 'process': ProcessType.SUPER_EVOLVE, 'groups': []},
-    {'regex': r"Evolve (.*)", 'process': ProcessType.SUPER_EVOLVE, 'groups': ['target_text']},
+    {'regex': r"Evolve this follower", 'process': ProcessType.EVOLVE, 'groups': []},
+    {'regex': r"Evolve (them|it)", 'process': ProcessType.EVOLVE, 'target': TargetType.SUMMONED_FOLLOWERS, 'groups': []},
+    {'regex': r"Evolve (.*)", 'process': ProcessType.EVOLVE, 'groups': ['target_text']},
     {'regex': r"Select an allied follower on the field and give it (.*)", 'process': ProcessType.ADD_EFFECT, 'target': TargetType.ALLY_FOLLOWER_CHOICE, 'groups': ['value']},
     
     # 다중 효과 및 단일 효과를 부여합니다 (non-greedy 매칭을 적용합니다).
@@ -543,7 +547,7 @@ def parse_action(text: str):
 
             # 카드 이름과 추가 효과 지시어가 혼합된 텍스트를 전처리합니다.
             def _clean_card_text(text_val, action_dict):
-                for connector in [" and give them ", " and give it "]:
+                for connector in [" and give them ", " and give it ", " and evolve them", " and evolve it"]:
                     if connector in text_val.lower():
                         idx = text_val.lower().find(connector)
                         card_part = text_val[:idx].strip()

@@ -123,6 +123,7 @@ class ProcessType(Enum):
     DESTROY = "파괴"
     BANISH = "소멸"
     RECOVER_PP = "PP 회복"
+    EVOLVE = "진화"
     SUPER_EVOLVE = "초진화"
     REPLACE_DECK = "덱 교체"
     SET_MAX_HEALTH = "최대 체력 설정"
@@ -193,6 +194,7 @@ class TargetType(Enum):
     OWN_HAND_RANDOM = "자기 패 중 랜덤"
     OPPONENT_DECK_RANDOM = "상대 덱 중 랜덤"
     OWN_DECK_RANDOM_FOLLOWER = "자신 덱 추종자 중 랜덤"
+    SUMMONED_FOLLOWERS = "방금 소환된 아군 추종자들"
 
     # 미구현 타겟들을 정의합니다.
     ALL_FOLLOWERS_MAX_DEFENSE = "가장 체력이 높은 추종자 전체"

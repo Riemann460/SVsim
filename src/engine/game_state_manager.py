@@ -22,6 +22,7 @@ class GameStateManager:
         self.cards = []
         self._next_card_instance_id = 0
         self.game = None  # Game 인스턴스를 참조하기 위한 필드를 추가합니다.
+        self.recently_summoned_cards = []  # 최근 소환된 카드 객체 목록입니다.
         self.is_awaiting_choice: bool = False
         self.pending_choice: Optional[Effect] = None
         self.player_awaiting_choice: Optional[str] = None
@@ -114,6 +115,7 @@ class GameStateManager:
                 if card.get_type() == CardType.FOLLOWER:
                     self.game.event_manager.publish(FollowerEnterFieldEvent(card_id=card.card_id, player_id=card.owner_id))
                     player.rally_count += 1
+                    self.recently_summoned_cards.append(card)
             
             print(f"[LOG] 카드 {card.get_display_name()} (ID: {card_id})이(가) {from_zone.value}에서 {to_zone.value}로 이동됨.")
 
@@ -135,6 +137,7 @@ class GameStateManager:
                 if card.get_type() == CardType.FOLLOWER:
                     self.game.event_manager.publish(FollowerEnterFieldEvent(card_id=card.card_id, player_id=card.owner_id))
                     player.rally_count += 1
+                    self.recently_summoned_cards.append(card)
 
             print(f"[LOG] 카드 {card.get_display_name()} (ID: {card.card_id})이(가) {to_zone.value}로 추가됨.")
 

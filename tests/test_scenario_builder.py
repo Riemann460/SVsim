@@ -558,9 +558,11 @@ class TestScenarioBuilderCore(unittest.TestCase):
         builder.set_active_player("player1")
         builder.set_pp("player1", 0, 3)
         slaus = builder.add_to_field("player1", "10574110")
-        builder.add_to_hand("player1", "Indomitable Fighter")
+        p1_card = builder.add_to_hand("player1", "Indomitable Fighter")
         
         game = builder.build()
+        # 무작위 효과 중 손패 선택 효과가 걸릴 경우를 대비해 Mock 값을 설정합니다.
+        game.gui.get_user_choice.return_value = p1_card.card_id
         game._start_turn("player1")
         self.assertEqual(len(slaus.activated_abilities), 1)
 
@@ -701,5 +703,28 @@ class TestScenarioBuilderCore(unittest.TestCase):
         # 10의 피해를 주더라도 상한인 0만큼만 감소하여 체력이 그대로여야 합니다.
         p1.take_damage(10)
         self.assertEqual(p1.current_defense, init_leader_def)
+
+    def test_harmony_of_youth_summon_scenario(self):
+        """청춘의 하모니 카드를 플레이하여 토큰들이 정상 소환 및 진화하는지 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        builder.set_pp("player1", 7, 7)
+        # 청춘의 하모니 카드를 패에 추가합니다.
+        harmony = builder.add_to_hand("player1", "10752310")
+
+        game = builder.build()
+        
+        # 카드를 플레이합니다.
+        played = game.play_card("player1", harmony.card_id)
+        self.assertTrue(played)
+
+        # 소환된 3마리의 추종자가 필드에 있고 모두 진화 상태인지 확인합니다.
+        field_cards = game.game_state_manager.get_cards_in_zone("player1", Zone.FIELD)
+        self.assertEqual(len(field_cards), 3)
+
+        for card in field_cards:
+            self.assertIn(card.card_data.name, ["Ghost", "Bat", "Skeleton"])
+            self.assertTrue(card.is_evolved)
+            self.assertFalse(card.is_super_evolved)
 
 

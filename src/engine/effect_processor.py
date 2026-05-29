@@ -60,6 +60,7 @@ class EffectProcessor:
             TargetType.ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED: self._get_target_another_ally_follower_random_unevolved,
             TargetType.ALLY_FOLLOWER_RANDOM_SUPER_EVOLVED: self._get_target_ally_follower_random_super_evolved,
             TargetType.OWN_HAND_RANDOM: self._get_target_own_hand_random,
+            TargetType.SUMMONED_FOLLOWERS: self._get_target_summoned_followers,
         }
         self.process_handlers = {
             ProcessType.STAT_BUFF: self._process_stat_buff,
@@ -71,6 +72,7 @@ class EffectProcessor:
             ProcessType.DESTROY: self._process_destroy,
             ProcessType.BANISH: self._process_banish,
             ProcessType.RECOVER_PP: self._process_recover_pp,
+            ProcessType.EVOLVE: self._process_evolve,
             ProcessType.SUPER_EVOLVE: self._process_super_evolve,
             ProcessType.REPLACE_DECK: self._process_replace_deck,
             ProcessType.SET_MAX_HEALTH: self._process_set_max_health,
@@ -694,6 +696,13 @@ class EffectProcessor:
         self.event_manager.publish(FollowerSuperEvolvedEvent(target.card_id, spend_sep="False"))
         print(f"[LOG] 처리 내용: 초진화, 타겟: {target.get_display_name()}")
 
+    def _process_evolve(self, effect_data: Effect, target: Card, game_state_manager: 'GameStateManager'):
+        """처리 - 지정 카드를 진화시킵니다."""
+        game_state_manager.evolve_card(target.card_id)
+        from src.common.event import FollowerEvolvedEvent
+        self.event_manager.publish(FollowerEvolvedEvent(target.card_id, spend_ep=False))
+        print(f"[LOG] 처리 내용: 카드 진화, 타겟 {target.get_display_name()}")
+
     def _process_replace_deck(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
         """처리 - 덱 교체."""
         value = effect_data.value
@@ -756,8 +765,14 @@ class EffectProcessor:
     def _process_remove_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 키워드 제거."""
         value = effect_data.value
-        target.effects = [effect for effect in target.effects if not effect.type == value]
-        print(f"[LOG] 처리 내용: 키워드 제거, 타겟: {target.get_display_name()}, 키워드: {value.value}")
+        if value is None:
+            target.effects = []
+            val_str = "모든 능력"
+        else:
+            target.effects = [effect for effect in target.effects if not effect.type == value]
+            val_str = value.value
+        print(f"[LOG] 처리 내용 키워드 제거 타겟 {target.get_display_name()} 키워드 {val_str}.")
+
 
     def _process_return_to_deck(self, effect_data: Effect, target: Card, game_state_manager: 'GameStateManager'):
         """처리 - 덱으로 되돌리기."""
@@ -1333,6 +1348,11 @@ class EffectProcessor:
         if not candidates:
             return []
         return [random.choice(candidates)]
+
+    def _get_target_summoned_followers(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """방금 소환된 아군 추종자들을 반환합니다."""
+        owner_id = self._get_owner_id(caster_card)
+        return [c for c in game_state_manager.recently_summoned_cards if c.owner_id == owner_id]
 
     def _process_gain_max_pp(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """최대 PP를 증가시키는 처리를 담당합니다."""

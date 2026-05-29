@@ -459,6 +459,7 @@ class Game:
 
     def play_card(self, player_id: str, card_id: str, enhanced_cost=0, use_extra_pp=False):
         """카드 플레이 요청을 처리합니다."""
+        self.game_state_manager.recently_summoned_cards.clear()
         if not self.rule_engine.validate_play_card(card_id, player_id, use_extra_pp):
             print(f"[LOG] {self.game_state_manager.get_card_name(card_id)} (ID: {card_id}) 카드 플레이 유효성 검사 실패.")
             return False
