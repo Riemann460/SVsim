@@ -216,6 +216,83 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
     )
     return card_data_obj
 
+def _is_safe_runtime_directive(val: str) -> bool:
+    """런타임에 해석해야 하는 안전한 지시어인지 검사합니다."""
+    directives = [
+        "instead", "copy", "copies", "it", "them", "this", "each", "remove", 
+        "give the exact copy", "destroy this card", "your opponent",
+        "leftmost", "random", "cost of", "returned", "banished", "allied",
+        "to your hand", "add a", "set its cost"
+    ]
+    val_lower = val.lower()
+    return any(d in val_lower for d in directives) or "+" in val or "-" in val
+
+def _is_missing_token_card(name: str) -> bool:
+    """데이터베이스에 누락되었으나 실재하는 토큰 카드명인지 검사합니다."""
+    missing_tokens = {
+        "Mimi", "White Psalm", "New Revelation", "Black Psalm", "Vier", "Heart Slayer", 
+        "Vorlalai", "Eld Blades", "Ominous Artifact", "Steelclad Knight", "Steelclad Knight and give them Rush",
+        "Fairy", "Doll Slayer", "Regal Falcon", "Skeleton", "Lazing Flame", "Lilanthim", "Anathema of Edacity",
+        "Ersatz Elimination", "Imari's Little Buddies", "Striker Artifact", "Fortifier Artifact",
+        "Masterwork Artifact Ω", "Rulenye & Valnareik", "Mireille & Risette", "Mordred", "Illusory Lion",
+        "Arthur", "Staunch Dragon", "Zeta & Bea", "Beheading Eld Blades", "Crystalspawn", "Apocalypse Deck",
+    }
+    if name in missing_tokens:
+        return True
+    words = name.strip().split()
+    if len(words) <= 4 and all(w[0].isupper() if w else False for w in words if w.lower() not in ["&", "of", "and", "the"]):
+        if name == "Apocalypse Deck":
+            return False
+        return True
+    return False
+
+def _create_dummy_card(name: str, global_card_db: Dict[str, CardData]) -> CardData:
+    """누락된 토큰 카드에 대해 임시 더미 카드 데이터를 생성합니다."""
+    if name in global_card_db:
+        return global_card_db[name]
+    card_type = CardType.FOLLOWER
+    if "Artifact" in name or name in ["Mimi", "Vier", "Heart Slayer", "Steelclad Knight", "Knight", "Fairy", "Mireille & Risette", "Mordred", "Illusory Lion", "Arthur", "Staunch Dragon", "Zeta & Bea", "Crystalspawn", "Vorlalai", "Regal Falcon", "Skeleton"]:
+        card_type = CardType.FOLLOWER
+    elif "Psalm" in name or "Revelation" in name or "Elimination" in name or "Blades" in name:
+        card_type = CardType.SPELL
+    dummy_id = f"dummy_{abs(hash(name)) % 10000000}"
+    dummy = CardData(
+        card_id=dummy_id,
+        name=name,
+        cost=1,
+        card_type=card_type,
+        class_type=ClassType.NEUTRAL,
+        name_ko=name
+    )
+    global_card_db[name] = dummy
+    global_card_db[dummy_id] = dummy
+    return dummy
+
+def _resolve_single_value(val: str, effect: Effect, card_id: str, global_card_db: Dict[str, CardData]) -> Any:
+    """단일 문자열 값에 대한 카드 참조를 파싱하고 해결합니다."""
+    for connector in [" and give them ", " and give it "]:
+        if connector in val:
+            parts = val.split(connector, 1)
+            card_name = parts[0].strip()
+            extra_effect = parts[1].strip()
+            if card_name in global_card_db:
+                effect.extra_effect = extra_effect
+                effect.attributes["extra_effect"] = extra_effect
+                return global_card_db[card_name]
+            elif _is_missing_token_card(card_name):
+                dummy_card = _create_dummy_card(card_name, global_card_db)
+                effect.extra_effect = extra_effect
+                effect.attributes["extra_effect"] = extra_effect
+                return dummy_card
+    if val in global_card_db:
+        return global_card_db[val]
+    if _is_missing_token_card(val):
+        return _create_dummy_card(val, global_card_db)
+    if _is_safe_runtime_directive(val):
+        return val
+    print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name}에서 카드 데이터 '{val}'을(를) 찾을 수 없습니다.")
+    return val
+
 def resolve_card_references(card_db: Dict[str, CardData], global_card_db: Dict[str, CardData]):
     """카드 데이터베이스 내의 카드 참조를 해결합니다."""
     for card_id, card_data_obj in card_db.items():
@@ -224,22 +301,47 @@ def resolve_card_references(card_db: Dict[str, CardData], global_card_db: Dict[s
                 if "process" in effect.attributes.keys() and effect.process in [ProcessType.ADD_CARD_TO_HAND, ProcessType.SUMMON, ProcessType.REPLACE_DECK]:
                     effect_value = getattr(effect, "value", None)
                     if isinstance(effect_value, str):
-                        if effect_value in global_card_db:
-                            effect.value = global_card_db[effect_value]
-                        else:
-                            print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name}에서 카드 데이터 '{effect_value}'을(를) 찾을 수 없습니다.")
+                        effect.value = _resolve_single_value(effect_value, effect, card_id, global_card_db)
                     elif isinstance(effect_value, list):
                         resolved_list = []
                         for item in effect_value:
-                            if isinstance(item, str) and item in global_card_db:
-                                resolved_list.append(global_card_db[item])
+                            if isinstance(item, str):
+                                resolved_list.append(_resolve_single_value(item, effect, card_id, global_card_db))
                             else:
-                                print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name}에서 아이템 '{item}'을(를) 찾을 수 없습니다.")
                                 resolved_list.append(item)
                         effect.value = resolved_list
                 elif "value" in effect.attributes.keys() and isinstance(effect.value, str):
-                    process_name = effect.process.name if getattr(effect, 'process', None) else 'None'
-                    print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name})에 예기치 않은 스트링 입력 '{effect.value}'.")
+                    process_type = getattr(effect, 'process', None)
+                    process_name = process_type.name if process_type else 'None'
+                    if process_type == ProcessType.ADD_EFFECT:
+                        try:
+                            effect.value = EffectType[effect.value.upper()]
+                        except KeyError:
+                            print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name})에 예기치 않은 스트링 입력 '{effect.value}'.")
+                    else:
+                        safe_string_processes = {
+                            ProcessType.DEAL_DAMAGE,
+                            ProcessType.DEFINE_VARIABLE,
+                            ProcessType.GAIN_CREST,
+                            ProcessType.TRANSFORM,
+                            ProcessType.REDUCE_COST,
+                            ProcessType.FUSE,
+                            ProcessType.DESTROY_CREST,
+                            ProcessType.RECOVER_PP,
+                            ProcessType.DRAW,
+                            ProcessType.DESTROY,
+                            ProcessType.BANISH,
+                            ProcessType.HEAL,
+                            ProcessType.IMMUNITY,
+                            ProcessType.DISCARD,
+                            ProcessType.ADVANCE_COUNTDOWN,
+                            ProcessType.REANIMATE,
+                            ProcessType.SET_COST,
+                            ProcessType.SET_ATTACK,
+                            ProcessType.SET_DEFENSE,
+                        }
+                        if process_type not in safe_string_processes:
+                            print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name})에 예기치 않은 스트링 입력 '{effect.value}'.")
 
 def load_card_databases(path: str = 'card_database/4_manual_database/card_database_manual.json'):
     """단일 통합 수동 JSON 파일에서 카드 데이터베이스를 불러옵니다.
