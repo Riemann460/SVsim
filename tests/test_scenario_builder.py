@@ -596,3 +596,21 @@ class TestScenarioBuilderCore(unittest.TestCase):
         self.assertTrue(played)
         self.assertEqual(shikigami.current_attack, 2)
         self.assertEqual(shikigami.current_defense, 2)
+
+    def test_gear_of_remembrance_transform(self):
+        """패스트 코어 카드가 필드에 플레이될 때 포티파이어 아티팩트로 정상 변신하는지 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        builder.set_pp("player1", 1, 1)
+        # 패스트 코어(90071220)를 패에 추가합니다.
+        gear = builder.add_to_hand("player1", "90071220")
+
+        game = builder.build()
+        # 카드를 플레이하여 변신 효과가 작동하도록 유도합니다.
+        played = game.play_card("player1", gear.card_id)
+        self.assertTrue(played)
+        # 필드의 카드가 포티파이어 아티팩트(Fortifier Artifact)로 변신했는지 확인합니다.
+        field_cards = game.game_state_manager.get_cards_in_zone("player1", Zone.FIELD)
+        self.assertEqual(len(field_cards), 1)
+        self.assertEqual(field_cards[0].card_data.name, "Fortifier Artifact")
+

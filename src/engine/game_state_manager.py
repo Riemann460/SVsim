@@ -35,12 +35,22 @@ class GameStateManager:
             resolved = cd.get_card_data_by_id(card_data_obj)
             if not resolved:
                 # 2. card_id 가 아니면 카드 영문명 또는 한글명으로 조회해 봅니다.
-                # 오염된 찌꺼기 텍스트(예 - "d Rotting Zombie")를 제거하고 원본 매칭을 시도합니다.
+                # 오염된 접두사나 영어 관사 및 수량사를 반복적으로 제거하여 순수 카드명을 추출합니다.
                 clean_name = card_data_obj.strip()
-                if clean_name.startswith("d "):
-                    clean_name = clean_name[2:].strip()
-                elif clean_name.startswith("and "):
-                    clean_name = clean_name[4:].strip()
+                prefixes = [
+                    "exact copies of ", "an exact copy of ", "copies of ",
+                    "copy of ", "and give them ", "and give it ",
+                    "a ", "an ", "the ", "d ", "and "
+                ]
+                changed = True
+                while changed:
+                    changed = False
+                    clean_name_lower = clean_name.lower()
+                    for prefix in prefixes:
+                        if clean_name_lower.startswith(prefix):
+                            clean_name = clean_name[len(prefix):].strip()
+                            changed = True
+                            break
 
                 for db in [cd.BASIC_CARD_DATABASE, cd.LEGENDS_RISE_CARD_DATABASE, cd.TOKEN_CARD_DATABASE]:
                     for c_data in db.values():
