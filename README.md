@@ -27,6 +27,7 @@ This project is a Python-based implementation of the card game "Shadowverse".
 *   **Functional GUI:** A `tkinter`-based GUI provides a visual representation of the game state, including each player's hand, field, and stats. It also facilitates user interactions like mulligan and effect choices.
 *   **Unimplemented Enums & Mechanics Engine Integration:** Completed full logic implementation and verification for missing keywords, targeting types, and process mechanisms (Combo, Rally, Necromancy, Reanimate, Earth Rite, Overflow, Skybound Art, Invoke, Transform, and Conditional Effect).
 *   **Fuzzing & Error Detection Agent System:** GUI를 배제한 게임 시뮬레이션 환경을 원숭이 패치(Monkey Patching)를 통해 완벽히 구축하고, 무작위 행동 탐색 플레이(Fuzzing)를 자동 구동하여 예외 발생 시 스냅샷과 트레이스백을 `fuzzing_report.md`에 실시간으로 요약 보고하는 `agent.json` 연동 에이전트 시스템을 구현하였습니다. 추가적으로 `error.log` 파일의 실시간 tailing 파싱 및 진화 스탯, 리더 체력, 크레스트, 직접소환 상태 이상 검증(Assertion) 기능을 탑재하였습니다.
+*   **Random Rotation Deck Fuzzing:** 퍼징 시 고정된 덱이 아닌, Rotation 조건(100, 102-107팩 허용, 40장, 동일 카드 최대 3장) 및 직업 규칙(플레이어별 임의 직업, 중립 카드 15% 제한)을 보장하는 랜덤 덱을 매 세션마다 실시간 생성하여 주입하도록 연동하였습니다.
 
 
 
