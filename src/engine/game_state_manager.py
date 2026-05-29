@@ -85,7 +85,8 @@ class GameStateManager:
         if from_zone == Zone.FIELD:
             if self.game and hasattr(self.game, 'event_manager'):
                 self.game.event_manager.publish(LeaveFieldEvent(card_id=card.card_id, player_id=card.owner_id))
-            self.game._unregister_card_listeners(card)
+            if self.game and hasattr(self.game, '_unregister_card_listeners'):
+                self.game._unregister_card_listeners(card)
 
         player.zone_dict[from_zone].remove_card(card_id)
 
@@ -119,7 +120,8 @@ class GameStateManager:
             card.current_zone = to_zone
             # 필드에 들어올 때 리스너를 등록합니다.
             if to_zone == Zone.FIELD:
-                self.game._register_card_listeners(card)
+                if self.game and hasattr(self.game, '_register_card_listeners'):
+                    self.game._register_card_listeners(card)
                 if card.get_type() == CardType.FOLLOWER:
                     self.game.event_manager.publish(FollowerEnterFieldEvent(card_id=card.card_id, player_id=card.owner_id))
                     player.rally_count += 1

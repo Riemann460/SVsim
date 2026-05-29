@@ -334,7 +334,7 @@ ACTION_PATTERNS = [
     {'regex': r"give [+-]?([+-]?\d+|[+-]?X)\/[+-]?([+-]?\d+|[+-]?X)", 'process': ProcessType.STAT_BUFF, 'target': TargetType.SELF, 'groups': ['value', 'value2']},
 
     # 피해(Damage) 효과를 정의합니다 (비어있는 대상 매칭을 방지하기 위해 (.+)를 사용합니다).
-    {'regex': r"Deal (\d+|X) damage split between (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text']},
+    {'regex': r"Deal (\d+|X) damage split between (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text'], 'is_split': True},
     {'regex': r"Deal (\d+|X) damage to (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text']},
     {'regex': r"(.+) and deal it (\d+|X) damage", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['target_text', 'value']},
     {'regex': r"Deal damage to (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['target_text'], 'value': 'X'},
@@ -499,6 +499,8 @@ def parse_action(text: str):
                 action['target'] = pattern['target']
             if 'condition' in pattern:
                 action['condition'] = pattern['condition']
+            if 'is_split' in pattern:
+                action['is_split'] = pattern['is_split']
 
             if pattern.get('special_handling') == 'neg_def_buff':
                 try:

@@ -476,7 +476,7 @@ class EffectProcessor:
             value = 0
             target.effects = [effect for effect in target.effects if effect.type != EffectType.BARRIER]
 
-        elif target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
+        elif hasattr(target, "is_super_evolved") and target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
             print(f"[LOG] {target.get_display_name()} 초진화 효과로 데미지 0 받음.")
             value = 0
 
@@ -490,9 +490,47 @@ class EffectProcessor:
                 self.event_manager.publish(DestroyedOnFieldEvent(target_id))
         print(f"[LOG] 처리 내용: 피해 입히기, 타겟: {target.get_display_name()}, 피해량: {value}")
 
+    def _resolve_split_damage(self, effect_data: Effect, target_list: List[Any], game_state_manager: 'GameStateManager'):
+        import copy
+        try:
+            remaining_damage = int(effect_data.value)
+        except (ValueError, TypeError):
+            remaining_damage = 0
+
+        target_followers = [t for t in target_list if isinstance(t, Card) and t.get_type() == CardType.FOLLOWER]
+        target_leaders = [t for t in target_list if isinstance(t, Player)]
+
+        def sort_by_field_order(card):
+            player = game_state_manager.players[card.owner_id]
+            field_cards = player.field.get_cards()
+            try:
+                return field_cards.index(card)
+            except ValueError:
+                return 999
+        target_followers.sort(key=sort_by_field_order)
+
+        for follower in target_followers:
+            if remaining_damage <= 0:
+                break
+            if follower.current_defense <= 0:
+                continue
+            damage_to_deal = min(remaining_damage, follower.current_defense)
+            temp_effect = copy.deepcopy(effect_data)
+            temp_effect.value = damage_to_deal
+            self._process_deal_damage(temp_effect, follower, game_state_manager)
+            remaining_damage -= damage_to_deal
+
+        if remaining_damage > 0 and target_leaders:
+            for leader in target_leaders:
+                temp_effect = copy.deepcopy(effect_data)
+                temp_effect.value = remaining_damage
+                self._process_deal_damage(temp_effect, leader, game_state_manager)
+
     def _process_destroy(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 파괴."""
-        if target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
+        if not hasattr(target, "card_id"):
+            return
+        if hasattr(target, "is_super_evolved") and target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
             print(f"[LOG] 처리 내용: 파괴, 타겟: {target.get_display_name()}")
             print(f"[LOG] {target.get_display_name()} 초진화 효과로 파괴되지 않음.")
             return
@@ -799,8 +837,11 @@ class EffectProcessor:
         target_type = effect_data.get('target')
         target_list = self.list_target(target_type, caster_id, game_state_manager)
 
-        for target in target_list:
-            handler(effect_data, target, game_state_manager)
+        if process_type == ProcessType.DEAL_DAMAGE and effect_data.get('is_split'):
+            self._resolve_split_damage(effect_data, target_list, game_state_manager)
+        else:
+            for target in target_list:
+                handler(effect_data, target, game_state_manager)
 
     def _process_reduce_cost(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 코스트 감소. 주석 규정을 엄격하게 준수합니다."""

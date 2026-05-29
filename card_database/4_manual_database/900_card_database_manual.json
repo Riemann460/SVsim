@@ -1692,6 +1692,7 @@
                 "process": "DEAL_DAMAGE",
                 "target": "ALL_OPPONENTS",
                 "value": 4,
+                "is_split": true,
                 "type": "SPELL"
             }
         ],
@@ -1729,8 +1730,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Aura</color></b>\nAt the end of your turn, if there are at least 3 allied amulets on the field, deal 3 damage to all enemies.",
         "required_listeners": [
-            "TURN_END",
-            "TURN_START"
+            "TURN_START",
+            "TURN_END"
         ]
     },
     "90051140": {
