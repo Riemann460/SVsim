@@ -727,4 +727,22 @@ class TestScenarioBuilderCore(unittest.TestCase):
             self.assertTrue(card.is_evolved)
             self.assertFalse(card.is_super_evolved)
 
+    def test_beheading_eld_blades_discard_scenario(self):
+        """독단의 고대의 칼날 카드를 버렸을 때 패 추가 효과가 정상 작동하는지 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        # 독단의 고대의 칼날 카드를 패에 추가합니다.
+        card = builder.add_to_hand("player1", "10643310")
+
+        game = builder.build()
+
+        # 카드를 버려 패 추가 효과를 실행합니다.
+        game.discard_card("player1", card.card_id)
+
+        # 패에 독단의 고대의 칼날 카드가 추가되었는지 확인합니다.
+        hand_cards = game.game_state_manager.get_cards_in_zone("player1", Zone.HAND)
+        self.assertEqual(len(hand_cards), 1)
+        self.assertEqual(hand_cards[0].card_data.name, "Beheading Eld Blades")
+
+
 

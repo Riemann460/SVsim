@@ -77,7 +77,8 @@ def convert_json_to_class_script(json_file_path: str, output_json_path: str) -> 
             # Spell 타입이면 효과에 명시적으로 Spell 타입을 부여합니다.
             if card_type_enum == CardType.SPELL.name:
                 for eff in parsed_effects:
-                    eff.update(type=EffectType.SPELL.name)
+                    if eff.get("type") not in [EffectType.ON_DISCARD.name]:
+                        eff.update(type=EffectType.SPELL.name)
 
             required_listeners = get_required_listeners(parsed_effects)
 

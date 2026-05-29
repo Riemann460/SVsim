@@ -392,9 +392,17 @@ class EffectProcessor:
             return []
 
         random.shuffle(opponent_followers)
-        selected_card = opponent_followers.pop()
-
-        return [selected_card]
+        count = 1
+        if hasattr(self, 'current_effect') and self.current_effect:
+            count = getattr(self.current_effect, 'target_count', 1)
+            try:
+                count = int(count)
+            except (ValueError, TypeError):
+                count = 1
+        selected_cards = []
+        for _ in range(min(count, len(opponent_followers))):
+            selected_cards.append(opponent_followers.pop())
+        return selected_cards
 
     def _get_target_opponent_follower_max_attack_random(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
         """대상 - 가장 공격력이 높은 상대 추종자 중 무작위 선택."""
@@ -473,8 +481,9 @@ class EffectProcessor:
         return [c for c in opponent_followers if c.current_defense < c.max_defense]
 
     def list_target(self, target_type: TargetType, caster_id: str,
-                       game_state_manager: 'GameStateManager'):
+                       game_state_manager: 'GameStateManager', effect_data: Effect = None):
         """타겟 타입을 해석하고 타겟 리스트를 반환합니다."""
+        self.current_effect = effect_data
         caster_card = game_state_manager.get_entity_by_id(caster_id)
         if not caster_card:
             self._log_error(f"list_target - caster card with id {caster_id} not found.")
@@ -1025,7 +1034,7 @@ class EffectProcessor:
             return
 
         target_type = effect_data.get('target')
-        target_list = self.list_target(target_type, caster_id, game_state_manager)
+        target_list = self.list_target(target_type, caster_id, game_state_manager, effect_data)
 
         if process_type == ProcessType.DEAL_DAMAGE and effect_data.get('is_split'):
             self._resolve_split_damage(effect_data, target_list, game_state_manager)

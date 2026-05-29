@@ -12,9 +12,9 @@ class Effect:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        if isinstance(self.get('type'), Enum) and self.get('type').name == 'CHOOSE':
+        if isinstance(self.get('type'), Enum) and self.get('type').name == 'MODE':
             if 'choices' not in self.attributes or not isinstance(self.attributes['choices'], list):
-                raise ValueError("CHOOSE effect must have a 'choices' list.")
+                raise ValueError("MODE effect must have a 'choices' list.")
             for choice in self.attributes['choices']:
                 if not isinstance(choice, Effect):
                     raise TypeError("All items in 'choices' must be Effect objects.")

@@ -57,8 +57,8 @@
             "raw_effects_text": "Ward\nLast Words: Draw a card.\nEvolve: Draw a card.",
             "required_listeners": [
                 "FOLLOWER_EVOLVED",
-                "DESTROYED_ON_FIELD",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "DESTROYED_ON_FIELD"
             ]
         },
         "10001130": {
@@ -183,8 +183,8 @@
             ],
             "raw_effects_text": "Fanfare: Draw a follower.\nEngage: Destroy this card. Select an allied follower on the field and give it Rush.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10011110": {
@@ -259,8 +259,8 @@
             ],
             "raw_effects_text": "Fanfare: Combo (3) - Evolve this follower.\nStrike: Restore 2 defense to your leader.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "ATTACK_DECLARED"
+                "ATTACK_DECLARED",
+                "CARD_PLAYED"
             ]
         },
         "10011210": {
@@ -295,8 +295,8 @@
             "raw_effects_text": "Fanfare: Add a Fairy to your hand.\nCountdown (2)\nWhenever an allied Pixie follower enters the field, deal 1 damage to a random enemy follower.",
             "required_listeners": [
                 "CARD_PLAYED",
-                "TURN_START",
-                "FOLLOWER_ENTER_FIELD"
+                "FOLLOWER_ENTER_FIELD",
+                "TURN_START"
             ]
         },
         "10012110": {
@@ -542,8 +542,8 @@
             ],
             "raw_effects_text": "Countdown (4)\nWhenever an allied follower enters the field, give it +1/+1.",
             "required_listeners": [
-                "TURN_START",
-                "FOLLOWER_ENTER_FIELD"
+                "FOLLOWER_ENTER_FIELD",
+                "TURN_START"
             ]
         },
         "10031110": {
@@ -614,8 +614,8 @@
             ],
             "raw_effects_text": "Fanfare: Draw a card.\nEarth Sigil\nEngage (1): Gain an earth sigil.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10031310": {
@@ -1213,8 +1213,8 @@
             ],
             "raw_effects_text": "Countdown (2)\nLast Words: Summon a Regal Falcon.\nEngage (2): Advance this amulet's count by 2.",
             "required_listeners": [
-                "TURN_START",
                 "CARD_ENGAGED",
+                "TURN_START",
                 "DESTROYED_ON_FIELD"
             ]
         },
@@ -1303,8 +1303,8 @@
             ],
             "raw_effects_text": "Countdown (4)\nLast Words: Summon a Holy Falcon.\nEngage (1): Advance this amulet's count by 1.",
             "required_listeners": [
-                "TURN_START",
                 "CARD_ENGAGED",
+                "TURN_START",
                 "DESTROYED_ON_FIELD"
             ]
         },
@@ -1895,6 +1895,7 @@
                     "value": "X",
                     "process": "DEAL_DAMAGE",
                     "target": "OPPONENT_FOLLOWER_RANDOM",
+                    "target_count": 3,
                     "type": "COMBO"
                 }
             ],
@@ -2052,8 +2053,8 @@
             ],
             "raw_effects_text": "Fanfare: Add a Fairy to your hand. Combo (3) - Add a Deepwood Bounty to your hand.\nEngage: Destroy this card. Select an allied follower on the field and give it +1/+1.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10112310": {
@@ -2255,8 +2256,8 @@
             ],
             "raw_effects_text": "At the end of your turn, Combo (3) - Draw a card.\nEngage: Destroy this card. Select another allied card on the field and return it to hand.",
             "required_listeners": [
-                "TURN_END",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "TURN_END"
             ]
         },
         "10114110": {
@@ -2311,6 +2312,7 @@
                     "type": "FANFARE",
                     "process": "TRANSFORM",
                     "target": "OWN_HAND_CHOICE",
+                    "target_count": 1,
                     "value": "copies of Bramble Burst"
                 },
                 {
@@ -2758,8 +2760,8 @@
             ],
             "raw_effects_text": "Rush\nCan attack 2 times per turn.\nStrike: Give this follower Barrier. Summon a Knight.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "ATTACK_DECLARED"
+                "ATTACK_DECLARED",
+                "CARD_PLAYED"
             ]
         },
         "10123120": {
@@ -2965,6 +2967,7 @@
                 {
                     "process": "ADD_EFFECT",
                     "target": "ALL_OTHER_ALLY_FOLLOWERS",
+                    "target_count_var": "Swordcraft",
                     "value": "Barrier",
                     "type": "ON_SUPER_EVOLVE"
                 }
@@ -3000,8 +3003,8 @@
             ],
             "raw_effects_text": "Last Words: Gain Crest: Kagemitsu, Enduring Warrior.\nSuper-Evolve: Give this follower Storm.",
             "required_listeners": [
-                "DESTROYED_ON_FIELD",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "DESTROYED_ON_FIELD"
             ]
         },
         "10131110": {
@@ -3270,8 +3273,8 @@
             "raw_effects_text": "On Spellboost: Reduce the cost of this card by 1.\nEvolve: Summon a Clay Golem. Deal X damage to all enemy followers. X is the number of allied Golem followers on the field.",
             "required_listeners": [
                 "FOLLOWER_EVOLVED",
-                "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "CARD_PLAYED"
             ]
         },
         "10132130": {
@@ -3864,16 +3867,14 @@
                         1,
                         0
                     ],
-                    "type": "SPELL"
+                    "type": "ON_DISCARD"
                 },
                 {
                     "type": "RUSH"
                 }
             ],
             "raw_effects_text": "When this card is discarded, give a random allied follower on the field +1/+0.\nRush",
-            "required_listeners": [
-                "CARD_PLAYED"
-            ]
+            "required_listeners": []
         },
         "10142120": {
             "card_id": "10142120",
@@ -4221,12 +4222,14 @@
                 {
                     "process": "ADD_EFFECT",
                     "target": "ALL_ALLY_FOLLOWERS",
+                    "target_count_var": "Supreme Golden Dragon",
                     "value": "Storm",
                     "type": "ON_SUPER_EVOLVE"
                 },
                 {
                     "process": "ADD_EFFECT",
                     "target": "ALL_ALLY_FOLLOWERS",
+                    "target_count_var": "Supreme Silver Dragon",
                     "value": "Barrier",
                     "type": "ON_SUPER_EVOLVE"
                 }
@@ -4558,8 +4561,8 @@
             ],
             "raw_effects_text": "Fanfare: Add 2 shadows to your cemetery.\nEngage: Destroy this card. Summon 2 copies of Ghost.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10153110": {
@@ -4660,8 +4663,8 @@
             "required_listeners": [
                 "FOLLOWER_EVOLVED",
                 "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED",
-                "FOLLOWER_ENTER_FIELD"
+                "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED"
             ]
         },
         "10153140": {
@@ -4967,8 +4970,8 @@
             ],
             "raw_effects_text": "Countdown (3)\nLast Words: Draw 2 cards.\nEngage (1): Advance this amulet's count by 1.",
             "required_listeners": [
-                "TURN_START",
                 "CARD_ENGAGED",
+                "TURN_START",
                 "DESTROYED_ON_FIELD"
             ]
         },
@@ -5060,8 +5063,8 @@
             ],
             "raw_effects_text": "Clash: Deal 1 damage to the enemy leader.\nSuper-Evolve: Give this follower \"Can attack 2 times per turn.\"",
             "required_listeners": [
-                "COMBAT_INITIATED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "COMBAT_INITIATED"
             ]
         },
         "10162130": {
@@ -5262,8 +5265,8 @@
             ],
             "raw_effects_text": "Countdown (2)\nLast Words: Summon a Holyflame Tiger.\nEngage (1): Advance this amulet's count by 1.",
             "required_listeners": [
-                "TURN_START",
                 "CARD_ENGAGED",
+                "TURN_START",
                 "DESTROYED_ON_FIELD"
             ]
         },
@@ -5646,6 +5649,7 @@
                 {
                     "process": "STAT_BUFF",
                     "target": "OWN_HAND_CHOICE",
+                    "target_count_var": "Puppetry",
                     "value": [
                         1,
                         0
@@ -5957,8 +5961,8 @@
             "raw_effects_text": "Fanfare: Summon a Lloyd.\nWhenever an allied Puppetry follower enters the field, give it Storm and Bane.\nSuper-Evolve: Summon 2 copies of Enhanced Puppet.",
             "required_listeners": [
                 "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED",
-                "FOLLOWER_ENTER_FIELD"
+                "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED"
             ]
         },
         "10174130": {
@@ -5981,6 +5985,7 @@
                 {
                     "process": "STAT_BUFF",
                     "target": "ALL_ALLY_FOLLOWERS",
+                    "target_count_var": "Artifact",
                     "value": [
                         1,
                         1
@@ -6365,6 +6370,7 @@
                 {
                     "process": "STAT_BUFF",
                     "target": "ALL_ALLY_FOLLOWERS",
+                    "target_count_var": "Pixie",
                     "value": [
                         1,
                         0
@@ -6496,6 +6502,7 @@
                     "type": "FANFARE",
                     "process": "DEAL_DAMAGE",
                     "target": "OPPONENT_FOLLOWER_RANDOM",
+                    "target_count": 2,
                     "value": 1
                 }
             ],
@@ -6633,6 +6640,7 @@
                     "enhance_cost": 4,
                     "process": "DEAL_DAMAGE",
                     "target": "OPPONENT_FOLLOWER_RANDOM",
+                    "target_count": 3,
                     "value": "X",
                     "type": "SPELL"
                 }
@@ -6753,8 +6761,8 @@
             "required_listeners": [
                 "FOLLOWER_EVOLVED",
                 "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED",
-                "FOLLOWER_ENTER_FIELD"
+                "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED"
             ]
         },
         "10224120": {
@@ -7011,8 +7019,8 @@
             "raw_effects_text": "Ward\nClash: Spellboost your hand.\nEvolve: Draw 2 followers.",
             "required_listeners": [
                 "FOLLOWER_EVOLVED",
-                "COMBAT_INITIATED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "COMBAT_INITIATED"
             ]
         },
         "10233310": {
@@ -7075,8 +7083,8 @@
             ],
             "raw_effects_text": "Aura\nLast Words: Earth Rite (2) - Summon a Lilanthim, Anathema of Edacity.\nSuper-Evolve: Select 2 enemy followers on the field and destroy them.",
             "required_listeners": [
-                "DESTROYED_ON_FIELD",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "DESTROYED_ON_FIELD"
             ]
         },
         "10234120": {
@@ -7704,7 +7712,7 @@
                         },
                         {
                             "process": "DESTROY",
-                            "value": 4,
+                            "target_count": 4,
                             "target": "OPPONENT_FOLLOWER_RANDOM",
                             "type": "SPELL"
                         }
@@ -7754,8 +7762,8 @@
             "raw_effects_text": "Fanfare: Reanimate (2) and Reanimate (1).\nWhenever an allied Departed follower enters the field, give it Ward.\nSuper-Evolve: Gain Crest: Charon, Stygian Oarswoman.",
             "required_listeners": [
                 "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED",
-                "FOLLOWER_ENTER_FIELD"
+                "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED"
             ]
         },
         "10261110": {
@@ -8047,8 +8055,8 @@
             "raw_effects_text": "Ward\nLast Words: Summon 2 copies of Holy Cavalier.\nEvolve: Gain Crest: Wilbert, Desolate Paladin.",
             "required_listeners": [
                 "FOLLOWER_EVOLVED",
-                "DESTROYED_ON_FIELD",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "DESTROYED_ON_FIELD"
             ]
         },
         "10271110": {
@@ -8151,8 +8159,8 @@
             ],
             "raw_effects_text": "Fanfare: Add a Gear of Ambition to your hand.\nEngage (3): Destroy this card. Select an Artifact follower in your hand that costs 5 or less, summon an exact copy of it, and give the exact copy \"At the end of your opponent's turn, destroy this card.\"",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10272110": {
@@ -8483,8 +8491,8 @@
             ],
             "raw_effects_text": "Fanfare: Banish all duplicates from your deck.\nEngage: Draw a card.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10304110": {
@@ -8562,10 +8570,10 @@
             ],
             "raw_effects_text": "Fanfare: Select another follower on the field and give it +2/-2. If both players have 10 max play points, add a Sweetness of Voracity to your hand.\nDrain\nEvolve: Select a follower on the field and give it +2/-2.",
             "required_listeners": [
+                "DAMAGE_DEALT_BY_COMBAT",
                 "FOLLOWER_EVOLVED",
                 "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED",
-                "DAMAGE_DEALT_BY_COMBAT"
+                "FOLLOWER_SUPER_EVOLVED"
             ]
         },
         "10311110": {
@@ -8754,8 +8762,8 @@
             ],
             "raw_effects_text": "Fanfare: Select a card in your hand and discard it. Draw 2 cards.\nEngage: Destroy this card. Select an enemy follower on the field and give it -0/-2.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10313110": {
@@ -9058,7 +9066,7 @@
                     "type": "ENGAGE"
                 },
                 {
-                    "type": "CHOOSE",
+                    "type": "MODE",
                     "process": "CHOOSE",
                     "choices": [
                         {
@@ -9381,9 +9389,9 @@
             ],
             "raw_effects_text": "Countdown (5)\nWhenever you play a follower whose cost has been changed, draw a card and advance this amulet's count by 1.\nEngage: Select a follower in your hand, increase its cost by 1, and give it +1/+1.",
             "required_listeners": [
-                "TURN_START",
                 "CARD_ENGAGED",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_START"
             ]
         },
         "10332310": {
@@ -9700,8 +9708,8 @@
             ],
             "raw_effects_text": "Countdown (4)\nEngage (1): Deal 1 damage to all followers.",
             "required_listeners": [
-                "TURN_START",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "TURN_START"
             ]
         },
         "10343110": {
@@ -9724,6 +9732,7 @@
                 {
                     "process": "STAT_BUFF",
                     "target": "OWN_HAND_CHOICE",
+                    "target_count_var": "Dragoncraft",
                     "value": [
                         1,
                         1
@@ -10066,8 +10075,8 @@
             ],
             "raw_effects_text": "Fanfare: Select a Mode to activate.\n1. Draw a card.\n2. Give a random allied follower on the field +1/+1.\nEngage (1): Destroy this card. Replicate the effects of this card's Fanfare ability.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10353110": {
@@ -10102,6 +10111,7 @@
                         {
                             "process": "STAT_BUFF",
                             "target": "ALL_ALLY_FOLLOWERS",
+                            "target_count_var": "Congregant of Entwining",
                             "value": [
                                 2,
                                 2
@@ -10388,9 +10398,9 @@
             ],
             "raw_effects_text": "Countdown (4)\nLast Words: Restore 2 defense to your leader. Give your leader Barrier.\nEngage: Advance this amulet's count by X. X is the number of crests you have.",
             "required_listeners": [
-                "TURN_START",
-                "CARD_PLAYED",
                 "CARD_ENGAGED",
+                "CARD_PLAYED",
+                "TURN_START",
                 "DESTROYED_ON_FIELD"
             ]
         },
@@ -10427,8 +10437,8 @@
             ],
             "raw_effects_text": "Countdown (3)\nLast Words: Summon a Holy Falcon and Holyflame Tiger.\nEngage (1): Advance this amulet's count by 1.",
             "required_listeners": [
-                "TURN_START",
                 "CARD_ENGAGED",
+                "TURN_START",
                 "DESTROYED_ON_FIELD"
             ]
         },
@@ -10502,9 +10512,9 @@
             ],
             "raw_effects_text": "Countdown (4)\nLast Words: Deal 4 damage split between all enemies. Restore 4 defense to your leader.\nEngage: Advance this amulet's count by X. X is the number of crests you have.",
             "required_listeners": [
-                "TURN_START",
-                "CARD_PLAYED",
                 "CARD_ENGAGED",
+                "CARD_PLAYED",
+                "TURN_START",
                 "DESTROYED_ON_FIELD"
             ]
         },
@@ -10787,7 +10797,7 @@
                 {
                     "type": "FANFARE",
                     "process": "DESTROY",
-                    "value": "VARIABLE",
+                    "target_count": "X",
                     "target": "OPPONENT_FOLLOWER_RANDOM"
                 },
                 {
@@ -11525,7 +11535,7 @@
                     "type": "ENGAGE"
                 },
                 {
-                    "type": "CHOOSE",
+                    "type": "MODE",
                     "process": "CHOOSE",
                     "choices": []
                 },
@@ -11544,8 +11554,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Engage</color></b>: Destroy this card. Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Destroy a random enemy follower.</ridx>\n<ridx=1>2. Draw 2 cards.</ridx>",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10433110": {
@@ -11989,6 +11999,7 @@
                     "type": "FANFARE",
                     "process": "DEAL_DAMAGE",
                     "target": "OPPONENT_FOLLOWER_RANDOM",
+                    "target_count": 2,
                     "value": 5
                 },
                 {
@@ -12029,6 +12040,7 @@
                 {
                     "process": "STAT_BUFF",
                     "target": "ALL_ALLY_FOLLOWERS",
+                    "target_count_var": "Swordcraft",
                     "value": [
                         1,
                         1
@@ -12078,8 +12090,8 @@
             ],
             "raw_effects_text": "Can attack 2 times per turn.\n<b><color=Keyword>Strike</color></b>: Restore 3 defense to all allies.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "ATTACK_DECLARED"
+                "ATTACK_DECLARED",
+                "CARD_PLAYED"
             ]
         },
         "10461120": {
@@ -12424,8 +12436,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Evolve all unevolved allied followers on the field. Deal 2 damage to your leader.\n<hr><b><color=Keyword>Drain</color></b>",
             "required_listeners": [
-                "CARD_PLAYED",
-                "DAMAGE_DEALT_BY_COMBAT"
+                "DAMAGE_DEALT_BY_COMBAT",
+                "CARD_PLAYED"
             ]
         },
         "10452110": {
@@ -12750,8 +12762,8 @@
             ],
             "raw_effects_text": "Activates in hand. Whenever you <b><color=Keyword>Engage</color></b> an amulet, reduce the cost of this card by 1.\n<hr><b><color=Keyword>Engage</color></b>: Destroy this card. Select an unevolved allied follower on the field and evolve it.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10462120": {
@@ -13476,8 +13488,8 @@
             "required_listeners": [
                 "FOLLOWER_EVOLVED",
                 "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED",
-                "FOLLOWER_ENTER_FIELD"
+                "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED"
             ]
         },
         "10502120": {
@@ -13982,7 +13994,7 @@
                     "target": "OWN_LEADER"
                 },
                 {
-                    "type": "CHOOSE",
+                    "type": "MODE",
                     "process": "CHOOSE",
                     "choices": []
                 },
@@ -14571,7 +14583,7 @@
                 },
                 {
                     "process": "DESTROY",
-                    "value": 6,
+                    "target_count": 6,
                     "target": "ALL_FOLLOWERS",
                     "type": "EVOLVED"
                 },
@@ -14829,8 +14841,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Engage</color></b>: Destroy this card. Draw X cards. X is the number of allied followers on the field with <b><color=Keyword>Ward</color></b>.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10511110": {
@@ -14925,8 +14937,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field and deal it 5 damage.\n<hr><b><color=Keyword>Engage</color></b>: Destroy this card. Return 2 random cards from your hand to deck. Draw 2 cards.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10572310": {
@@ -15039,8 +15051,8 @@
             ],
             "raw_effects_text": "<sev><b><color=Keyword>Super-Evolve</color></b>: Banish all 1-, 3-, 5-, 7-, and 9-cost cards from your deck. Deal X damage split between all enemy followers. X is the number of cards you banished.</sev>",
             "required_listeners": [
-                "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "CARD_PLAYED"
             ]
         },
         "10563110": {
@@ -15237,9 +15249,9 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Ambush</color></b>\nAt the end of your turn, if this follower is evolved, give your opponent <b><i>Crest: Slaus, Revolving Wheel of Fortune</i></b> and banish this card.\nAt the start of your turn, activate a random ability that hasn't been activated yet from the following.\n<ridx=0>1. Reduce the cost of all cards in your hand by 1 until the end of the turn.</ridx>\n<ridx=1>2. Give all allied followers on the field +2/+2.</ridx>\n<ridx=2>3. Restore 3 defense to your leader.</ridx>",
             "required_listeners": [
+                "CARD_PLAYED",
                 "TURN_START",
-                "TURN_END",
-                "CARD_PLAYED"
+                "TURN_END"
             ]
         },
         "10543310": {
@@ -15380,6 +15392,7 @@
                 {
                     "process": "ADD_EFFECT",
                     "target": "ALL_ALLY_FOLLOWERS",
+                    "target_count_var": "Pixie",
                     "value": "Bane",
                     "type": "ON_SUPER_EVOLVE"
                 }
@@ -15718,6 +15731,7 @@
                     "type": "FANFARE",
                     "process": "DEAL_DAMAGE",
                     "target": "OPPONENT_FOLLOWER_RANDOM",
+                    "target_count": 3,
                     "value": 3
                 },
                 {
@@ -15841,9 +15855,9 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Countdown</color> (5)</b>\nWhenever you play another card, if there's a card on the field other than it with the same base cost, advance this amulet's count by 1.\n<b><color=Keyword>Last Words</color></b>: Draw 2 cards.",
             "required_listeners": [
+                "CARD_PLAYED",
                 "TURN_START",
-                "DESTROYED_ON_FIELD",
-                "CARD_PLAYED"
+                "DESTROYED_ON_FIELD"
             ]
         },
         "10544120": {
@@ -15925,7 +15939,7 @@
                     "process": "ADD_CARD_TO_HAND",
                     "target": "OWN_LEADER",
                     "value": "10641310",
-                    "type": "SPELL"
+                    "type": "ON_DISCARD"
                 },
                 {
                     "process": "STAT_BUFF",
@@ -16222,8 +16236,8 @@
             "raw_effects_text": "<b><color=Keyword>Aura</color></b>\nCan't be destroyed by abilities.\n<hr><b><color=Keyword>Clash</color></b>: Destroy the opposing follower.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Give this follower \"Can attack 3 times per turn.\"</sev>",
             "required_listeners": [
                 "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED",
-                "COMBAT_INITIATED"
+                "COMBAT_INITIATED",
+                "FOLLOWER_SUPER_EVOLVED"
             ]
         },
         "10603110": {
@@ -16289,12 +16303,8 @@
                 {
                     "process": "ADD_CARD_TO_HAND",
                     "target": "OWN_LEADER",
-                    "value": [
-                        "Beheading Eld Blades to your hand",
-                        "set its cost to 5 If this card's cost is 5",
-                        "add a Beheading Eld Blades"
-                    ],
-                    "type": "SPELL"
+                    "value": "10643310",
+                    "type": "ON_DISCARD"
                 },
                 {
                     "process": "DEAL_DAMAGE",
@@ -16452,8 +16462,8 @@
             "required_listeners": [
                 "FOLLOWER_EVOLVED",
                 "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED",
-                "FOLLOWER_ENTER_FIELD"
+                "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED"
             ]
         },
         "10674110": {
@@ -16497,8 +16507,8 @@
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Shoddy Plaything</color></i></b> and <b><i><color=Keyword>Substandard Puppet</color></i></b>.\n<hr>Whenever another allied follower with a base cost of 5 or more enters the field, evolve it.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Deal X damage to the enemy leader. X is the number of allied followers on the field with a base cost of 5 or more.</sev>",
             "required_listeners": [
                 "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED",
-                "FOLLOWER_ENTER_FIELD"
+                "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED"
             ]
         },
         "10631110": {
@@ -17792,8 +17802,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Reduce your faith's value by 10 to add a <b><i><color=Keyword>Depths of the Eld Lance</color></i></b> to your hand and give your faith \"Whenever an allied follower evolves, deal 1 damage to all enemies.\"\n<hr><b><color=Keyword>Drain</color></b>",
             "required_listeners": [
-                "CARD_PLAYED",
-                "DAMAGE_DEALT_BY_COMBAT"
+                "DAMAGE_DEALT_BY_COMBAT",
+                "CARD_PLAYED"
             ]
         },
         "10662210": {
@@ -17893,9 +17903,9 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon 2 copies of <b><i><color=Keyword>Crystalspawn</color></i></b>.\n<hr><b><color=Keyword>Drain</color></b>\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Gain <b><i>Crest: Shymm, Love Bewitched</i></b>.</sev>",
             "required_listeners": [
+                "DAMAGE_DEALT_BY_COMBAT",
                 "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED",
-                "DAMAGE_DEALT_BY_COMBAT"
+                "FOLLOWER_SUPER_EVOLVED"
             ]
         },
         "10633110": {
@@ -17921,6 +17931,7 @@
                 {
                     "process": "STAT_BUFF",
                     "target": "ALL_ALLY_FOLLOWERS",
+                    "target_count_var": "Crystalspawn",
                     "value": [
                         1,
                         0
@@ -18111,6 +18122,7 @@
                 {
                     "process": "EVOLVE",
                     "target": "ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED",
+                    "target_count": 5,
                     "type": "SPELL"
                 },
                 {
@@ -18161,8 +18173,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Countdown</color> (3)</b>\n<b><color=Keyword>Last Words</color></b>: Draw a card. Destroy a random enemy follower.\n<hr><b><color=Keyword>Engage</color> (1)</b>: Advance this amulet's count by 1.",
             "required_listeners": [
-                "TURN_START",
                 "CARD_ENGAGED",
+                "TURN_START",
                 "DESTROYED_ON_FIELD"
             ]
         },
@@ -18205,7 +18217,7 @@
                         "Vorlalai",
                         "Eld Blades"
                     ],
-                    "type": "SPELL"
+                    "type": "ON_DISCARD"
                 },
                 {
                     "type": "BANE"
@@ -18226,7 +18238,6 @@
             "raw_effects_text": "When this card is discarded, summon a <b><i><color=Keyword>Vorlalai, Eld Blades</color></i></b>.\n<hr><b><color=Keyword>Bane</color></b>\n<hr><ev><b><color=Keyword>Evolve</color></b>: Add a <b><i><color=Keyword>Depths of the Eld Blades</color></i></b> to your hand.</ev>\n<sev><b><color=Keyword>Super-Evolve</color></b>: Add 3 copies instead.</sev>",
             "required_listeners": [
                 "FOLLOWER_EVOLVED",
-                "CARD_PLAYED",
                 "FOLLOWER_SUPER_EVOLVED"
             ]
         },
@@ -18385,6 +18396,7 @@
                 {
                     "process": "STAT_BUFF",
                     "target": "ALL_OTHER_ALLY_FOLLOWERS",
+                    "target_count_var": "Abysscraft",
                     "value": [
                         2,
                         2
@@ -18395,8 +18407,8 @@
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon 2 random differently named Abysscraft followers that cost 2 or less from your deck.\n<hr>Whenever another allied Abysscraft follower enters the field, give it <b><color=Keyword>Rush</color></b>.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Give all other allied Abysscraft followers on the field +2/+2.</sev>",
             "required_listeners": [
                 "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED",
-                "FOLLOWER_ENTER_FIELD"
+                "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED"
             ]
         },
         "10701110": {
@@ -18548,8 +18560,8 @@
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Rotting Zombie</color></i></b> and <b><i><color=Keyword>Skeleton</color></i></b>.\n<hr>Whenever an allied Departed follower enters the field, give it <b><color=Keyword>Storm</color></b>.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Select another allied follower on the field. If you selected one, destroy it and a random enemy follower.</sev>",
             "required_listeners": [
                 "CARD_PLAYED",
-                "FOLLOWER_SUPER_EVOLVED",
-                "FOLLOWER_ENTER_FIELD"
+                "FOLLOWER_ENTER_FIELD",
+                "FOLLOWER_SUPER_EVOLVED"
             ]
         },
         "10771120": {
@@ -18949,6 +18961,7 @@
                 {
                     "process": "STAT_BUFF",
                     "target": "ALL_OTHER_ALLY_FOLLOWERS",
+                    "target_count_var": "Swordcraft",
                     "value": [
                         1,
                         3
@@ -19001,8 +19014,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Rush</color></b>\n<b><color=Keyword>Last Words</color></b>: Gain 2 earth sigils.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: <b><color=Keyword>Earth Rite</color> (2)</b> - Summon 2 copies of <b><i><color=Keyword>Charming Monster</color></i></b>.</sev>",
             "required_listeners": [
-                "DESTROYED_ON_FIELD",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "DESTROYED_ON_FIELD"
             ]
         },
         "10703210": {
@@ -19061,10 +19074,10 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\nAt the end of your turn, activate an ability in sequence from the following.\n<ridx=0>1. Deal 2 damage to a random enemy follower.</ridx>\n<ridx=1>2. Restore 2 defense to your leader.</ridx>\n<ridx=2>3. Deal 2 damage to the enemy leader. Destroy this card.</ridx>\n<hr><b><color=Keyword>Engage</color> (1)</b>: Select a card in your hand and discard it. Delay the count of this amulet by 1.",
             "required_listeners": [
-                "TURN_START",
                 "CARD_ENGAGED",
-                "TURN_END",
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "TURN_START",
+                "TURN_END"
             ]
         },
         "10711310": {
@@ -19364,8 +19377,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select a card in your hand and return it to deck. Draw a card.\n<hr><b><color=Keyword>Engage</color></b>: Destroy this card. Replicate the effects of this card's <b><color=Keyword>Fanfare</color></b> ability.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10711120": {
@@ -19994,8 +20007,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Last Words</color></b>: Draw a card.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Summon 2 copies of <b><i><color=Keyword>Intrepid Newshound</color></i></b>.</sev>",
             "required_listeners": [
-                "DESTROYED_ON_FIELD",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "DESTROYED_ON_FIELD"
             ]
         },
         "10752120": {
@@ -20047,7 +20060,7 @@
                     "target": "OWN_LEADER"
                 },
                 {
-                    "type": "CHOOSE",
+                    "type": "MODE",
                     "process": "CHOOSE",
                     "choices": []
                 },
@@ -20564,8 +20577,8 @@
             "raw_effects_text": "<b><color=Keyword>Last Words</color></b>: Summon a <b><i><color=Keyword>Skeleton</color></i></b>. \n<hr><ev><b><color=Keyword>Evolve</color></b>: Select an enemy follower on the field and deal it 3 damage.</ev>",
             "required_listeners": [
                 "FOLLOWER_EVOLVED",
-                "DESTROYED_ON_FIELD",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "DESTROYED_ON_FIELD"
             ]
         },
         "10761110": {
@@ -20699,8 +20712,8 @@
             "raw_effects_text": "<b><color=Keyword>Last Words</color></b>: Summon a <b><i><color=Keyword>Knight</color></i></b>.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Select an enemy follower on the field and deal it 3 damage.</ev>",
             "required_listeners": [
                 "FOLLOWER_EVOLVED",
-                "DESTROYED_ON_FIELD",
-                "FOLLOWER_SUPER_EVOLVED"
+                "FOLLOWER_SUPER_EVOLVED",
+                "DESTROYED_ON_FIELD"
             ]
         },
         "10762110": {
@@ -20896,8 +20909,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Enhance</color> (4)</b>: Deal 1 damage to all enemy followers.\n<hr><b><color=Keyword>Engage</color></b>: Destroy this card. Deal 1 damage to all enemy followers.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10763210": {
@@ -20933,8 +20946,8 @@
             ],
             "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field and deal it 4 damage.\n<hr><b><color=Keyword>Engage</color></b>: Destroy this card. Select an enemy follower on the field and deal it 2 damage.",
             "required_listeners": [
-                "CARD_PLAYED",
-                "CARD_ENGAGED"
+                "CARD_ENGAGED",
+                "CARD_PLAYED"
             ]
         },
         "10712110": {
@@ -21422,7 +21435,7 @@
                     "process": "DEAL_DAMAGE",
                     "target": "OWN_LEADER",
                     "value": 1,
-                    "type": "SPELL"
+                    "type": "ON_DISCARD"
                 },
                 {
                     "process": "DEAL_DAMAGE",

@@ -59,7 +59,8 @@ from src.common.event import (
     TurnEndEvent,
     DamageDealtByCombatEvent,
     FollowerEnterFieldEvent,
-    LeaveFieldEvent
+    LeaveFieldEvent,
+    CardDiscardedEvent
 )
 
 
@@ -122,7 +123,7 @@ class Game:
             self.game_state_manager.player_awaiting_choice = None
 
             # 선택된 효과를 실행합니다.
-            # CHOOSE 효과를 발동시킨 원래 카드를 caster_id로 사용해야 합니다.
+            # MODE 효과를 발동시킨 원래 카드를 caster_id로 사용해야 합니다.
             caster_id = pending_effect.get('caster_id') 
             self.effect_processor.resolve_effect(chosen_effect, caster_id, self.game_state_manager, None)
             
@@ -153,6 +154,8 @@ class Game:
             Listener('global_follower_enter', EventType.FOLLOWER_ENTER_FIELD, self._on_follower_enter_field))
         self.event_manager.subscribe(
             Listener('global_destroyed_on_field', EventType.DESTROYED_ON_FIELD, self._on_destroyed_on_field))
+        self.event_manager.subscribe(
+            Listener('global_card_discarded', EventType.CARD_DISCARDED, self._on_card_discarded))
 
     def _register_card_listeners(self, card: Card):
         """카드의 능력에 따라 이벤트 리스너를 동적으로 등록합니다."""
@@ -244,6 +247,30 @@ class Game:
                 f"[LOG] {player_id}의 주문 증폭 효과 처리. 대상 카드: {[self.game_state_manager.get_card_name(card_id) for card_id in cards_with_spellboost]}")
         for card_id in cards_with_spellboost:
             self.resolve_effects_type(card_id, EffectType.SPELLBOOST)
+
+    def _on_card_discarded(self, event: CardDiscardedEvent):
+        """카드가 버려졌을 때 버림 트리거 효과를 처리합니다.
+
+        매개변수
+        ----------
+        event (CardDiscardedEvent) - 카드 버림 이벤트 객체입니다.
+        """
+        # 묘지나 전체 목록에서 버려진 카드 객체를 찾습니다.
+        card = self.game_state_manager.get_entity_by_id(event.card_id, Zone.GRAVEYARD)
+        if not card:
+            card = next((c for c in self.game_state_manager.cards if c.card_id == event.card_id), None)
+
+        if card and card.card_data.raw_effects_text:
+            text = card.card_data.raw_effects_text.lower()
+            # 텍스트 내에 버리기 지시어가 있는지 확인하고 효과를 실행합니다.
+            if "discarded" in text:
+                for effect in card.effects:
+                    # 버려졌을 때 트리거되는 효과만 선별하여 처리합니다.
+                    if effect.type == EffectType.ON_DISCARD:
+                        self.effect_processor.resolve_effect(effect, card.card_id, self.game_state_manager, event.player_id)
+
+
+
 
     def _on_turn_start(self, event: TurnStartEvent):
         """턴 시작 효과를 처리합니다."""

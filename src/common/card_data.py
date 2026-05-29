@@ -213,6 +213,7 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
         defense=card_dict.get("defense", 0),
         tribes=[TribeType[t] for t in card_dict.get("tribes", [])],
         effects=effects,
+        raw_effects_text=card_dict.get("raw_effects_text", ""),
         required_listeners=list(listeners),
         fuse_condition=fuse_condition,
         name_ko=KOR_NAME_MAP.get(card_dict["name"], card_dict["name"])

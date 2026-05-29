@@ -142,7 +142,7 @@ def parse_effect_text(description: str, card_type_enum):
 
     if card_type_enum == "SPELL":
         for effect in parsed_effects:
-            if effect.get('type') != EffectType.CHOOSE:
+            if effect.get('type') not in [EffectType.ON_DISCARD]:
                 effect.update(type=EffectType.SPELL)
             if effect.get('choices'):
                 for choice in effect.choices:
@@ -166,6 +166,8 @@ EFFECT_PATTERNS = [
     {'regex': r"When this follower enters the field, (.*)", 'type': EffectType.ON_FOLLOWER_ENTER_FIELD, 'groups': ['action_text']},
     {'regex': r"At the end of your opponent's turn, (.*)", 'type': EffectType.ON_OPPONENTS_TURN_END, 'groups': ['action_text']},
     {'regex': r"When this card leaves the field, (.*)", 'type': EffectType.ON_LEAVE_FIELD, 'groups': ['action_text']},
+    {'regex': r"When this card is discarded, (.*)", 'type': EffectType.ON_DISCARD, 'groups': ['action_text']},
+    {'regex': r"When this follower is discarded, (.*)", 'type': EffectType.ON_DISCARD, 'groups': ['action_text']},
     {'regex': r"When this follower evolves, (.*)", 'type': EffectType.EVOLVED, 'groups': ['action_text']},
     {'regex': r"On Spellboost: (.*)", 'type': EffectType.SPELLBOOST, 'groups': ['action_text']},
     {'regex': r"Countdown \((\d+)\)", 'type': EffectType.COUNTDOWN, 'groups': ['value']},
@@ -181,8 +183,8 @@ EFFECT_PATTERNS = [
     {'regex': r"Super Skybound Art: (.*)", 'type': EffectType.SUPER_SKYBOUND_ART, 'groups': ['action_text']},
     {'regex': r"Super Skybound Art\s*-\s*(.*)", 'type': EffectType.SUPER_SKYBOUND_ART, 'groups': ['action_text']},
     {'regex': r"Skybound Art: (.*)", 'type': EffectType.SKYBOUND_ART, 'groups': ['action_text']},
-    {'regex': r"Select a Mode to activate", 'type': EffectType.CHOOSE, 'groups': []},
-    {'regex': r"Select (\d+)", 'type': EffectType.CHOOSE, 'process': ProcessType.CHOOSE, 'groups': ['value']},
+    {'regex': r"Select a Mode to activate", 'type': EffectType.MODE, 'groups': []},
+    {'regex': r"Select (\d+)", 'type': EffectType.MODE, 'process': ProcessType.CHOOSE, 'groups': ['value']},
     {'regex': r".*Activates in hand.*", 'type': EffectType.SPELL, 'groups': []},
     {'regex': r"Activates in deck", 'type': EffectType.SPELL, 'groups': []},
     {'regex': r"Fuse: (.*)", 'type': EffectType.SPELL, 'process': ProcessType.FUSE, 'groups': ['value']},
@@ -336,10 +338,11 @@ ACTION_PATTERNS = [
     {'regex': r"Summon (.*)", 'process': ProcessType.SUMMON, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
 
     # 패로 카드를 가져오는 효과를 처리하는 패턴입니다.
-    {'regex': r"Add (\d+) copies of (.*) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['value', 'card_name'], 'target': TargetType.OWN_LEADER},
-    {'regex': r"Add an (.*) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
-    {'regex': r"Add a (.*) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
-    {'regex': r"Add (.*) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
+    {'regex': r"Add (\d+) copies of (.*?) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['value', 'card_name'], 'target': TargetType.OWN_LEADER},
+    {'regex': r"Add an (.*?) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
+    {'regex': r"Add a (.*?) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
+    {'regex': r"Add (.*?) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
+
 
     # 비용(Cost) 관련 세부 패턴들을 정의합니다 (우선 순위가 높아 상단에 배치합니다).
     {'regex': r"Select a follower in your hand and increase its cost by (\d+)", 'process': ProcessType.INCREASE_COST, 'target': TargetType.OWN_HAND_CHOICE, 'groups': ['value']},
@@ -464,8 +467,8 @@ ACTION_PATTERNS = [
     {'regex': r"Fully restore the defense of (.*)", 'process': ProcessType.HEAL, 'value': 'full', 'groups': ['target_text']},
     {'regex': r"Increase the number of Modes you can select by (\d+)", 'process': ProcessType.ADD_EFFECT, 'target': TargetType.SELF, 'groups': ['value']},
     {'regex': r"Set the attack of (.*) to (\d+)", 'process': ProcessType.SET_ATTACK, 'groups': ['target_text', 'value']},
-    {'regex': r"Destroy (\d+|X) random enemy followers", 'process': ProcessType.DESTROY, 'target': TargetType.OPPONENT_FOLLOWER_RANDOM, 'groups': ['value']},
-    {'regex': r"destroy (\d+|X) other random followers", 'process': ProcessType.DESTROY, 'target': TargetType.ALL_FOLLOWERS, 'groups': ['value']},
+    {'regex': r"Destroy (\d+|X) random enemy followers", 'process': ProcessType.DESTROY, 'target': TargetType.OPPONENT_FOLLOWER_RANDOM, 'groups': ['target_count']},
+    {'regex': r"destroy (\d+|X) other random followers", 'process': ProcessType.DESTROY, 'target': TargetType.ALL_FOLLOWERS, 'groups': ['target_count']},
     {'regex': r"Advance the count of your Crest: (.*?) by (\d+)", 'process': ProcessType.ADVANCE_CREST, 'groups': ['value', 'value2']},
     {'regex': r"Destroy your Crest: (.*)", 'process': ProcessType.DESTROY_CREST, 'groups': ['value']},
     {'regex': r"Recover (\d+) evolution points?", 'process': ProcessType.RECOVER_EP, 'target': TargetType.OWN_LEADER, 'groups': ['value']},
@@ -489,8 +492,17 @@ def parse_target(text: str) -> Dict:
     """텍스트에서 대상을 분석하여 TargetType enum 매핑 결과를 반환합니다."""
     text_clean = text.strip().rstrip('.')
     for pattern in TARGET_PATTERNS:
-        if re.search(pattern['regex'], text_clean, re.IGNORECASE):
-            return {'target': pattern['target']}
+        match = re.search(pattern['regex'], text_clean, re.IGNORECASE)
+        if match:
+            res = {'target': pattern['target']}
+            if 'groups' in pattern:
+                groups = dict(zip(pattern['groups'], match.groups()))
+                if 'value' in groups:
+                    try:
+                        res['target_count'] = int(groups['value'])
+                    except ValueError:
+                        res['target_count_var'] = groups['value']
+            return res
     return {'raw_target_text': text_clean}
 
 
@@ -516,6 +528,12 @@ def parse_action(text: str):
                         action['value'] = target_res['target']
                     else:
                         action['value'] = groups['value']
+
+            if 'target_count' in groups:
+                try:
+                    action['target_count'] = int(groups['target_count'])
+                except ValueError:
+                    action['target_count'] = groups['target_count']
             if 'value2' in groups:
                 v1 = action.get('value', 0)
                 try:

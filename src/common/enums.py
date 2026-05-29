@@ -69,7 +69,7 @@ class GamePhase(Enum):
 
 class EffectType(Enum):
     """카드의 키워드 종류를 정의합니다."""
-    CHOOSE = "모드 선택"
+    MODE = "모드 선택"
     SPELLBOOST = "주문 증폭"
     AURA = "오라"
     CLASH = "교전시"
@@ -108,6 +108,7 @@ class EffectType(Enum):
     ON_LEAVE_FIELD = "필드를 벗어날 때"
     ON_MY_TURN_START = "내 턴 시작시"
     DISABLE = "추종자나 리더 공격 불가"
+    ON_DISCARD = "버려졌을 때"
 
 
 
