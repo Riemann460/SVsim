@@ -4,7 +4,7 @@ from typing import List
 
 import src.common.card_data as card_data
 from src.models.card import Card
-from src.common.enums import CardType, EffectType, Zone, ClassType
+from src.common.enums import CardType, EffectType, Zone, ClassType, ProcessType
 from src.engine.event_manager import EventManager
 from src.models.deck import Deck
 from src.models.hand import Hand
@@ -57,6 +57,14 @@ class Player:
 
     def take_damage(self, amount: int):
         """리더가 피해를 입었을 때의 처리를 담당합니다."""
+        # 리더에게 부여된 피해 상한 효과가 있는지 검사하여 적용합니다.
+        for effect in self.effects:
+            if effect.get('process') == ProcessType.ADD_EFFECT:
+                val = effect.get('value')
+                if isinstance(val, int):
+                    if amount > val:
+                        print(f"[LOG] {self.player_id} 리더의 피해 상한 효과로 인해 피해가 {amount}에서 {val}으로 감소합니다.")
+                        amount = val
         self.current_defense -= amount
         print(f"[LOG] {self.player_id} 리더가 {amount} 피해를 입었습니다. 현재 체력: {self.current_defense}")
         if self.current_defense <= 0:

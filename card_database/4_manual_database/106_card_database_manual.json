@@ -322,9 +322,7 @@
                 "type": "AURA"
             },
             {
-                "process": "IMMUNITY",
-                "value": "abilities",
-                "type": "SPELL"
+                "type": "DISABLE"
             },
             {
                 "process": "DESTROY",

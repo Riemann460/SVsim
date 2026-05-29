@@ -601,8 +601,7 @@
         "tribes": [],
         "effects": [
             {
-                "type": "FANFARE",
-                "process": "IMMUNITY"
+                "type": "DISABLE"
             },
             {
                 "process": "DRAW",
@@ -2305,8 +2304,7 @@
         "tribes": [],
         "effects": [
             {
-                "process": "IMMUNITY",
-                "type": "SPELL"
+                "type": "DISABLE"
             },
             {
                 "process": "SUMMON",

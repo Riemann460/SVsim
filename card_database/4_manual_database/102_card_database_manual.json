@@ -470,8 +470,7 @@
         "tribes": [],
         "effects": [
             {
-                "type": "FANFARE",
-                "process": "IMMUNITY"
+                "type": "DISABLE"
             },
             {
                 "process": "DEAL_DAMAGE",

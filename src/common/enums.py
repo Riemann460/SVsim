@@ -107,6 +107,8 @@ class EffectType(Enum):
     INVOKE = "직접소환"
     ON_LEAVE_FIELD = "필드를 벗어날 때"
     ON_MY_TURN_START = "내 턴 시작시"
+    DISABLE = "추종자나 리더 공격 불가"
+
 
 
 class ProcessType(Enum):

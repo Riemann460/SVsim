@@ -4,7 +4,7 @@ import copy
 import uuid
 from typing import List, Dict, Any
 
-from src.common.enums import TargetType, EffectType, CardType
+from src.common.enums import TargetType, EffectType, CardType, ProcessType
 from src.common.effect import Effect
 
 
@@ -48,6 +48,14 @@ class Card:
 
     def take_damage(self, amount: int):
         """추종자가 피해를 입는 처리를 담당합니다."""
+        # 피해 제한 및 상한 효과가 있는지 검사하여 처리합니다.
+        for effect in self.effects:
+            if effect.get('process') == ProcessType.ADD_EFFECT:
+                val = effect.get('value')
+                if isinstance(val, int):
+                    if amount > val:
+                        print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})의 피해 제한 효과로 인해 피해가 {amount}에서 {val}으로 감소합니다.")
+                        amount = val
         self.current_defense -= amount
         print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})이(가) {amount} 피해를 입음. 남은 체력: {self.current_defense}")
         if self.current_defense <= 0:
@@ -62,6 +70,11 @@ class Card:
 
     def can_attack(self, target_type: CardType):
         """추종자가 지정된 타겟을 공격할 수 있는지 확인합니다."""
+        # 공격 불가 키워드를 가지고 있으면 공격이 불가능합니다.
+        if self.has_keyword(EffectType.DISABLE):
+            print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})는 공격 불가 상태이므로 공격할 수 없습니다.")
+            return False
+
         # 공격한 턴에는 공격이 불가능합니다.
         if self.is_engaged:
             print(f"[LOG] {self.get_display_name()} (ID: {self.card_id})는 이미 공격했습니다.")

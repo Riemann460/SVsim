@@ -794,8 +794,7 @@
                 "type": "SPELL"
             },
             {
-                "process": "IMMUNITY",
-                "type": "SPELL"
+                "type": "DISABLE"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fuse</color></b>: Artifact amulets\nWhen you <b><color=Keyword>Fuse</color></b> to this card, transform it into a <b><i><color=Keyword>Striker Artifact</color></i></b>.\n<hr>Can't be played.",
@@ -828,8 +827,7 @@
                 "type": "SPELL"
             },
             {
-                "process": "IMMUNITY",
-                "type": "SPELL"
+                "type": "DISABLE"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fuse</color></b>: Artifact amulets\nWhen you <b><color=Keyword>Fuse</color></b> to this card, transform it into a <b><i><color=Keyword>Fortifier Artifact</color></i></b>.\n<hr>Can't be played.",

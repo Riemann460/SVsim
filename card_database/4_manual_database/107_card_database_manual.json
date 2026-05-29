@@ -1904,7 +1904,7 @@
                 "type": "WARD"
             },
             {
-                "process": "IMMUNITY",
+                "process": "ADD_EFFECT",
                 "value": 3,
                 "type": "SPELL"
             }
@@ -1964,8 +1964,7 @@
                 "type": "SPELL"
             },
             {
-                "process": "IMMUNITY",
-                "type": "SPELL"
+                "type": "DISABLE"
             }
         ],
         "raw_effects_text": "Select an enemy follower on the field and deal it 3 damage. <b><color=Keyword>Rally</color> (10)</b> - Give it \"Can't attack followers or leaders\" until the end of your opponent's turn.",

@@ -646,3 +646,60 @@ class TestScenarioBuilderCore(unittest.TestCase):
         self.assertEqual(len(field_cards), 1)
         self.assertEqual(field_cards[0].card_data.name, "Leah, Bellringer Angel")
 
+    def test_immunity_effects_scenario(self):
+        """면역 효과와 공격 불가 및 피해량 제한 시나리오를 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        builder.set_pp("player1", 2, 2)
+        
+        # 1. 아군 추종자를 필드에 배치합니다.
+        follower = builder.add_to_field("player1", "Leah, Bellringer Angel")
+        
+        game = builder.build()
+        gsm = game.game_state_manager
+        p1 = gsm.players["player1"]
+        
+        from src.common.effect import Effect
+        from src.common.enums import EffectType, ProcessType, TargetType
+        
+        # 2. 공격 불가 및 피해 상한 3 면역 효과를 생성합니다.
+        cant_attack_eff = Effect(
+            type=EffectType.DISABLE
+        )
+        dmg_limit_eff = Effect(
+            type=EffectType.SPELL,
+            process=ProcessType.ADD_EFFECT,
+            value=3
+        )
+        
+        # 3. 리더의 피해 상한 0 면역 효과를 생성합니다.
+        leader_dmg_limit_eff = Effect(
+            type=EffectType.SPELL,
+            process=ProcessType.ADD_EFFECT,
+            value=0
+        )
+        
+        # 4. 효과들을 수동으로 부여합니다.
+        follower.effects.append(cant_attack_eff)
+        follower.effects.append(dmg_limit_eff)
+        p1.effects.append(leader_dmg_limit_eff)
+        game.process_events()
+        
+        # 5. 공격 불가 효과를 검증합니다.
+        from src.common.enums import CardType
+        self.assertFalse(follower.can_attack(CardType.FOLLOWER))
+        self.assertFalse(follower.can_attack(CardType.LEADER))
+        
+        # 6. 추종자 피해 상한 3 효과를 검증합니다.
+        init_def = follower.current_defense
+        # 5의 피해를 주더라도 상한인 3만큼만 감소해야 합니다.
+        follower.take_damage(5)
+        self.assertEqual(follower.current_defense, init_def - 3)
+        
+        # 7. 리더 피해 상한 0 효과를 검증합니다.
+        init_leader_def = p1.current_defense
+        # 10의 피해를 주더라도 상한인 0만큼만 감소하여 체력이 그대로여야 합니다.
+        p1.take_damage(10)
+        self.assertEqual(p1.current_defense, init_leader_def)
+
+

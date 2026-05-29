@@ -716,14 +716,42 @@ class EffectProcessor:
     def _process_add_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 키워드 부여. 주석 규정을 엄격하게 준수합니다."""
         value = effect_data.value
+        if value is None:
+            print(f"[LOG] 처리 내용: 키워드 부여 실패. 키워드가 존재하지 않습니다.")
+            return
+
         if isinstance(value, list):
             for v in value:
                 if isinstance(v, Effect):
                     target.effects.append(v)
-                    print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {v.type.value}")
+                    print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name() if hasattr(target, 'get_display_name') else target}, 키워드: {v.type.value if hasattr(v, 'type') and hasattr(v.type, 'value') else v}")
+                elif isinstance(v, EffectType):
+                    new_eff = Effect(type=v)
+                    target.effects.append(new_eff)
+                    print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name() if hasattr(target, 'get_display_name') else target}, 키워드: {v.value}")
+                elif isinstance(v, str):
+                    try:
+                        eff_type = EffectType[v.upper()]
+                        new_eff = Effect(type=eff_type)
+                        target.effects.append(new_eff)
+                        print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name() if hasattr(target, 'get_display_name') else target}, 키워드: {eff_type.value}")
+                    except KeyError:
+                        print(f"[LOG] 처리 내용: 키워드 부여 경고. 알 수 없는 키워드 문자열 {v}")
         elif isinstance(value, Effect):
             target.effects.append(value)
-            print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name()}, 키워드: {value.type.value}")
+            print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name() if hasattr(target, 'get_display_name') else target}, 키워드: {value.type.value if hasattr(value, 'type') and hasattr(value.type, 'value') else value}")
+        elif isinstance(value, EffectType):
+            new_eff = Effect(type=value)
+            target.effects.append(new_eff)
+            print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name() if hasattr(target, 'get_display_name') else target}, 키워드: {value.value}")
+        elif isinstance(value, str):
+            try:
+                eff_type = EffectType[value.upper()]
+                new_eff = Effect(type=eff_type)
+                target.effects.append(new_eff)
+                print(f"[LOG] 처리 내용: 키워드 부여, 타겟: {target.get_display_name() if hasattr(target, 'get_display_name') else target}, 키워드: {eff_type.value}")
+            except KeyError:
+                print(f"[LOG] 처리 내용: 키워드 부여 경고. 알 수 없는 키워드 문자열 {value}")
 
     def _process_remove_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 키워드 제거."""

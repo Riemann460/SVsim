@@ -2495,9 +2495,7 @@
                 "type": "WARD"
             },
             {
-                "process": "IMMUNITY",
-                "value": "abilities",
-                "type": "SPELL"
+                "type": "DISABLE"
             },
             {
                 "process": "DEAL_DAMAGE",
@@ -2540,9 +2538,7 @@
                 "value": "Melodious Monody"
             },
             {
-                "process": "IMMUNITY",
-                "value": "abilities",
-                "type": "SPELL"
+                "type": "DISABLE"
             },
             {
                 "process": "SUMMON",

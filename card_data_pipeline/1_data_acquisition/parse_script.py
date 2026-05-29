@@ -187,7 +187,7 @@ EFFECT_PATTERNS = [
     {'regex': r"X is (.*)", 'type': EffectType.SPELL, 'process': ProcessType.DEFINE_VARIABLE, 'groups': ['value']},
     {'regex': r"(\d+|X) or more:\s*(.*)", 'type': EffectType.SPELL, 'groups': ['value', 'action_text']},
     {'regex': r"(\d+|X):\s*(.*)", 'type': EffectType.SPELL, 'groups': ['value', 'action_text']},
-    {'regex': r"Can't be played", 'type': EffectType.SPELL, 'process': ProcessType.IMMUNITY, 'groups': []},
+    {'regex': r"Can't be played", 'type': EffectType.SPELL, 'groups': []},
     {'regex': r"It costs (\d+) until the end of the turn", 'type': EffectType.SPELL, 'process': ProcessType.SET_COST, 'groups': ['value']},
 ]
 
@@ -199,7 +199,7 @@ SIMPLE_KEYWORD_EFFECTS = {
     "combo": EffectType.COMBO, "earth rite": EffectType.EARTH_RITE, "earth sigil": EffectType.EARTH_SIGIL,
     "necromancy": EffectType.NECROMANCY, "reanimate": EffectType.REANIMATE, "overflow": EffectType.OVERFLOW,
     "rally": EffectType.RALLY, "skybound art": EffectType.SKYBOUND_ART, "super skybound art": EffectType.SUPER_SKYBOUND_ART,
-    "invoke": EffectType.INVOKE
+    "invoke": EffectType.INVOKE, "can't attack followers or leaders": EffectType.DISABLE
 }
 
 
@@ -418,9 +418,9 @@ ACTION_PATTERNS = [
     {'regex': r"Give (.+) \"Can attack (\d+) times per turn\"", 'process': ProcessType.ADD_EFFECT, 'groups': ['target_text', 'value']},
     {'regex': r"Can attack (\d+) times per turn", 'process': ProcessType.MULTI_ATTACK, 'groups': ['value']},
     {'regex': r"Destroy all other allied cards on the field", 'process': ProcessType.DESTROY, 'target': TargetType.ALL_OTHER_ALLY_FOLLOWERS, 'groups': []},
-    {'regex': r"Can't be destroyed by (.*)", 'process': ProcessType.IMMUNITY, 'groups': ['value']},
-    {'regex': r"Can't take more than (\d+) damage at a time", 'process': ProcessType.IMMUNITY, 'groups': ['value']},
-    {'regex': r"Can't attack followers or leaders", 'process': ProcessType.IMMUNITY, 'groups': []},
+    {'regex': r"Can't be destroyed by (.*)", 'process': ProcessType.ADD_EFFECT, 'groups': ['value']},
+    {'regex': r"Can't take more than (\d+) damage at a time", 'process': ProcessType.ADD_EFFECT, 'groups': ['value']},
+    {'regex': r"Can't attack followers or leaders", 'process': ProcessType.ADD_EFFECT, 'value': EffectType.DISABLE, 'groups': []},
     {'regex': r"Gain (\d+) max play points?", 'process': ProcessType.GAIN_MAX_PP, 'groups': ['value']},
     {'regex': r"Gain Crest: (.*)", 'process': ProcessType.GAIN_CREST, 'groups': ['value']},
     {'regex': r"Banish all enemy followers with (\d+|X) defense or less", 'process': ProcessType.BANISH, 'target': TargetType.ALL_OPPONENT_FOLLOWERS, 'groups': ['value']},

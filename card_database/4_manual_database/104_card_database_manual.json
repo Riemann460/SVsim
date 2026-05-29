@@ -836,8 +836,7 @@
                 "type": "WARD"
             },
             {
-                "process": "IMMUNITY",
-                "type": "SPELL"
+                "type": "DISABLE"
             },
             {
                 "process": "SUPER_EVOLVE",
@@ -1067,7 +1066,7 @@
                 "type": "WARD"
             },
             {
-                "process": "IMMUNITY",
+                "process": "ADD_EFFECT",
                 "value": 3,
                 "type": "SPELL"
             }
@@ -1172,8 +1171,7 @@
                 "type": "ON_MY_TURN_END"
             },
             {
-                "process": "IMMUNITY",
-                "type": "ON_EVOLVE"
+                "type": "DISABLE"
             }
         ],
         "raw_effects_text": "At the end of your turn, if this follower is evolved, deal 2 damage to all followers.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Give this follower \"Can't attack followers or leaders\" until the end of the turn.</ev>",
@@ -1334,8 +1332,7 @@
         "tribes": [],
         "effects": [
             {
-                "process": "IMMUNITY",
-                "type": "SPELL"
+                "type": "DISABLE"
             }
         ],
         "raw_effects_text": "Select an enemy follower on the field, deal it 3 damage, and give it \"Can't attack followers or leaders\" until the end of your opponent's turn.",
@@ -1920,8 +1917,7 @@
                 "type": "SPELL"
             },
             {
-                "process": "IMMUNITY",
-                "type": "ON_EVOLVE"
+                "type": "DISABLE"
             }
         ],
         "raw_effects_text": "At the end of your turn, spellboost your hand X times. X is this follower's attack.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Give this follower \"Can't attack followers or leaders.\"</ev>",
@@ -2148,7 +2144,7 @@
                 "type": "WARD"
             },
             {
-                "process": "IMMUNITY",
+                "process": "ADD_EFFECT",
                 "value": 3,
                 "type": "SPELL"
             }
@@ -2387,7 +2383,7 @@
                 "type": "ENHANCE"
             },
             {
-                "process": "IMMUNITY",
+                "process": "ADD_EFFECT",
                 "value": 0,
                 "type": "ENHANCE"
             }
