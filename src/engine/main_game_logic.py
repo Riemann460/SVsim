@@ -77,6 +77,7 @@ class Game:
         self.rule_engine = RuleEngine(self.game_state_manager)
         self.opponent_id = {player1_id: player2_id, player2_id: player1_id}
         self.gui = GameGUI(self.game_state_manager)
+        self.destroyed_this_turn = []
 
         self.game_state_manager.players[player1_id] = Player(player1_id, self.event_manager)
         self.game_state_manager.players[player2_id] = Player(player2_id, self.event_manager)
@@ -150,6 +151,8 @@ class Game:
             Listener('global_turn_end', EventType.TURN_END, self._on_turn_end))
         self.event_manager.subscribe(
             Listener('global_follower_enter', EventType.FOLLOWER_ENTER_FIELD, self._on_follower_enter_field))
+        self.event_manager.subscribe(
+            Listener('global_destroyed_on_field', EventType.DESTROYED_ON_FIELD, self._on_destroyed_on_field))
 
     def _register_card_listeners(self, card: Card):
         """카드의 능력에 따라 이벤트 리스너를 동적으로 등록합니다."""
@@ -243,7 +246,7 @@ class Game:
             self.resolve_effects_type(card_id, EffectType.SPELLBOOST)
 
     def _on_turn_start(self, event: TurnStartEvent):
-        """카운트다운 효과를 처리합니다."""
+        """턴 시작 효과를 처리합니다."""
         player_id = event.player_id
         cards_with_countdown = self.game_state_manager.get_cards_with_keyword(player_id, Zone.FIELD,
                                                                               EffectType.COUNTDOWN)
@@ -254,6 +257,11 @@ class Game:
                 self.game_state_manager.move_card(card_id, Zone.FIELD, Zone.GRAVEYARD)
                 self.event_manager.publish(DestroyedOnFieldEvent(card_id=card_id))
                 self.process_events()
+
+        cards_with_turn_start = self.game_state_manager.get_cards_with_keyword(player_id, Zone.FIELD,
+                                                                               EffectType.ON_MY_TURN_START)
+        for card_id in cards_with_turn_start:
+            self.resolve_effects_type(card_id, EffectType.ON_MY_TURN_START)
 
     def _on_turn_end(self, event: TurnEndEvent):
         """턴 종료 효과를 처리합니다."""
@@ -290,6 +298,13 @@ class Game:
                 f"[LOG] {player_id}의 필드 소환 처리. 대상 카드: {[self.game_state_manager.get_card_name(card_id) for card_id in cards_with_enter_field]}")
         for card_id in cards_with_enter_field:
             self.resolve_effects_type(card_id, EffectType.ON_FOLLOWER_ENTER_FIELD, target_id=event.card_id)
+
+    def _on_destroyed_on_field(self, event: DestroyedOnFieldEvent):
+        """파괴된 카드를 이번 턴 파괴 목록에 추가합니다."""
+        card_id = event.card_id
+        card = self.game_state_manager.get_entity_by_id(card_id)
+        if card:
+            self.destroyed_this_turn.append(card)
 
     def _initialize_decks(self, player1_id: str, player2_id: str, p1_deck_data: List[Any] = None, p2_deck_data: List[Any] = None):
         """초기 덱을 설정합니다. 최대 40장, 카드별 3장까지 제한됩니다."""
@@ -413,6 +428,7 @@ class Game:
 
     def _start_turn(self, player_id: str):
         """플레이어의 턴을 시작합니다."""
+        self.destroyed_this_turn.clear()
         self.game_state_manager.game_phase = GamePhase.START_PHASE
         self.game_state_manager.start_turn(player_id)
 

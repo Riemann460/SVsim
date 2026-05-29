@@ -91,6 +91,10 @@ class CardData:
 def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
     """딕셔너리에서 Effect 객체를 로드합니다."""
     attrs = effect_dict
+    if "type" not in attrs:
+        attrs["type"] = None
+    if "value" not in attrs:
+        attrs["value"] = None
     if "type" in effect_dict and effect_dict["type"] is not None:
         try:
             attrs["type"] = EffectType[effect_dict["type"]]
@@ -148,10 +152,7 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
     """딕셔너리에서 카드 데이터를 읽어들입니다."""
     effects = []
     for e_dict in card_dict.get("effects", []):
-        if "raw_effect_text" in e_dict:
-            effects.append(e_dict)
-        else:
-            effects.append(_load_effect_from_dict(e_dict))
+        effects.append(_load_effect_from_dict(e_dict))
     fuse_condition = card_dict.get("fuse_condition", None)
     if not fuse_condition:
         for e_dict in card_dict.get("effects", []):

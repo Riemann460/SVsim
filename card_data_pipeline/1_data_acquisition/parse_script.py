@@ -27,6 +27,7 @@ EFFECT_TO_EVENT_MAP = {
     EffectType.ON_OPPONENTS_TURN_END.name: EventType.TURN_END,
     EffectType.DRAIN.name: EventType.DAMAGE_DEALT_BY_COMBAT,
     EffectType.ON_LEAVE_FIELD.name: EventType.LEAVE_FIELD,
+    EffectType.ON_MY_TURN_START.name: EventType.TURN_START,
 }
 
 def parse_effect_text(description: str, card_type_enum):
@@ -158,6 +159,8 @@ EFFECT_PATTERNS = [
     {'regex': r"Engage \((\d+)\): (.*)", 'type': EffectType.ENGAGE, 'groups': ['cost', 'action_text']},
     {'regex': r"Last Words: (.*)", 'type': EffectType.LAST_WORDS, 'groups': ['action_text']},
     {'regex': r"At the end of your turn, (.*)", 'type': EffectType.ON_MY_TURN_END, 'groups': ['action_text']},
+    {'regex': r"At the start of your turn, (.*)", 'type': EffectType.ON_MY_TURN_START, 'groups': ['action_text']},
+    {'regex': r"When this follower enters the field, (.*)", 'type': EffectType.ON_FOLLOWER_ENTER_FIELD, 'groups': ['action_text']},
     {'regex': r"At the end of your opponent's turn, (.*)", 'type': EffectType.ON_OPPONENTS_TURN_END, 'groups': ['action_text']},
     {'regex': r"When this card leaves the field, (.*)", 'type': EffectType.ON_LEAVE_FIELD, 'groups': ['action_text']},
     {'regex': r"When this follower evolves, (.*)", 'type': EffectType.EVOLVED, 'groups': ['action_text']},
@@ -297,6 +300,7 @@ TARGET_PATTERNS = [
     {'regex': r"^X$", 'target': TargetType.VARIABLE},
     {'regex': r"\ball Forestcraft cards in your hand that cost (\d+) or less\b", 'target': TargetType.OWN_HAND_CHOICE, 'groups': ['value']},
     {'regex': r"\ba random allied follower on the field\b", 'target': TargetType.ANOTHER_ALLY_FOLLOWER_RANDOM},
+    {'regex': r"\ba random card from your hand\b", 'target': TargetType.OWN_HAND_RANDOM},
     {'regex': r"\ball allied copies of (.*) on the field\b", 'target': TargetType.ALL_ALLY_FOLLOWERS, 'groups': ['value']},
     {'regex': r"\bboth leaders\b", 'target': TargetType.ALL_OPPONENTS},
     {'regex': r"\ball (.*) followers in your hand\b", 'target': TargetType.OWN_HAND_CHOICE, 'groups': ['value']},
@@ -343,19 +347,20 @@ ACTION_PATTERNS = [
     {'regex': r"increase its cost by (\d+)", 'process': ProcessType.INCREASE_COST, 'target': TargetType.SELF, 'groups': ['value']},
 
     # 스탯 버프 효과를 정의합니다 (non-greedy 매칭을 적용합니다).
-    {'regex': r"Give (.*?) ([+-]?\d+|[+-]?X)\/([+-]?\d+|[+-]?X)", 'process': ProcessType.STAT_BUFF, 'groups': ['target_text', 'value', 'value2']},
-    {'regex': r"(.*?) and give it ([+-]?\d+|[+-]?X)\/([+-]?\d+|[+-]?X)", 'process': ProcessType.STAT_BUFF, 'groups': ['target_text', 'value', 'value2']},
-    {'regex': r"Select a follower on the field and give it ([+-]?\d+|[+-]?X)\/([+-]?\d+|[+-]?X)", 'process': ProcessType.STAT_BUFF, 'target': TargetType.ALLY_FOLLOWER_CHOICE, 'groups': ['value', 'value2']},
-    {'regex': r"give [+-]?([+-]?\d+|[+-]?X)\/[+-]?([+-]?\d+|[+-]?X)", 'process': ProcessType.STAT_BUFF, 'target': TargetType.SELF, 'groups': ['value', 'value2']},
+    {'regex': r"Give (.*?) ([+-]?\d+|[+-]?[XYZ])\/([+-]?\d+|[+-]?[XYZ])", 'process': ProcessType.STAT_BUFF, 'groups': ['target_text', 'value', 'value2']},
+    {'regex': r"(.*?) and give it ([+-]?\d+|[+-]?[XYZ])\/([+-]?\d+|[+-]?[XYZ])", 'process': ProcessType.STAT_BUFF, 'groups': ['target_text', 'value', 'value2']},
+    {'regex': r"Select a follower on the field and give it ([+-]?\d+|[+-]?[XYZ])\/([+-]?\d+|[+-]?[XYZ])", 'process': ProcessType.STAT_BUFF, 'target': TargetType.ALLY_FOLLOWER_CHOICE, 'groups': ['value', 'value2']},
+    {'regex': r"give [+-]?([+-]?\d+|[+-]?[XYZ])\/[+-]?([+-]?\d+|[+-]?[XYZ])", 'process': ProcessType.STAT_BUFF, 'target': TargetType.SELF, 'groups': ['value', 'value2']},
 
     # 피해(Damage) 효과를 정의합니다 (비어있는 대상 매칭을 방지하기 위해 (.+)를 사용합니다).
-    {'regex': r"Deal (\d+|X) damage split between (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text'], 'is_split': True},
-    {'regex': r"Deal (\d+|X) damage to (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text']},
-    {'regex': r"(.+) and deal it (\d+|X) damage", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['target_text', 'value']},
+    {'regex': r"Deal (\d+|[XYZ]) damage split between (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text'], 'is_split': True},
+    {'regex': r"Deal (\d+|[XYZ]) damage to (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text']},
+    {'regex': r"(.+) and deal it (\d+|[XYZ]) damage", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['target_text', 'value']},
     {'regex': r"Deal damage to (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['target_text'], 'value': 'X'},
 
     # 파괴 효과를 처리하는 패턴입니다.
     {'regex': r"Destroy a random enemy follower with the highest attack", 'process': ProcessType.DESTROY, 'target': TargetType.OPPONENT_FOLLOWER_MAX_ATTACK_RANDOM, 'groups': []},
+    {'regex': r"Destroy a random enemy follower", 'process': ProcessType.DESTROY, 'target': TargetType.OPPONENT_FOLLOWER_RANDOM, 'value': 1, 'groups': []},
     {'regex': r"(.+) and destroy it", 'process': ProcessType.DESTROY, 'groups': ['target_text']},
     {'regex': r"Destroy this card", 'process': ProcessType.DESTROY, 'target': TargetType.SELF, 'groups': []},
     {'regex': r"Banish this card", 'process': ProcessType.BANISH, 'target': TargetType.SELF, 'groups': []},
@@ -371,8 +376,8 @@ ACTION_PATTERNS = [
     {'regex': r"Draw (\d+) (.*)", 'process': ProcessType.DRAW, 'groups': ['value', 'card_name'], 'target': TargetType.OWN_LEADER},
 
     # 회복 효과를 처리하는 패턴입니다.
-    {'regex': r"Restore (\d+) defense (.+)", 'process': ProcessType.HEAL, 'groups': ['value', 'target_text']},
-    {'regex': r"Restore (\d+) defense", 'process': ProcessType.HEAL, 'target': TargetType.OWN_LEADER, 'groups': ['value']},
+    {'regex': r"Restore (\d+|[XYZ]) defense (.+)", 'process': ProcessType.HEAL, 'groups': ['value', 'target_text']},
+    {'regex': r"Restore (\d+|[XYZ]) defense", 'process': ProcessType.HEAL, 'target': TargetType.OWN_LEADER, 'groups': ['value']},
 
     # 다른 효과 발동을 처리하는 패턴입니다.
     {'regex': r"Replicate the effects of this card's Fanfare ability", 'process': ProcessType.TRIGGER_EFFECT, 'groups': [], 'value': EffectType.FANFARE},
@@ -396,12 +401,14 @@ ACTION_PATTERNS = [
     {'regex': r"(?:and\s+)?deal it (\d+|X) damage", 'process': ProcessType.DEAL_DAMAGE, 'target': TargetType.SELF, 'groups': ['value']},
     
     {'regex': r"Select a card in your hand and return it to deck", 'process': ProcessType.RETURN_TO_DECK, 'target': TargetType.OWN_HAND_CHOICE, 'groups': []},
+    {'regex': r"Return a random card from your hand to deck", 'process': ProcessType.RETURN_TO_DECK, 'target': TargetType.OWN_HAND_RANDOM, 'value': 1, 'groups': []},
     {'regex': r"Select a (?:card|follower|spell|amulet) in your hand and discard it", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_HAND_CHOICE, 'groups': []},
     {'regex': r"Discard a card", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_LEADER, 'groups': []},
     {'regex': r"Discard (\d+) cards", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_LEADER, 'groups': ['value']},
     {'regex': r"Discard your hand", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_LEADER, 'groups': [], 'value': 'all'},
     {'regex': r"Return (\d+) random cards from your hand to deck", 'process': ProcessType.RETURN_TO_DECK, 'target': TargetType.OWN_LEADER, 'groups': ['value']},
     {'regex': r"Add (\d+) shadows? to your cemetery", 'process': ProcessType.GAIN_SHADOW, 'groups': ['value']},
+    {'regex': r"Spellboost your hand (\d+|X) times", 'process': ProcessType.SPELLBOOST_HAND, 'target': TargetType.OWN_LEADER, 'groups': ['value']},
     {'regex': r"Spellboost your hand", 'process': ProcessType.SPELLBOOST_HAND, 'target': TargetType.OWN_LEADER, 'groups': []},
     {'regex': r"Select a Mode to activate", 'process': ProcessType.CHOOSE, 'groups': []},
     {'regex': r"X is (.*)", 'process': ProcessType.DEFINE_VARIABLE, 'groups': ['value']},
@@ -431,9 +438,12 @@ ACTION_PATTERNS = [
     {'regex': r"Fully recover your play points", 'process': ProcessType.RECOVER_PP, 'target': TargetType.OWN_LEADER, 'value': 'all', 'groups': []},
     {'regex': r"Your opponent draws a card", 'process': ProcessType.DRAW, 'target': TargetType.OPPONENT_LEADER, 'value': 1, 'groups': []},
     {'regex': r"Destroy all allied Shikigami followers", 'process': ProcessType.DESTROY, 'target': TargetType.ALL_ALLY_FOLLOWERS, 'groups': []},
+    {'regex': r"activate a random ability that hasn't been activated yet from the following", 'process': ProcessType.TRIGGER_EFFECT, 'value': 'random_unactivated', 'target': TargetType.SELF, 'groups': []},
+    {'regex': r"X, Y, and Z are determined randomly and add up to your faith's value", 'process': ProcessType.DEFINE_VARIABLE, 'value': 'random_split_faith', 'target': TargetType.VARIABLE, 'groups': []},
+    {'regex': r"X\/Y is the total base attack\/defense of allied Shikigami followers destroyed this turn", 'process': ProcessType.DEFINE_VARIABLE, 'value': 'destroyed_shikigami_stats', 'target': TargetType.VARIABLE, 'groups': []},
     {'regex': r"activate all of them", 'process': ProcessType.TRIGGER_EFFECT, 'groups': []},
-    {'regex': r"Give [+-]?([+-]?\d+|[+-]?X)\/[+-]?([+-]?\d+|[+-]?X)", 'process': ProcessType.STAT_BUFF, 'target': TargetType.SELF, 'groups': ['value', 'value2']},
-    {'regex': r"Give it [+-]?([+-]?\d+|[+-]?X)\/[+-]?([+-]?\d+|[+-]?X)", 'process': ProcessType.STAT_BUFF, 'target': TargetType.SELF, 'groups': ['value', 'value2']},
+    {'regex': r"Give [+-]?([+-]?\d+|[+-]?[XYZ])\/[+-]?([+-]?\d+|[+-]?[XYZ])", 'process': ProcessType.STAT_BUFF, 'target': TargetType.SELF, 'groups': ['value', 'value2']},
+    {'regex': r"Give it [+-]?([+-]?\d+|[+-]?[XYZ])\/[+-]?([+-]?\d+|[+-]?[XYZ])", 'process': ProcessType.STAT_BUFF, 'target': TargetType.SELF, 'groups': ['value', 'value2']},
     {'regex': r"Give your opponent Crest: (.*)", 'process': ProcessType.GAIN_CREST, 'target': TargetType.OPPONENT_LEADER, 'groups': ['value']},
     {'regex': r"Reanimate \((\d+)\)", 'process': ProcessType.REANIMATE, 'groups': ['value']},
     {'regex': r"Select an allied and enemy follower on the field and destroy them", 'process': ProcessType.DESTROY, 'target': TargetType.ALL_FOLLOWERS, 'groups': []},

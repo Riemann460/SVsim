@@ -1,50 +1,35 @@
 # 퍼징 테스트 에러 분석 리포트
 
 ## 1 에러 기본 요약
-- **에러 유형** TypeError
-- **에러 메시지** unsupported operand type(s) for +=: 'int' and 'str'
+- **에러 유형** AssertionError
+- **에러 메시지** 초진화 추종자 갈증의 현현 기르네리제 (ID 61)의 max_defense(2)가 기본 스탯 상승폭인 +3 미만입니다.
 
 ## 2 에러 발생 시점 게임 상태 스냅샷
-- **현재 진행 턴** 7
-- **현재 턴 플레이어** player1
-- **플레이어 1 체력** 19 (PP 0)
-- **플레이어 2 체력** 20 (PP 0)
+- **현재 진행 턴** 14
+- **현재 턴 플레이어** player2
+- **플레이어 1 체력** 20 (PP 0)
+- **플레이어 2 체력** 17 (PP 1)
 
 ### 플레이어 1 손패 카드 목록
-['블라스트 윙 피유라', '오야화 샤크도', '페이탈 테이커', '페이탈 테이커', '은빛 탄환 레이븐', '교지의 타천사 벨리알']
+['용기로 가득한 자', '로스트 러브 데빌', '로스트 러브 데빌', '혼융의 계승자 샴 나쿠아', '규환과 증오', '용기로 가득한 자']
 
 ### 플레이어 2 손패 카드 목록
-['청춘의 하모니', '패공의 무신 나타', '팔계화 게텐오', '갈욕의 네크로맨서', '갈욕의 네크로맨서']
+['진실의 기도자', '진실의 기도자', '불가사의한 철학자 필라소피라', '러블리 마스터피스', '불가사의한 철학자 필라소피라', '허구의 술식', '만식의 아나테마 라라안셈', '갈증의 감로']
 
 ### 플레이어 1 필드 카드 목록
-['녹턴 제너럴 엑셀라']
+['악랄한 레서 미라', '잔학한 전쟁 라우라', '어둠의 섭리 페디엘']
 
 ### 플레이어 2 필드 카드 목록
-['혼융의 긍정자']
+['만식의 아나테마 라라안셈', '차밍 몬스터', '갈증의 현현 기르네리제']
 
 ## 3 상세 트레이스백 정보
 ```text
 Traceback (most recent call last):
-  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\fuzz_runner.py", line 329, in run_fuzzing
-    game.play_card(current_player, action["card_id"], action["enhanced_cost"], action["use_extra_pp"])
-    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\engine\main_game_logic.py", line 460, in play_card
-    self.process_events()
-    ~~~~~~~~~~~~~~~~~~~^^
-  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\engine\main_game_logic.py", line 141, in process_events
-    self.event_manager.process_events()
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
-  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\engine\event_manager.py", line 45, in process_events
-    listener.callback(event)
-    ~~~~~~~~~~~~~~~~~^^^^^^^
-  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\engine\main_game_logic.py", line 197, in _handle_card_effect
-    self.effect_processor.resolve_effect(effect_to_resolve, card_id, self.game_state_manager, target_id)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\engine\effect_processor.py", line 829, in resolve_effect
-    handler(effect_data, target, game_state_manager)
-    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\src\engine\effect_processor.py", line 384, in _process_stat_buff
-    target.current_attack += attack
-TypeError: unsupported operand type(s) for +=: 'int' and 'str'
+  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\fuzz_runner.py", line 306, in run_fuzzing
+    validate_game_state_invariants(game)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\sys91\Documents\개발 프로젝트\SVsim\fuzz_runner.py", line 224, in validate_game_state_invariants
+    raise AssertionError(f"초진화 추종자 {card.get_display_name()} (ID {card.card_id})의 max_defense({card.max_defense})가 기본 스탯 상승폭인 +3 미만입니다.")
+AssertionError: 초진화 추종자 갈증의 현현 기르네리제 (ID 61)의 max_defense(2)가 기본 스탯 상승폭인 +3 미만입니다.
 
 ```

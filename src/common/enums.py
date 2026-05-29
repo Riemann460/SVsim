@@ -106,6 +106,7 @@ class EffectType(Enum):
     SUPER_SKYBOUND_ART = "해방오의"
     INVOKE = "직접소환"
     ON_LEAVE_FIELD = "필드를 벗어날 때"
+    ON_MY_TURN_START = "내 턴 시작시"
 
 
 class ProcessType(Enum):
@@ -187,6 +188,7 @@ class TargetType(Enum):
     ALL_LEADERS_MIN_DEFENSE = "가장 체력이 낮은 리더 전체"
     ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED = "자신 제외 아군 진화전 추종자 중 랜덤"
     ALLY_FOLLOWER_RANDOM_SUPER_EVOLVED = "아군 초진화 추종자 중 랜덤"
+    OWN_HAND_RANDOM = "자기 패 중 랜덤"
 
     # 미구현 타겟들을 정의합니다.
     ALL_FOLLOWERS_MAX_DEFENSE = "가장 체력이 높은 추종자 전체"

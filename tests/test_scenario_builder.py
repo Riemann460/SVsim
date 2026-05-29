@@ -535,3 +535,64 @@ class TestScenarioBuilderCore(unittest.TestCase):
         self.assertTrue(played)
         self.assertEqual(timepiece.current_zone, Zone.FIELD)
         self.assertEqual(game.game_state_manager.players["player1"].current_pp, 0)
+
+    def test_malice_of_the_mistbloom_effect(self):
+        """무권화의 격분 주문을 플레이했을 때 손패의 무작위 카드가 덱으로 되돌아가고 세 장을 드로우하는지 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        builder.set_pp("player1", 3, 3)
+        malice = builder.add_to_hand("player1", "10561310")
+        target_card = builder.add_to_hand("player1", "Indomitable Fighter")
+        for _ in range(5):
+            builder.add_to_deck("player1", "Leah, Bellringer Angel")
+        
+        game = builder.build()
+        played = game.play_card("player1", malice.card_id)
+        self.assertTrue(played)
+        self.assertEqual(len(game.game_state_manager.players["player1"].hand.get_cards()), 3)
+        self.assertEqual(target_card.current_zone, Zone.DECK)
+
+    def test_slaus_random_ability_activation(self):
+        """슬로스 추종자가 턴 시작 시 아직 활성화되지 않은 효과를 무작위로 하나씩 정상 발동하는지 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        builder.set_pp("player1", 0, 3)
+        slaus = builder.add_to_field("player1", "10574110")
+        builder.add_to_hand("player1", "Indomitable Fighter")
+        
+        game = builder.build()
+        game._start_turn("player1")
+        self.assertEqual(len(slaus.activated_abilities), 1)
+
+    def test_depths_of_the_eld_crystals(self):
+        """천정의 심연 주문을 플레이했을 때 무작위 X, Y, Z 배분 및 융합 연산이 정상 작동하는지 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        builder.set_pp("player1", 6, 6)
+        depths = builder.add_to_hand("player1", "90034330")
+        
+        game = builder.build()
+        player1 = game.game_state_manager.players["player1"]
+        player1.faith = 5
+        played = game.play_card("player1", depths.card_id)
+        self.assertTrue(played)
+        self.assertEqual(depths.x_val + depths.y_val + depths.z_val, 5)
+
+    def test_noble_shikigami_enters_field(self):
+        """식신 귀인이 전장에 소환될 때 이번 턴 파괴된 식신 추종자들의 누적 스탯만큼 버프를 얻는지 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        builder.set_pp("player1", 10, 10)
+        shikigami = builder.add_to_hand("player1", "90034120")
+        destroyed_shikigami = builder.add_to_field("player1", "Noble Shikigami")
+        
+        game = builder.build()
+        game.game_state_manager.move_card(destroyed_shikigami.card_id, Zone.FIELD, Zone.GRAVEYARD)
+        from src.common.event import DestroyedOnFieldEvent
+        game.event_manager.publish(DestroyedOnFieldEvent(card_id=destroyed_shikigami.card_id))
+        game.process_events()
+        
+        played = game.play_card("player1", shikigami.card_id)
+        self.assertTrue(played)
+        self.assertEqual(shikigami.current_attack, 2)
+        self.assertEqual(shikigami.current_defense, 2)

@@ -14416,7 +14416,9 @@
             "tribes": [],
             "effects": [
                 {
-                    "raw_effect_text": "Return a random card from your hand to deck.",
+                    "process": "RETURN_TO_DECK",
+                    "value": 1,
+                    "target": "OWN_HAND_RANDOM",
                     "type": "SPELL"
                 },
                 {
@@ -15147,7 +15149,10 @@
                     "type": "ON_MY_TURN_END"
                 },
                 {
-                    "raw_effect_text": "At the start of your turn, activate a random ability that hasn't been activated yet from the following."
+                    "process": "TRIGGER_EFFECT",
+                    "value": "random_unactivated",
+                    "target": "SELF",
+                    "type": "ON_MY_TURN_START"
                 },
                 {
                     "process": "REDUCE_COST",
@@ -15174,6 +15179,7 @@
             "raw_effects_text": "<b><color=Keyword>Ambush</color></b>\nAt the end of your turn, if this follower is evolved, give your opponent <b><i>Crest: Slaus, Revolving Wheel of Fortune</i></b> and banish this card.\nAt the start of your turn, activate a random ability that hasn't been activated yet from the following.\n<ridx=0>1. Reduce the cost of all cards in your hand by 1 until the end of the turn.</ridx>\n<ridx=1>2. Give all allied followers on the field +2/+2.</ridx>\n<ridx=2>3. Restore 3 defense to your leader.</ridx>",
             "required_listeners": [
                 "CARD_PLAYED",
+                "TURN_START",
                 "TURN_END"
             ]
         },
@@ -21382,17 +21388,21 @@
                     "type": "SPELL"
                 },
                 {
+                    "process": "HEAL",
                     "target": "OWN_LEADER",
-                    "type": "SPELL",
-                    "process": "ADD_EFFECT"
+                    "value": "Y",
+                    "type": "SPELL"
                 },
                 {
+                    "process": "DEAL_DAMAGE",
                     "target": "OPPONENT_LEADER",
-                    "type": "SPELL",
-                    "process": "ADD_EFFECT"
+                    "value": "Z",
+                    "type": "SPELL"
                 },
                 {
-                    "raw_effect_text": "X, Y, and Z are determined randomly and add up to your faith's value.",
+                    "process": "DEFINE_VARIABLE",
+                    "value": "random_split_faith",
+                    "target": "VARIABLE",
                     "type": "SPELL"
                 }
             ],
@@ -22300,13 +22310,19 @@
             ],
             "effects": [
                 {
+                    "process": "STAT_BUFF",
                     "target": "SELF",
-                    "type": "SPELL",
-                    "process": "ADD_EFFECT"
+                    "value": [
+                        "+X",
+                        "+Y"
+                    ],
+                    "type": "ON_FOLLOWER_ENTER_FIELD"
                 },
                 {
-                    "raw_effect_text": "X/Y is the total base attack/defense of allied Shikigami followers destroyed this turn.",
-                    "type": "SPELL"
+                    "process": "DEFINE_VARIABLE",
+                    "value": "destroyed_shikigami_stats",
+                    "target": "VARIABLE",
+                    "type": "ON_FOLLOWER_ENTER_FIELD"
                 },
                 {
                     "type": "WARD"
@@ -22317,7 +22333,7 @@
             ],
             "raw_effects_text": "When this follower enters the field, give it +X/+Y. X/Y is the total base attack/defense of allied Shikigami followers destroyed this turn.\n<hr><b><color=Keyword>Ward</color></b>\n<b><color=Keyword>Aura</color></b>",
             "required_listeners": [
-                "CARD_PLAYED"
+                "FOLLOWER_ENTER_FIELD"
             ]
         },
         "90023110": {

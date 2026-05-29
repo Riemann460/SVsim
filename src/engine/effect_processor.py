@@ -59,6 +59,7 @@ class EffectProcessor:
             TargetType.ALL_LEADERS_MIN_DEFENSE: self._get_target_all_leaders_min_defense,
             TargetType.ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED: self._get_target_another_ally_follower_random_unevolved,
             TargetType.ALLY_FOLLOWER_RANDOM_SUPER_EVOLVED: self._get_target_ally_follower_random_super_evolved,
+            TargetType.OWN_HAND_RANDOM: self._get_target_own_hand_random,
         }
         self.process_handlers = {
             ProcessType.STAT_BUFF: self._process_stat_buff,
@@ -109,6 +110,97 @@ class EffectProcessor:
         if hasattr(caster_card, "player_id"):
             return caster_card.player_id
         return ""
+
+    def _resolve_val(self, val, x_val):
+        """동적 변수 X, Y, Z가 포함된 값을 실제 정수로 변환합니다."""
+        if x_val is None:
+            return val
+        if isinstance(val, str):
+            val_clean = val.replace('+', '').replace('-', '').strip()
+            if isinstance(x_val, dict):
+                if val_clean in x_val:
+                    factor = -1 if '-' in val else 1
+                    return factor * x_val[val_clean]
+            else:
+                if val_clean == 'X':
+                    factor = -1 if '-' in val else 1
+                    return factor * x_val
+            try:
+                return int(val)
+            except ValueError:
+                return val
+        elif isinstance(val, list):
+            return [self._resolve_val(item, x_val) for item in val]
+        return val
+
+    def _get_variable_value(self, caster_card, game_state_manager):
+        """카드 정보 및 텍스트를 기반으로 동적 변수 X의 값을 계산합니다."""
+        definition = None
+        if isinstance(caster_card, Card):
+            for e in caster_card.effects:
+                if getattr(e, 'process', None) == ProcessType.DEFINE_VARIABLE:
+                    definition = e.value
+                    break
+            if not definition and caster_card.card_data.raw_effects_text:
+                import re
+                match = re.search(r"X is (.*?)(?:\.|$)", caster_card.card_data.raw_effects_text, re.IGNORECASE)
+                if match:
+                    definition = match.group(1).strip()
+
+        if not definition:
+            return None
+
+        player_id = self._get_owner_id(caster_card)
+        player = game_state_manager.players[player_id]
+
+        def_lower = definition.lower()
+        if def_lower == "random_split_faith":
+            if not hasattr(caster_card, "x_val"):
+                faith_val = getattr(player, "faith", 0)
+                if faith_val == 0:
+                    faith_val = 5
+                v1 = random.randint(0, faith_val)
+                v2 = random.randint(0, faith_val - v1)
+                v3 = faith_val - v1 - v2
+                vals = [v1, v2, v3]
+                random.shuffle(vals)
+                caster_card.x_val = vals[0]
+                caster_card.y_val = vals[1]
+                caster_card.z_val = vals[2]
+                print(f"[LOG] Depths of the Eld Crystals 변수 할당 - X {caster_card.x_val}, Y {caster_card.y_val}, Z {caster_card.z_val}")
+            return {'X': caster_card.x_val, 'Y': caster_card.y_val, 'Z': caster_card.z_val}
+        elif def_lower == "destroyed_shikigami_stats":
+            game = game_state_manager.game
+            destroyed_list = getattr(game, "destroyed_this_turn", [])
+            shikigami_followers = [
+                c for c in destroyed_list
+                if c.owner_id == player_id and c.get_type() == CardType.FOLLOWER and
+                (TribeType.SHIKIGAMI in c.card_data.tribes or "shikigami" in c.card_data.name.lower())
+            ]
+            total_atk = sum(c.card_data.get("attack", 0) for c in shikigami_followers)
+            total_def = sum(c.card_data.get("defense", 0) for c in shikigami_followers)
+            caster_card.x_val = total_atk
+            caster_card.y_val = total_def
+            print(f"[LOG] Noble Shikigami 변수 할당 - X {total_atk}, Y {total_def}")
+            return {'X': total_atk, 'Y': total_def}
+        elif "combo" in def_lower:
+            return player.combo_count
+        elif "cards in your hand" in def_lower or "cards in hand" in def_lower:
+            return len(game_state_manager.get_card_ids_in_zone(player_id, Zone.HAND))
+        elif "allied followers on the field" in def_lower:
+            followers = [c for c in player.field.get_cards() if c.get_type() == CardType.FOLLOWER]
+            if isinstance(caster_card, Card) and caster_card in followers:
+                return len(followers) - 1
+            return len(followers)
+        elif "crests you have" in def_lower or "crests" in def_lower:
+            return len(player.crests) if hasattr(player, 'crests') else 0
+        elif "this follower's attack" in def_lower:
+            return caster_card.current_attack if isinstance(caster_card, Card) else 0
+        elif "pixie followers in your hand" in def_lower:
+            hand_cards = [game_state_manager.get_entity_by_id(cid) for cid in game_state_manager.get_card_ids_in_zone(player_id, Zone.HAND)]
+            return len([c for c in hand_cards if c and "Pixie" in c.card_data.name])
+
+        return 0
 
     def _log_info(self, msg: str) -> None:
         self.logger.info(msg)
@@ -276,6 +368,18 @@ class EffectProcessor:
             return [game_state_manager.get_entity_by_id(selected_card_id)]
         return []
 
+    def _get_target_own_hand_random(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
+        """자신의 패에서 무작위 카드를 선택합니다."""
+        owner_id = self._get_owner_id(caster_card)
+        hand_cards = game_state_manager.get_cards_in_zone(owner_id, Zone.HAND)
+        if not hand_cards:
+            return []
+        selectable_cards = [c for c in hand_cards if c.card_id != caster_card.card_id]
+        if not selectable_cards:
+            return []
+        selected_card = random.choice(selectable_cards)
+        return [selected_card]
+
     def _get_target_opponent_follower_random(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
         """대상 - 상대 추종자 중 무작위 선택."""
         opponent_id = game_state_manager.opponent_id[self._get_owner_id(caster_card)]
@@ -397,7 +501,15 @@ class EffectProcessor:
             condition = (lambda x: True)
         deck = game_state_manager.get_cards_in_zone(target_id, Zone.DECK, condition)
 
-        for _ in range(value):
+        if isinstance(value, list):
+            count = len(value)
+        else:
+            try:
+                count = int(value)
+            except (ValueError, TypeError):
+                count = 1
+
+        for _ in range(count):
             if not deck:
                 if effect_data.get('condition'):
                     self._log_info(f"[LOG] : {target_id} 덱에서 조건에 맞는 카드가 검색되지 않았습니다.")
@@ -415,7 +527,7 @@ class EffectProcessor:
                 else:
                     self._log_error(f"[ERROR] 처리 타입 {post_action['process'].value}에 대한 핸들러가 정의되지 않았습니다.")
 
-        print(f"[LOG] 처리 내용: 카드 드로우, 타겟: {target_id}, 드로우 장수: {value}")
+        print(f"[LOG] 처리 내용: 카드 드로우, 타겟: {target_id}, 드로우 장수: {count}")
 
     def _process_heal(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 체력 회복."""
@@ -615,10 +727,26 @@ class EffectProcessor:
     def _process_trigger_effect(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 다른 효과 발동."""
         value = effect_data.value
-        for effect in target.effects:
-            if effect.type == value:
-                self.resolve_effect(effect, target.card_id, game_state_manager, None)
-        print(f"[LOG] 처리 내용: 다른 효과 발동, 타겟: {target.get_display_name()}, 발동 효과: {value.value}")
+        if value == "random_unactivated":
+            spell_effects = []
+            for idx, effect in enumerate(target.effects):
+                if effect.type == EffectType.SPELL:
+                    spell_effects.append((idx, effect))
+            if not spell_effects:
+                return
+            if not hasattr(target, "activated_abilities"):
+                target.activated_abilities = set()
+            unactivated = [(idx, eff) for idx, eff in spell_effects if idx not in target.activated_abilities]
+            if unactivated:
+                selected_idx, selected_eff = random.choice(unactivated)
+                target.activated_abilities.add(selected_idx)
+                self.resolve_effect(selected_eff, target.card_id, game_state_manager, None)
+                print(f"[LOG] Slaus 효과 발동 - 인덱스 {selected_idx} 효과 실행.")
+        else:
+            for effect in target.effects:
+                if effect.type == value:
+                    self.resolve_effect(effect, target.card_id, game_state_manager, None)
+            print(f"[LOG] 처리 내용: 다른 효과 발동, 타겟: {target.get_display_name()}, 발동 효과: {value.value}")
 
     def _process_gain_crest(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """문장 획득 효과를 처리하고 전역 리스너를 바인딩합니다."""
@@ -683,7 +811,18 @@ class EffectProcessor:
             print(f"[ERROR] resolve_effect - caster card with id {caster_id} not found.")
             return
 
+        from copy import copy
+        effect_data = copy(effect_data)
+        effect_data.attributes = copy(effect_data.attributes)
+
         effect_data.update(caster_id=caster_id)
+
+        # 변수 X의 값을 동적으로 해석하여 적용합니다.
+        x_val = self._get_variable_value(caster_card, game_state_manager)
+        if "value" in effect_data.attributes:
+            effect_data.value = self._resolve_val(effect_data.value, x_val)
+            effect_data.attributes["value"] = effect_data.value
+
         effect_type = getattr(effect_data, "type", None)
 
         # 대체(instead) 효과 체크 로직입니다.
@@ -807,10 +946,15 @@ class EffectProcessor:
             print(f"[LOG] {self._get_owner_id(caster_card)}의 선택 대기. 선택지: {effect_data.choices}")
             return  # 여기서 처리를 중단하고 플레이어의 입력을 기다립니다.
 
-        process_type = effect_data.process
+        # 효과 처리 방식이 없거나 변수 정의인 경우 처리를 스킵합니다.
+        process_type = getattr(effect_data, "process", None)
+        if not process_type or process_type == ProcessType.DEFINE_VARIABLE:
+            return
+
         handler = self.process_handlers.get(process_type)
         if not handler:
             print(f"[ERROR] 처리 타입 {process_type.value}에 대한 핸들러가 정의되지 않았습니다.")
+            return
 
         print(f"[LOG] {caster_card.get_display_name()} (ID: {caster_id})의 키워드 {effect_type.value if effect_type else 'None'} 처리 시작")
 
