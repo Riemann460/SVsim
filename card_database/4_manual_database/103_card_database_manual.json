@@ -167,8 +167,8 @@
         "raw_effects_text": "Fanfare: Add a Great Testimony to your hand.\nEvolve: Gain Crest: Mjerrabaine, Great Manifest.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10304120": {
@@ -217,9 +217,9 @@
         "raw_effects_text": "Fanfare: Select another follower on the field and give it +2/-2. If both players have 10 max play points, add a Sweetness of Voracity to your hand.\nDrain\nEvolve: Select a follower on the field and give it +2/-2.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "DAMAGE_DEALT_BY_COMBAT",
             "CARD_PLAYED",
-            "FOLLOWER_SUPER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED",
+            "DAMAGE_DEALT_BY_COMBAT"
         ]
     },
     "10311110": {
@@ -251,8 +251,8 @@
         "raw_effects_text": "Fanfare: Select an enemy follower on the field and give it -0/-1.\nEvolve: Replicate the effects of this card's Fanfare ability.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10311120": {
@@ -339,8 +339,8 @@
         ],
         "raw_effects_text": "Fanfare: Give all enemy followers on the field -0/-3.\nSuper-Evolve: Replicate the effects of this card's Fanfare ability.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10312120": {
@@ -508,8 +508,8 @@
         ],
         "raw_effects_text": "Fanfare: Give all enemy followers on the field -0/-2.\nAmbush\nOnce on each of your turns, when an enemy follower is given - defense on the field, restore 1 defense to your leader.\nSuper-Evolve: Give your opponent Crest: Krulle, Heir to Unkilling.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10314120": {
@@ -542,8 +542,8 @@
         "raw_effects_text": "Fanfare: Select an enemy follower on the field and give it -0/-6.\nEvolve: Add an Annihilating Onslaught to your hand.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10321110": {
@@ -572,8 +572,8 @@
         ],
         "raw_effects_text": "Fanfare: Add a Gilded Boots to your hand.\nLast Words: Add a Gilded Goblet to your hand.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10321120": {
@@ -657,8 +657,8 @@
         ],
         "raw_effects_text": "Fanfare: Add a Gilded Necklace to your hand.\nLast Words: Add a Gilded Blade to your hand.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10322120": {
@@ -691,8 +691,8 @@
         "raw_effects_text": "Fanfare: Summon a random Swordcraft follower that costs 3 or less from your deck.\nEvolve: Select another allied follower on the field and give it +2/+2.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10322210": {
@@ -775,8 +775,8 @@
         "raw_effects_text": "Fanfare: Add a Gilded Goblet and Gilded Boots to your hand.\nWhenever you play or Fuse a Loot card, deal 3 damage to a random enemy follower.\nEvolve: Recover 1 play point.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10323310": {
@@ -854,8 +854,8 @@
         ],
         "raw_effects_text": "Fuse: Loot cards\nFanfare: Deal X damage to all enemies. X is the number of differently named cards Fused to this card.\nSuper-Evolve: Replicate the effects of this card's Fanfare ability.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10324120": {
@@ -891,8 +891,8 @@
         "raw_effects_text": "Fanfare: Gain Crest: Octrice, Hollowness Manifest.\nEvolve: Add a Gilded Blade and Gilded Necklace to your hand.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10331110": {
@@ -948,8 +948,8 @@
         "raw_effects_text": "Fanfare: Summon a Paper Shikigami.\nEvolve: Replicate the effects of this card's Fanfare ability.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10331310": {
@@ -1034,8 +1034,8 @@
         "raw_effects_text": "Countdown (5)\nWhenever you play a follower whose cost has been changed, draw a card and advance this amulet's count by 1.\nEngage: Select a follower in your hand, increase its cost by 1, and give it +1/+1.",
         "required_listeners": [
             "CARD_ENGAGED",
-            "TURN_START",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "TURN_START"
         ]
     },
     "10332310": {
@@ -1097,8 +1097,8 @@
         ],
         "raw_effects_text": "Fanfare: If this card's cost isn't 3, summon 2 exact copies of it.\nRush\nSuper-Evolve: Summon an exact copy of this card.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10333310": {
@@ -1155,8 +1155,8 @@
         "raw_effects_text": "Fanfare: Draw a card.\nEvolve: Select an enemy follower on the field and banish it.\nSuper-Evolve: Banish all enemy copies of it from the field.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10334120": {
@@ -1327,8 +1327,8 @@
         ],
         "raw_effects_text": "Fanfare: Summon a Majestic Megalorca. If you're in Overflow, summon 2 instead.\nWhenever an allied Marine follower enters the field, give it Ward.",
         "required_listeners": [
-            "FOLLOWER_ENTER_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_ENTER_FIELD"
         ]
     },
     "10342210": {
@@ -1389,8 +1389,8 @@
         ],
         "raw_effects_text": "Fanfare: Deal 3 damage to all followers.\nAt the end of your turn, if this follower's defense is 3 or less, give all Dragoncraft followers in your hand +1/+1.",
         "required_listeners": [
-            "TURN_END",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "TURN_END"
         ]
     },
     "10343310": {
@@ -1467,8 +1467,8 @@
         ],
         "raw_effects_text": "Fanfare: Do this 3 times: \"Deal 2 damage to all followers.\"\nWard\nDuring your turn, whenever this follower takes damage but isn't destroyed, deal 1 damage to the enemy leader.\nSuper-Evolve: Fully restore the defense of this follower. Do this 3 times: \"Deal 2 damage to all followers.\"",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10344120": {
@@ -1549,8 +1549,8 @@
         "raw_effects_text": "Fanfare: Select a Mode to activate.\n1. Deal 1 damage to all enemy followers.\n2. Give this follower +2/+2.\nEvolve: Replicate the effects of this card's Fanfare ability.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10351120": {
@@ -1644,8 +1644,8 @@
         "raw_effects_text": "Fanfare: Select a Mode to activate.\n1. Deal 3 damage to a random enemy follower.\n2. Restore 2 defense to your leader.\nEvolve: Replicate the effects of this card's Fanfare ability.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10352120": {
@@ -1737,20 +1737,14 @@
                     {
                         "process": "SUMMON",
                         "target": "OWN_LEADER",
-                        "value": [
-                            "Congregant of Entwining",
-                            "give it",
-                            "this follower Rush"
-                        ]
+                        "extra_effect": "and this follower Rush",
+                        "value": "Congregant of Entwining"
                     },
                     {
                         "process": "SUMMON",
                         "target": "OWN_LEADER",
-                        "value": [
-                            "Congregant of Entwining",
-                            "give it",
-                            "this follower Ward"
-                        ]
+                        "extra_effect": "and this follower Ward",
+                        "value": "Congregant of Entwining"
                     },
                     {
                         "process": "STAT_BUFF",
@@ -1770,8 +1764,8 @@
         ],
         "raw_effects_text": "Fanfare: Select a Mode to activate.\n1. Summon a Congregant of Entwining and give it and this follower Rush.\n2. Summon a Congregant of Entwining and give it and this follower Ward.\n3. Give all allied copies of Congregant of Entwining on the field +2/+2.\nSuper-Evolve: Replicate the effects of this card's Fanfare ability.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10353310": {
@@ -1851,8 +1845,8 @@
         ],
         "raw_effects_text": "Fanfare: Reduce the faith of Faith: Sham-Nacha, Heir to Entwining by 10 to give it \"Increase the number of Modes you can select by 1.\"\nSuper-Evolve: Select an enemy follower on the field, destroy it, and add a copy of it to your hand.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10354120": {
@@ -2039,8 +2033,8 @@
         "required_listeners": [
             "CARD_ENGAGED",
             "CARD_PLAYED",
-            "TURN_START",
-            "DESTROYED_ON_FIELD"
+            "DESTROYED_ON_FIELD",
+            "TURN_START"
         ]
     },
     "10362220": {
@@ -2077,8 +2071,8 @@
         "raw_effects_text": "Countdown (3)\nLast Words: Summon a Holy Falcon and Holyflame Tiger.\nEngage (1): Advance this amulet's count by 1.",
         "required_listeners": [
             "CARD_ENGAGED",
-            "TURN_START",
-            "DESTROYED_ON_FIELD"
+            "DESTROYED_ON_FIELD",
+            "TURN_START"
         ]
     },
     "10363110": {
@@ -2106,8 +2100,8 @@
         "raw_effects_text": "Fanfare: Select an enemy follower on the field and destroy it.\nEvolve: Gain Crest: Congregant of Repose.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10363210": {
@@ -2152,8 +2146,8 @@
         "required_listeners": [
             "CARD_ENGAGED",
             "CARD_PLAYED",
-            "TURN_START",
-            "DESTROYED_ON_FIELD"
+            "DESTROYED_ON_FIELD",
+            "TURN_START"
         ]
     },
     "10364110": {
@@ -2185,8 +2179,8 @@
         ],
         "raw_effects_text": "Fanfare: Gain Crest: Himeka, Heir to Repose.\nSuper-Evolve: Set the attack of all enemy followers on the field to 4.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10364120": {
@@ -2215,8 +2209,8 @@
         "raw_effects_text": "Fanfare: Add a Torrent of Despair to your hand.\nEvolve: Gain Crest: Marwynn, Despair Manifest.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10371110": {
@@ -2288,8 +2282,8 @@
         "raw_effects_text": "Fanfare: Summon an Ominous Artifact γ.\nEvolve: Select an allied Artifact follower on the field and give it +3/+3.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10371310": {
@@ -2354,8 +2348,8 @@
         "raw_effects_text": "Fanfare: Select another allied card on the field. If you selected one, destroy it and deal 2 damage to a random enemy follower.\nEvolve: Replicate the effects of this card's Fanfare ability.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10372120": {
@@ -2417,8 +2411,8 @@
         ],
         "raw_effects_text": "Fanfare: Select another allied card on the field. If you selected one, destroy it and draw 2 cards.\nLast Words: Draw a card.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10373110": {
@@ -2523,8 +2517,8 @@
         ],
         "raw_effects_text": "Ward\nCan't be destroyed by abilities.\nSuper-Evolve: Deal X damage to the enemy leader. X is the number of other allied cards on the field. Destroy all other allied cards on the field.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10374120": {
@@ -2562,8 +2556,8 @@
         "raw_effects_text": "Fanfare: Add a Melodious Monody to your hand.\nCan't be destroyed by abilities.\nEvolve: Summon a White Psalm, New Revelation.",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     }
 }

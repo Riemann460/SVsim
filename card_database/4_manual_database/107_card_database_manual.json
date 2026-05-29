@@ -37,9 +37,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon 2 random differently named Abysscraft followers that cost 2 or less from your deck.\n<hr>Whenever another allied Abysscraft follower enters the field, give it <b><color=Keyword>Rush</color></b>.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Give all other allied Abysscraft followers on the field +2/+2.</sev>",
         "required_listeners": [
-            "FOLLOWER_ENTER_FIELD",
+            "CARD_PLAYED",
             "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "FOLLOWER_ENTER_FIELD"
         ]
     },
     "10701110": {
@@ -190,9 +190,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Rotting Zombie</color></i></b> and <b><i><color=Keyword>Skeleton</color></i></b>.\n<hr>Whenever an allied Departed follower enters the field, give it <b><color=Keyword>Storm</color></b>.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Select another allied follower on the field. If you selected one, destroy it and a random enemy follower.</sev>",
         "required_listeners": [
-            "FOLLOWER_ENTER_FIELD",
+            "CARD_PLAYED",
             "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "FOLLOWER_ENTER_FIELD"
         ]
     },
     "10771120": {
@@ -262,9 +262,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Deal 6 damage to all enemy followers. \n<hr><b><color=Keyword>Ward</color></b>\n<b><color=Keyword>Last Words</color></b>: <b><color=Keyword>Earth Rite</color> (2)</b> - Deal 3 damage to the enemy leader.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Summon a <b><i><color=Keyword>Beloved Masterpiece</color></i></b>.</sev>",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
+            "CARD_PLAYED",
             "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10743310": {
@@ -429,8 +429,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon an <b><i><color=Keyword>Analyzing Artifact</color></i></b>.\n<b><color=Keyword>Enhance</color> (5)</b>: Summon a <b><i><color=Keyword>Mystic Artifact</color></i></b>.\n<hr>Whenever an allied Artifact follower enters the field, give it <b><color=Keyword>Rush</color></b>.",
         "required_listeners": [
-            "FOLLOWER_ENTER_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_ENTER_FIELD"
         ]
     },
     "10771110": {
@@ -460,9 +460,9 @@
         ],
         "raw_effects_text": "Whenever an allied Artifact follower enters the field, restore 1 defense to your leader.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Summon a <b><i><color=Keyword>Mystic Artifact</color></i></b>.</ev>",
         "required_listeners": [
-            "FOLLOWER_ENTER_FIELD",
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_ENTER_FIELD"
         ]
     },
     "10744110": {
@@ -493,8 +493,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Deal 9 damage to all enemy followers.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Give your opponent <b><i>Crest: Burnite, Anathema of Ash</i></b>.</sev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10723310": {
@@ -566,8 +566,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select another allied follower on the field and give it +2/+2.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Select a follower in your hand and give it +2/+2.</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10724120": {
@@ -610,8 +610,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon 2 copies of <b><i><color=Keyword>Steelclad Knight</color></i></b>. Give all other allied Swordcraft followers on the field +1/+3 and <b><color=Keyword>Ward</color></b>.\n<hr><b><color=Keyword>Ward</color></b>\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Select an enemy follower on the field and destroy it.</sev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10732110": {
@@ -705,10 +705,10 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\nAt the end of your turn, activate an ability in sequence from the following.\n<ridx=0>1. Deal 2 damage to a random enemy follower.</ridx>\n<ridx=1>2. Restore 2 defense to your leader.</ridx>\n<ridx=2>3. Deal 2 damage to the enemy leader. Destroy this card.</ridx>\n<hr><b><color=Keyword>Engage</color> (1)</b>: Select a card in your hand and discard it. Delay the count of this amulet by 1.",
         "required_listeners": [
-            "TURN_END",
             "CARD_ENGAGED",
-            "TURN_START",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "TURN_END",
+            "TURN_START"
         ]
     },
     "10711310": {
@@ -767,8 +767,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Add an <b><i><color=Keyword>Ancient Artifact</color></i></b> to your hand.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Replicate the effects of this card's <b><color=Keyword>Fanfare</color></b> ability.</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10731110": {
@@ -826,8 +826,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: If there are at least 3 allied amulets on the field, evolve this follower and give it <b><color=Keyword>Barrier</color></b>.\n<hr><b><color=Keyword>Ward</color></b>\n<b><color=Keyword>Last Words</color></b>: Restore 3 defense to your leader.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10742120": {
@@ -864,8 +864,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: If you have 10 max play points, evolve this follower.\n<hr>At the end of your turn, restore 1 defense to your leader. If this follower is evolved, restore 2 defense instead.",
         "required_listeners": [
-            "TURN_END",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "TURN_END"
         ]
     },
     "10744120": {
@@ -900,8 +900,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Vastwing Dragon</color></i></b>. Gain <b><i>Crest: Dragon's Vale Elder</i></b>.\n<hr><b><color=Keyword>Ward</color></b>\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Delay the count of your <b><i>Crest: Dragon's Vale Elder</i></b> by 2.</sev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10743110": {
@@ -1114,8 +1114,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field and deal it X damage. X is this follower's attack.\n<hr>At the end of your turn, <b><color=Keyword>Combo</color> (3)</b> - Draw a card.",
         "required_listeners": [
-            "TURN_END",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "TURN_END"
         ]
     },
     "10742110": {
@@ -1188,8 +1188,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Rally</color> (20)</b> - Gain <b><i>Crest: Gildaria, Anathema of Attunement</i></b>. Evolve this follower.\n<hr>During your turn, whenever another allied follower enters the field, give it <b><color=Keyword>Rush</color></b>.\n<hr><ev>When this follower evolves, summon 2 copies of <b><i><color=Keyword>Steelclad Knight</color></i></b>.</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10714120": {
@@ -1231,9 +1231,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Add 2 copies of <b><i><color=Keyword>Deepwood Bounty</color></i></b> to your hand.\n<hr>At the end of your turn, deal X damage split between all enemy followers. X is this follower's attack.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Gain <b><i>Crest: Great Hart of the Glacial Realm</i></b>.</sev>",
         "required_listeners": [
-            "TURN_END",
+            "CARD_PLAYED",
             "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "TURN_END"
         ]
     },
     "10732310": {
@@ -1363,8 +1363,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field and deal it 4 damage. Increase your <b><color=Keyword>Combo</color></b> by 1.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Replicate the effects of this card's <b><color=Keyword>Fanfare</color></b> ability.</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10703110": {
@@ -1494,8 +1494,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field and deal it 3 damage. Summon a <b><i><color=Keyword>Skeleton</color></i></b>.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Replicate the effects of this card's <b><color=Keyword>Fanfare</color></b> ability.</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10762120": {
@@ -1559,8 +1559,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Follower</color></b> <b><color=Keyword>Strike</color></b>: Give this follower <b><color=Keyword>Barrier</color></b>. Give the opposing follower \"Can't attack followers or leaders\" and \"At the end of your turn, banish this card.\"\n<b><color=Keyword>Last Words</color></b>: Gain <b><i>Crest: Illamrita, Designated Target</i></b>.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10764120": {
@@ -1599,8 +1599,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field and banish it. If there are at least 3 allied amulets on the field, restore 3 defense to your leader.\n<hr><b><color=Keyword>Ward</color></b>\n<b><color=Keyword>Aura</color></b>\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Replicate the effects of this card's <b><color=Keyword>Fanfare</color></b> ability.</sev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10702110": {
@@ -1778,8 +1778,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Earth Rite</color> (1)</b> - Gain <b><i>Crest: Lilanthim, Anathema of Predation</i></b>.\n<hr><b><color=Keyword>Aura</color></b>\n<hr><ev><b><color=Keyword>Evolve</color></b>: <b><color=Keyword>Earth Rite</color> (1)</b> - Select an enemy follower on the field and destroy it.</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10731120": {
@@ -1812,8 +1812,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field and deal it 1 damage. Gain an earth sigil.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Replicate the effects of this card's <b><color=Keyword>Fanfare</color></b> ability.</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10751110": {
@@ -2007,8 +2007,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Draw 2 cards. Summon 2 copies of <b><i><color=Keyword>Knight</color></i></b>.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Select an enemy follower on the field and deal it 3 damage.</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10712310": {
@@ -2076,8 +2076,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Draw 2 amulets.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Deal X damage to all enemy followers. X is the number of amulets in your hand.</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10774120": {
@@ -2113,9 +2113,9 @@
         ],
         "raw_effects_text": "Whenever an allied Artifact follower enters the field, deal 3 damage to a random enemy follower.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Summon an <b><i><color=Keyword>Ancient Artifact</color></i></b>.</ev>\n<sev><b><color=Keyword>Super-Evolve</color></b>: Then, if at least 3 differently named allied Artifact followers have entered the field this match, give this follower <b><color=Keyword>Storm</color></b>.</sev>",
         "required_listeners": [
-            "FOLLOWER_ENTER_FIELD",
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_ENTER_FIELD"
         ]
     },
     "10722310": {
@@ -2238,8 +2238,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: If there are at least 3 allied amulets on the field, summon a <b><i><color=Keyword>Reverend of Finance</color></i></b>.\n<hr><b><color=Keyword>Rush</color></b>\n<b><color=Keyword>Last Words</color></b>: Draw a card.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10764110": {
@@ -2269,8 +2269,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Rings of Moonlight</color></i></b>.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Delay the count of a random allied <b><i><color=Keyword>Rings of Moonlight</color></i></b> on the field by 1.</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10774110": {
@@ -2428,8 +2428,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Earth Rite</color> (1)</b> - Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Deal 3 damage to all enemy followers.</ridx>\n<ridx=1>2. Draw 2 cards.</ridx>\n<hr><ev><b><color=Keyword>Evolve</color></b>: Replicate the effects of this card's <b><color=Keyword>Fanfare</color></b> ability.</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10701310": {
@@ -2495,8 +2495,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field and give it -0/-X. X is this follower's attack. Increase your <b><color=Keyword>Combo</color></b> by 1.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Gain <b><i>Crest: Thestae, Anathema of Distortion</i></b>.</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10762210": {

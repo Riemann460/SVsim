@@ -215,8 +215,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Last Words</color></b>: Deal 1 damage to the enemy leader. Summon a <b><i><color=Keyword>White Psalm, New Revelation</color></i></b>.",
         "required_listeners": [
-            "TURN_START",
-            "DESTROYED_ON_FIELD"
+            "DESTROYED_ON_FIELD",
+            "TURN_START"
         ]
     },
     "90014310": {
@@ -456,10 +456,8 @@
             {
                 "process": "SUMMON",
                 "target": "OWN_LEADER",
-                "value": [
-                    "Crystalspawn",
-                    "give it +X/+X"
-                ],
+                "extra_effect": "+X/+X",
+                "value": "Crystalspawn",
                 "type": "SPELL"
             },
             {
@@ -868,8 +866,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Storm</color></b>\nWhen this card leaves the field, banish it.\nAt the end of your turn, banish this card.",
         "required_listeners": [
-            "TURN_END",
-            "LEAVE_FIELD"
+            "LEAVE_FIELD",
+            "TURN_END"
         ]
     },
     "90021310": {
@@ -1473,8 +1471,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fuse</color></b>: <b><i><color=Keyword>Ominous Artifact β</color></i></b> and <b><i><color=Keyword>Ominous Artifact γ</color></i></b>\nWhen you've <b><color=Keyword>Fuse</color><color=Keyword>d</color></b> both to this card, transform it into a <b><i><color=Keyword>Masterwork Artifact Ω</color></i></b>.\n<hr>At the end of your turn, restore 3 defense to your leader.",
         "required_listeners": [
-            "TURN_END",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "TURN_END"
         ]
     },
     "90073120": {
@@ -1777,10 +1775,11 @@
             {
                 "process": "SUMMON",
                 "value": [
-                    "Rulenye & Valnareik and give them Rush",
-                    "Rulenye & Valnareik and give them Rush"
+                    "Rulenye & Valnareik",
+                    "Rulenye & Valnareik"
                 ],
                 "target": "OWN_LEADER",
+                "extra_effect": "Rush",
                 "type": "SPELL"
             }
         ],
@@ -2095,8 +2094,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Last Words</color></b>: Restore 1 defense to your leader. Summon a <b><i><color=Keyword>Black Psalm, New Revelation</color></i></b>.",
         "required_listeners": [
-            "TURN_START",
-            "DESTROYED_ON_FIELD"
+            "DESTROYED_ON_FIELD",
+            "TURN_START"
         ]
     },
     "90044310": {

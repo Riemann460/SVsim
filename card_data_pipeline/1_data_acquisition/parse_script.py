@@ -512,12 +512,25 @@ def parse_action(text: str):
                 except (ValueError, KeyError):
                     action['value2'] = f"-{groups.get('value2', 0)}"
 
+            # 카드 이름과 추가 효과 지시어가 혼합된 텍스트를 전처리합니다.
+            def _clean_card_text(text_val, action_dict):
+                for connector in [" and give them ", " and give it "]:
+                    if connector in text_val.lower():
+                        idx = text_val.lower().find(connector)
+                        card_part = text_val[:idx].strip()
+                        extra_part = text_val[idx + len(connector):].strip()
+                        action_dict['extra_effect'] = extra_part
+                        return card_part
+                return text_val
+
             if 'card_name' in groups:
                 count = int(groups.get('value', 1))
                 card_name = groups['card_name'].strip().replace('.', '')
+                card_name = _clean_card_text(card_name, action)
                 action['value'] = [card_name] * count
             elif 'card_names' in groups:
                 card_list_str = groups['card_names']
+                card_list_str = _clean_card_text(card_list_str, action)
                 cards = re.split(r'\s*,\s*and\s+an?\s*|\s*,\s*and\s*|\s+and\s+|\s*,\s*an?\b\s*|\s*,\s*', card_list_str)
                 card_names = [re.sub(r'^an?\s+', '', card).strip().replace('.', '') for card in cards if card.strip()]
                 if card_names:
