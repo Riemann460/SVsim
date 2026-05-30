@@ -118,6 +118,11 @@ class EffectProcessor:
         """동적 변수 X, Y, Z가 포함된 값을 실제 정수로 변환합니다."""
         if x_val is None:
             return val
+        from src.common.enums import TargetType
+        if val == TargetType.VARIABLE:
+            if isinstance(x_val, dict):
+                return x_val.get('X', 0)
+            return x_val
         if isinstance(val, str):
             val_clean = val.replace('+', '').replace('-', '').strip()
             if isinstance(x_val, dict):

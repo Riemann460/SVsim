@@ -873,8 +873,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Storm</color></b>\nWhen this card leaves the field, banish it.\nAt the end of your turn, banish this card.",
         "required_listeners": [
-            "TURN_END",
-            "LEAVE_FIELD"
+            "LEAVE_FIELD",
+            "TURN_END"
         ]
     },
     "90021310": {

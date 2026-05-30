@@ -854,6 +854,7 @@ class TestScenarioBuilderCore(unittest.TestCase):
 
     def test_caesura_al_fine_rally_condition_and_damage_crash(self):
         """종악장 스펠 카드 플레이 시 콤보 조건 미달 상태에서 변수 효과로 인한 형변환 오류가 발생하지 않는지 검증합니다."""
+        # 1. Rally 10 미만인 경우의 테스트입니다.
         builder = GameScenarioBuilder("player1", "player2")
         builder.set_active_player("player2")
         builder.set_pp("player2", 3, 3)
@@ -861,6 +862,11 @@ class TestScenarioBuilderCore(unittest.TestCase):
 
         # 위해 대상인 적 추종자를 필드에 배치합니다.
         target_follower = builder.add_to_field("player1", "Caravan Mammoth") # 체력이 높은 추종자
+
+        # 아군 필드에 추종자 3마리를 배치하여 X = 3인 상태를 만듭니다.
+        builder.add_to_field("player2", "Leah, Bellringer Angel")
+        builder.add_to_field("player2", "Leah, Bellringer Angel")
+        builder.add_to_field("player2", "Leah, Bellringer Angel")
 
         # 종악장 스펠 카드를 플레이어 2 손패에 추가합니다.
         caesura = builder.add_to_hand("player2", "10723310")
@@ -877,6 +883,31 @@ class TestScenarioBuilderCore(unittest.TestCase):
         # 위해 결과를 검증합니다.
         # Rally 10 미만이므로 6데미지만 입어야 하고, 전체 X데미지 효과는 발동되지 않아야 합니다.
         self.assertEqual(target_follower.max_defense - target_follower.current_defense, 6)
+
+        # 2. Rally 10 이상인 경우의 테스트입니다.
+        builder2 = GameScenarioBuilder("player1", "player2")
+        builder2.set_active_player("player2")
+        builder2.set_pp("player2", 3, 3)
+        builder2.set_rally("player2", 10)  # Rally 10 충족 조건
+
+        # 위해 대상인 적 추종자를 필드에 배치합니다.
+        target_follower2 = builder2.add_to_field("player1", "Caravan Mammoth") # 체력이 높은 추종자
+
+        # 아군 필드에 추종자 3마리를 배치하여 X = 3인 상태를 만듭니다.
+        builder2.add_to_field("player2", "Leah, Bellringer Angel")
+        builder2.add_to_field("player2", "Leah, Bellringer Angel")
+        builder2.add_to_field("player2", "Leah, Bellringer Angel")
+
+        caesura2 = builder2.add_to_hand("player2", "10723310")
+
+        game2 = builder2.build()
+        game2.gui.get_user_choice.return_value = target_follower2.card_id
+
+        played2 = game2.play_card("player2", caesura2.card_id)
+        self.assertTrue(played2)
+
+        # Rally 10 이상이므로 6 + 3 = 9데미지를 입어야 합니다.
+        self.assertEqual(target_follower2.max_defense - target_follower2.current_defense, 9)
 
 
 

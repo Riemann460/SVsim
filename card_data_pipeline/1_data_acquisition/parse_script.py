@@ -180,6 +180,8 @@ EFFECT_PATTERNS = [
     {'regex': r"Combo \((\d+)\): (.*)", 'type': EffectType.COMBO, 'groups': ['value', 'action_text']},
     {'regex': r"Earth Rite \((\d+)\) - (.*)", 'type': EffectType.EARTH_RITE, 'groups': ['value', 'action_text']},
     {'regex': r"Earth Rite \((\d+)\): (.*)", 'type': EffectType.EARTH_RITE, 'groups': ['value', 'action_text']},
+    {'regex': r"Rally \((\d+)\) - (.*)", 'type': EffectType.RALLY, 'groups': ['value', 'action_text']},
+    {'regex': r"Rally \((\d+)\): (.*)", 'type': EffectType.RALLY, 'groups': ['value', 'action_text']},
     {'regex': r"Earth Rite: (.*)", 'type': EffectType.EARTH_RITE, 'groups': ['action_text']},
     {'regex': r"Strike: (.*)", 'type': EffectType.STRIKE, 'groups': ['action_text']},
     {'regex': r"Clash: (.*)", 'type': EffectType.CLASH, 'groups': ['action_text']},
