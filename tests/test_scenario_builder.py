@@ -744,5 +744,29 @@ class TestScenarioBuilderCore(unittest.TestCase):
         self.assertEqual(len(hand_cards), 1)
         self.assertEqual(hand_cards[0].card_data.name, "Beheading Eld Blades")
 
+    def test_beheading_eld_blades_discard_cost_progression_scenario(self):
+        """독단의 고대의 칼날 카드가 버려질 때 코스트에 따른 조건부 및 후속 조치 설정이 올바르게 전환되는지 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        card = builder.add_to_hand("player1", "10643310")
+
+        game = builder.build()
+
+        game.discard_card("player1", card.card_id)
+
+        hand_cards = game.game_state_manager.get_cards_in_zone("player1", Zone.HAND)
+        self.assertEqual(len(hand_cards), 1)
+        new_card = hand_cards[0]
+        self.assertEqual(new_card.card_data.name, "Beheading Eld Blades")
+        self.assertEqual(new_card.current_cost, 5)
+
+        game.discard_card("player1", new_card.card_id)
+
+        hand_cards2 = game.game_state_manager.get_cards_in_zone("player1", Zone.HAND)
+        self.assertEqual(len(hand_cards2), 1)
+        new_card2 = hand_cards2[0]
+        self.assertEqual(new_card2.card_data.name, "Beheading Eld Blades")
+        self.assertEqual(new_card2.current_cost, 3)
+
 
 

@@ -570,6 +570,13 @@ class EffectProcessor:
             else:
                 game_state_manager.add_card(card, Zone.GRAVEYARD, target_id)
             print(f"[LOG] 처리 내용: 패에 카드 추가, 타겟: {target_id}, 추가 카드: {card.get_display_name()}")
+            
+            # 후속 조치 효과가 정의되어 있다면 실행합니다.
+            post_action = getattr(effect_data, "post_action", None)
+            if post_action:
+                handler = self.process_handlers.get(post_action.process)
+                if handler:
+                    handler(post_action, card, game_state_manager)
 
         elif isinstance(value, list):
             value_copy = list(value)
@@ -581,6 +588,13 @@ class EffectProcessor:
                 else:
                     game_state_manager.add_card(card, Zone.GRAVEYARD, target_id)
                 print(f"[LOG] 처리 내용: 패에 카드 추가, 타겟: {target_id}, 추가 카드: {card.get_display_name()}")
+                
+                # 후속 조치 효과가 정의되어 있다면 실행합니다.
+                post_action = getattr(effect_data, "post_action", None)
+                if post_action:
+                    handler = self.process_handlers.get(post_action.process)
+                    if handler:
+                        handler(post_action, card, game_state_manager)
 
     def _process_summon(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
         """처리 - 필드에 카드 소환."""
@@ -880,6 +894,14 @@ class EffectProcessor:
         if not caster_card:
             print(f"[ERROR] resolve_effect - caster card with id {caster_id} not found.")
             return
+
+        # 설정된 조건이 있는 경우 시전자 카드가 이를 만족하는지 확인합니다.
+        condition_str = effect_data.get("condition")
+        if condition_str and isinstance(condition_str, str):
+            from src.common import card_data as cd
+            if not cd.evaluate_condition(caster_card, condition_str):
+                print(f"[LOG] {caster_card.get_display_name()}의 조건 {condition_str} 미충족으로 효과 발동 실패.")
+                return
 
         from copy import copy
         effect_data = copy(effect_data)

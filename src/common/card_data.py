@@ -297,82 +297,90 @@ def _resolve_single_value(val: str, effect: Effect, card_id: str, global_card_db
     print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name}에서 카드 데이터 '{val}'을(를) 찾을 수 없습니다.")
     return val
 
+def _resolve_effect_references_recursive(effect: Effect, card_id: str, global_card_db: Dict[str, CardData]):
+    """개별 효과 및 내포된 후속 조치의 카드 참조를 재귀적으로 해결합니다."""
+    if not isinstance(effect, Effect):
+        return
+    if "process" in effect.attributes.keys() and effect.process in [ProcessType.ADD_CARD_TO_HAND, ProcessType.SUMMON, ProcessType.REPLACE_DECK]:
+        effect_value = getattr(effect, "value", None)
+        if isinstance(effect_value, str):
+            effect.value = _resolve_single_value(effect_value, effect, card_id, global_card_db)
+        elif isinstance(effect_value, list):
+            resolved_list = []
+            for item in effect_value:
+                if isinstance(item, str):
+                    resolved_list.append(_resolve_single_value(item, effect, card_id, global_card_db))
+                else:
+                    resolved_list.append(item)
+            effect.value = resolved_list
+    elif "value" in effect.attributes.keys():
+        process_type = getattr(effect, 'process', None)
+        process_name = process_type.name if process_type else 'None'
+        if process_type == ProcessType.ADD_EFFECT:
+            if isinstance(effect.value, str):
+                try:
+                    keyword_enum = EffectType[effect.value.upper()]
+                    effect.value = Effect(type=keyword_enum, value=None)
+                    effect.attributes["value"] = effect.value
+                except KeyError:
+                    print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name}에 예기치 않은 스트링 입력 {effect.value}.")
+            elif isinstance(effect.value, list):
+                resolved_list = []
+                for v in effect.value:
+                    if isinstance(v, str):
+                        try:
+                            keyword_enum = EffectType[v.upper()]
+                            resolved_list.append(Effect(type=keyword_enum, value=None))
+                        except KeyError:
+                            print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name}에 예기치 않은 스트링 입력 {v}.")
+                    else:
+                        resolved_list.append(v)
+                effect.value = resolved_list
+                effect.attributes["value"] = resolved_list
+        elif isinstance(effect.value, str):
+            if effect.value in TargetType.__members__:
+                effect.value = TargetType[effect.value]
+                effect.attributes["value"] = effect.value
+            elif "random card in your opponent's deck" in effect.value or "random cards in your opponent's deck" in effect.value:
+                effect.value = TargetType.OPPONENT_DECK_RANDOM
+                effect.attributes["value"] = effect.value
+            elif "random followers in your deck" in effect.value:
+                effect.value = TargetType.OWN_DECK_RANDOM_FOLLOWER
+                effect.attributes["value"] = effect.value
+            else:
+                safe_string_processes = {
+                    ProcessType.DEAL_DAMAGE,
+                    ProcessType.DEFINE_VARIABLE,
+                    ProcessType.GAIN_CREST,
+                    ProcessType.TRANSFORM,
+                    ProcessType.REDUCE_COST,
+                    ProcessType.FUSE,
+                    ProcessType.DESTROY_CREST,
+                    ProcessType.RECOVER_PP,
+                    ProcessType.DRAW,
+                    ProcessType.DESTROY,
+                    ProcessType.BANISH,
+                    ProcessType.HEAL,
+                    ProcessType.IMMUNITY,
+                    ProcessType.DISCARD,
+                    ProcessType.ADVANCE_COUNTDOWN,
+                    ProcessType.REANIMATE,
+                    ProcessType.SET_COST,
+                    ProcessType.SET_ATTACK,
+                    ProcessType.SET_DEFENSE,
+                }
+                if process_type not in safe_string_processes:
+                    print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name}에 예기치 않은 스트링 입력 {effect.value}.")
+
+    post_action = getattr(effect, "post_action", None)
+    if post_action:
+        _resolve_effect_references_recursive(post_action, card_id, global_card_db)
+
 def resolve_card_references(card_db: Dict[str, CardData], global_card_db: Dict[str, CardData]):
     """카드 데이터베이스 내의 카드 참조를 해결합니다."""
     for card_id, card_data_obj in card_db.items():
         for effect in card_data_obj.effects:
-            if isinstance(effect, Effect):
-                if "process" in effect.attributes.keys() and effect.process in [ProcessType.ADD_CARD_TO_HAND, ProcessType.SUMMON, ProcessType.REPLACE_DECK]:
-                    effect_value = getattr(effect, "value", None)
-                    if isinstance(effect_value, str):
-                        effect.value = _resolve_single_value(effect_value, effect, card_id, global_card_db)
-                    elif isinstance(effect_value, list):
-                        resolved_list = []
-                        for item in effect_value:
-                            if isinstance(item, str):
-                                resolved_list.append(_resolve_single_value(item, effect, card_id, global_card_db))
-                            else:
-                                resolved_list.append(item)
-                        effect.value = resolved_list
-                elif "value" in effect.attributes.keys():
-                    process_type = getattr(effect, 'process', None)
-                    process_name = process_type.name if process_type else 'None'
-                    if process_type == ProcessType.ADD_EFFECT:
-                        if isinstance(effect.value, str):
-                            try:
-                                keyword_enum = EffectType[effect.value.upper()]
-                                effect.value = Effect(type=keyword_enum, value=None)
-                                effect.attributes["value"] = effect.value
-                            except KeyError:
-                                print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name})에 예기치 않은 스트링 입력 '{effect.value}'.")
-                        elif isinstance(effect.value, list):
-                            resolved_list = []
-                            for v in effect.value:
-                                if isinstance(v, str):
-                                    try:
-                                        keyword_enum = EffectType[v.upper()]
-                                        resolved_list.append(Effect(type=keyword_enum, value=None))
-                                    except KeyError:
-                                        print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name})에 예기치 않은 스트링 입력 '{v}'.")
-                                else:
-                                    resolved_list.append(v)
-                            effect.value = resolved_list
-                            effect.attributes["value"] = resolved_list
-                    elif isinstance(effect.value, str):
-                        from src.common.enums import TargetType
-                        if effect.value in TargetType.__members__:
-                            effect.value = TargetType[effect.value]
-                            effect.attributes["value"] = effect.value
-                        elif "random card in your opponent's deck" in effect.value or "random cards in your opponent's deck" in effect.value:
-                            effect.value = TargetType.OPPONENT_DECK_RANDOM
-                            effect.attributes["value"] = effect.value
-                        elif "random followers in your deck" in effect.value:
-                            effect.value = TargetType.OWN_DECK_RANDOM_FOLLOWER
-                            effect.attributes["value"] = effect.value
-                        else:
-                            safe_string_processes = {
-                                ProcessType.DEAL_DAMAGE,
-                                ProcessType.DEFINE_VARIABLE,
-                                ProcessType.GAIN_CREST,
-                                ProcessType.TRANSFORM,
-                                ProcessType.REDUCE_COST,
-                                ProcessType.FUSE,
-                                ProcessType.DESTROY_CREST,
-                                ProcessType.RECOVER_PP,
-                                ProcessType.DRAW,
-                                ProcessType.DESTROY,
-                                ProcessType.BANISH,
-                                ProcessType.HEAL,
-                                ProcessType.IMMUNITY,
-                                ProcessType.DISCARD,
-                                ProcessType.ADVANCE_COUNTDOWN,
-                                ProcessType.REANIMATE,
-                                ProcessType.SET_COST,
-                                ProcessType.SET_ATTACK,
-                                ProcessType.SET_DEFENSE,
-                            }
-                            if process_type not in safe_string_processes:
-                                print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name})에 예기치 않은 스트링 입력 '{effect.value}'.")
+            _resolve_effect_references_recursive(effect, card_id, global_card_db)
 
 def load_card_databases(path: str = 'card_database/4_manual_database/card_database_manual.json'):
     """단일 통합 수동 JSON 파일에서 카드 데이터베이스를 불러옵니다.
@@ -432,6 +440,13 @@ def evaluate_condition(card: Any, condition_str: str) -> bool:
     elif condition_str.startswith("NAME_"):
         name_str = condition_str.replace("NAME_", "")
         return card.card_data.name == name_str
+
+    elif condition_str.startswith("COST_IS_"):
+        try:
+            cost_val = int(condition_str.replace("COST_IS_", ""))
+            return card.current_cost == cost_val
+        except ValueError:
+            return False
         
     return True
 

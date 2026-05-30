@@ -16304,7 +16304,23 @@
                     "process": "ADD_CARD_TO_HAND",
                     "target": "OWN_LEADER",
                     "value": "10643310",
-                    "type": "ON_DISCARD"
+                    "type": "ON_DISCARD",
+                    "condition": "COST_IS_7",
+                    "post_action": {
+                        "process": "SET_COST",
+                        "value": 5
+                    }
+                },
+                {
+                    "process": "ADD_CARD_TO_HAND",
+                    "target": "OWN_LEADER",
+                    "value": "10643310",
+                    "type": "ON_DISCARD",
+                    "condition": "COST_IS_5",
+                    "post_action": {
+                        "process": "SET_COST",
+                        "value": 3
+                    }
                 },
                 {
                     "process": "DEAL_DAMAGE",
@@ -16320,7 +16336,8 @@
             ],
             "raw_effects_text": "When this card is discarded, if its cost is 7, add a <b><i><color=Keyword>Beheading Eld Blades</color></i></b> to your hand and set its cost to 5. If this card's cost is 5, add a <b><i><color=Keyword>Beheading Eld Blades</color></i></b> to your hand and set its cost to 3.\n<hr>Deal X damage to all enemy followers. X is this card's cost.",
             "required_listeners": [
-                "CARD_PLAYED"
+                "CARD_PLAYED",
+                "CARD_DISCARDED"
             ]
         },
         "10633310": {
