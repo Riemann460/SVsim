@@ -62,7 +62,7 @@ def main():
             mapped_card["카드 이름"] = card.get("name", "")
             mapped_card["카드 능력 서술문구"] = card.get("skill_text", "")
             
-            # 카드팩 필드 맵핑 (예 - [10004] Skybound Dragons).
+            # 카드팩 필드 맵핑 (예 - [10004] Skybound Dragons)
             set_id = card.get("setId", "")
             set_name = card.get("set_name", "")
             mapped_card["카드팩"] = f"[{set_id}] {set_name}" if set_id and set_name else "Unknown"

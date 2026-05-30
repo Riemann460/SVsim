@@ -32,7 +32,7 @@ class RuleEngine:
             return False
 
         # 수호 - 상대는 수호가 없는 추종자를 공격할 수 없습니다.
-        # 자신의 전장에 수호 추종자가 있고, 대상 추종자가 수호가 아닐 때.
+        # 자신의 전장에 수호 추종자가 있고, 대상 추종자가 수호가 아닐 때
         opponent_field = self.game_state_manager.get_cards_in_zone(target_card.owner_id, Zone.FIELD)
         has_ward_on_field = any(f.has_keyword(EffectType.WARD) for f in opponent_field)
         if has_ward_on_field and not target_card.has_keyword(EffectType.WARD):
@@ -50,12 +50,12 @@ class RuleEngine:
         current_pp = player.current_pp
         field_count = player.field.size()
 
-        # PP 부족.
+        # PP 부족
         if current_pp + (1 if use_extra_pp else 0) < card.current_cost:
             print(f"[LOG] {player_id}의 PP ({current_pp}) 부족으로 {card.get_display_name()} (ID: {card_id}) 플레이 불가. 필요 PP: {card.current_cost}")
             return False
 
-        # 필드 제한 (추종자/마법진).
+        # 필드 제한 (추종자/마법진)
         if (card.get_type() in [CardType.FOLLOWER, CardType.AMULET]) and field_count >= 5:
             print(f"[LOG] {player_id}의 필드 ({field_count}개) 가득 차서 {card.get_display_name()} (ID: {card_id}) 플레이 불가.")
             return False
@@ -100,16 +100,16 @@ class RuleEngine:
         if not attacker or not target:
             print(f"[ERROR] validate_attack - 공격자 (ID: {attacker_id}) 또는 대상 (ID: {target_id})을(를) 찾을 수 없습니다.")
             return False
-        # 공격자가 공격 가능한 상태가 아닐 경우 (이미 공격함, 소환됨(돌진, 질주, 진화 예외)).
+        # 공격자가 공격 가능한 상태가 아닐 경우 (이미 공격함, 소환됨(돌진, 질주, 진화 예외))
         if not attacker.can_attack(target.get_type()):
             print(f"[LOG] {attacker.get_display_name()} (ID: {attacker_id})는 {target.get_display_name()} (ID: {target_id})을(를) 공격할 수 없는 상태입니다.")
             return False
 
-        # 타겟팅 규칙 검증.
+        # 타겟팅 규칙 검증
         if target.get_type() == CardType.FOLLOWER:
             return self.can_target_follower(attacker_id, target_id)
-        elif target.get_type() == CardType.LEADER:  # 리더 공격.
-            # 상대의 전장에 수호 추종자 확인.
+        elif target.get_type() == CardType.LEADER:  # 리더 공격
+            # 상대의 전장에 수호 추종자 확인
             opponent_field = self.game_state_manager.get_cards_in_zone(target.player_id, Zone.FIELD)
             has_ward_on_field = any(f.has_keyword(EffectType.WARD) for f in opponent_field)
             if has_ward_on_field:
@@ -118,4 +118,4 @@ class RuleEngine:
             print(f"[LOG] {attacker.get_display_name()} (ID: {attacker_id})가 리더 ({target.player_id})를 공격할 수 있습니다.")
             return True
         print(f"[ERROR] validate_attack - 알 수 없는 타겟 타입: {target.get_type().value}")
-        return False  # 알 수 없는 타겟 타입.
+        return False  # 알 수 없는 타겟 타입

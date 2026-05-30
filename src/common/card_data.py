@@ -42,7 +42,7 @@ class CardDatabase(dict):
         except KeyError:
             return default
 
-# 전역 변수.
+# 전역 변수
 BASIC_CARD_DATABASE = CardDatabase()
 LEGENDS_RISE_CARD_DATABASE = CardDatabase()
 TOKEN_CARD_DATABASE = CardDatabase()

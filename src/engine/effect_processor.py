@@ -237,20 +237,20 @@ class EffectProcessor:
         return True
 
     def _get_target_self(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 자기 자신."""
+        """대상 - 자기 자신"""
         return [caster_card]
 
     def _get_target_own_leader(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 자신의 리더."""
+        """대상 - 자신의 리더"""
         return [game_state_manager.players[self._get_owner_id(caster_card)]]
 
     def _get_target_opponent_leader(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 상대방 리더."""
+        """대상 - 상대방 리더"""
         opponent_id = game_state_manager.opponent_id[self._get_owner_id(caster_card)]
         return [game_state_manager.players[opponent_id]]
 
     def _get_target_another_ally_follower_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 자신을 제외한 아군 추종자 선택."""
+        """대상 - 자신을 제외한 아군 추종자 선택"""
         owner_id = self._get_owner_id(caster_card)
         ally_cards = game_state_manager.get_cards_in_zone(owner_id, Zone.FIELD)
         ally_followers = [card for card in ally_cards if card.get_type() == CardType.FOLLOWER and card.card_id != caster_card.card_id]
@@ -264,7 +264,7 @@ class EffectProcessor:
         return []
 
     def _get_target_ally_follower_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 아군 추종자 선택."""
+        """대상 - 아군 추종자 선택"""
         owner_id = self._get_owner_id(caster_card)
         ally_cards = game_state_manager.get_cards_in_zone(owner_id, Zone.FIELD)
         ally_followers = [card for card in ally_cards if card.get_type() == CardType.FOLLOWER]
@@ -308,7 +308,7 @@ class EffectProcessor:
         return []
 
     def _get_target_opponent_follower_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 상대 추종자 선택."""
+        """대상 - 상대 추종자 선택"""
         opponent_id = game_state_manager.opponent_id[self._get_owner_id(caster_card)]
         opponent_cards = game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
         opponent_followers = [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER and self._can_target_with_ability(card.card_id, game_state_manager)]
@@ -322,7 +322,7 @@ class EffectProcessor:
         return []
 
     def _get_target_opponent_follower_choice2(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 상대 추종자 2명 선택."""
+        """대상 - 상대 추종자 2명 선택"""
         opponent_id = game_state_manager.opponent_id[self._get_owner_id(caster_card)]
         opponent_cards = game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
         opponent_followers = [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER and self._can_target_with_ability(card.card_id, game_state_manager)]
@@ -336,30 +336,30 @@ class EffectProcessor:
             if selected_card_id:
                 selected_targets.append(selected_card_id)
             else:
-                return []  # 사용자가 선택을 취소한 경우.
+                return []  # 사용자가 선택을 취소한 경우
 
         return [game_state_manager.get_entity_by_id(card_id) for card_id in selected_targets]
 
     def _get_target_all_ally_followers(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 모든 아군 추종자."""
+        """대상 - 모든 아군 추종자"""
         owner_id = self._get_owner_id(caster_card)
         ally_cards = game_state_manager.get_cards_in_zone(owner_id, Zone.FIELD)
         return [card for card in ally_cards if card.get_type() == CardType.FOLLOWER]
 
     def _get_target_all_other_ally_followers(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 자신을 제외한 모든 아군 추종자."""
+        """대상 - 자신을 제외한 모든 아군 추종자"""
         owner_id = self._get_owner_id(caster_card)
         ally_cards = game_state_manager.get_cards_in_zone(owner_id, Zone.FIELD)
         return [card for card in ally_cards if card.get_type() == CardType.FOLLOWER and card.card_id != caster_card.card_id]
 
     def _get_target_all_opponent_followers(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 모든 상대 추종자."""
+        """대상 - 모든 상대 추종자"""
         opponent_id = game_state_manager.opponent_id[self._get_owner_id(caster_card)]
         opponent_cards = game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
         return [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER]
 
     def _get_target_own_hand_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 자신의 패에서 카드 선택."""
+        """대상 - 자신의 패에서 카드 선택"""
         owner_id = self._get_owner_id(caster_card)
         hand_cards = game_state_manager.get_cards_in_zone(owner_id, Zone.HAND)
         if not hand_cards: return []
@@ -384,7 +384,7 @@ class EffectProcessor:
         return [selected_card]
 
     def _get_target_opponent_follower_random(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 상대 추종자 중 무작위 선택."""
+        """대상 - 상대 추종자 중 무작위 선택"""
         opponent_id = game_state_manager.opponent_id[self._get_owner_id(caster_card)]
         opponent_cards = game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
         opponent_followers = [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER]
@@ -406,7 +406,7 @@ class EffectProcessor:
         return selected_cards
 
     def _get_target_opponent_follower_max_attack_random(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 가장 공격력이 높은 상대 추종자 중 무작위 선택."""
+        """대상 - 가장 공격력이 높은 상대 추종자 중 무작위 선택"""
         opponent_id = game_state_manager.opponent_id[self._get_owner_id(caster_card)]
         opponent_cards = game_state_manager.get_cards_in_zone(opponent_id, Zone.FIELD)
         opponent_followers = [card for card in opponent_cards if card.get_type() == CardType.FOLLOWER]
@@ -422,7 +422,7 @@ class EffectProcessor:
         return [selected_card]
 
     def _get_target_ally_follower_choice_unevolved(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 진화하지 않은 아군 추종자 선택."""
+        """대상 - 진화하지 않은 아군 추종자 선택"""
         owner_id = self._get_owner_id(caster_card)
         ally_cards = game_state_manager.get_cards_in_zone(owner_id, Zone.FIELD)
         unevolved_ally_followers = [card for card in ally_cards if card.get_type() == CardType.FOLLOWER and not card.is_evolved]
@@ -436,14 +436,14 @@ class EffectProcessor:
         return []
 
     def _get_target_all_followers(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 모든 추종자 전체. 주석 규정을 엄격하게 준수합니다."""
+        """대상 - 모든 추종자 전체"""
         all_cards = []
         for player in game_state_manager.players.values():
             all_cards.extend([c for c in player.field.get_cards() if c.get_type() == CardType.FOLLOWER])
         return all_cards
 
     def _get_target_another_ally_follower_random(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 자신 제외 아군 추종자 중 랜덤. 주석 규정을 엄격하게 준수합니다."""
+        """대상 - 자신 제외 아군 추종자 중 랜덤"""
         owner_id = self._get_owner_id(caster_card)
         ally_cards = game_state_manager.get_cards_in_zone(owner_id, Zone.FIELD)
         candidates = [c for c in ally_cards if c.get_type() == CardType.FOLLOWER and c.card_id != caster_card.card_id]
@@ -453,7 +453,7 @@ class EffectProcessor:
         return [random.choice(candidates)]
 
     def _get_target_all_opponents(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 상대 전체. 주석 규정을 엄격하게 준수합니다."""
+        """대상 - 상대 전체"""
         opponent_id = game_state_manager.opponent_id[self._get_owner_id(caster_card)]
         opponent = game_state_manager.players[opponent_id]
         targets = [opponent]
@@ -461,21 +461,21 @@ class EffectProcessor:
         return targets
 
     def _get_target_variable(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 변수. 주석 규정을 엄격하게 준수합니다."""
+        """대상 - 변수"""
         return []
 
     def _get_target_own_deck(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 자신 덱. 주석 규정을 엄격하게 준수합니다."""
+        """대상 - 자신 덱"""
         return [game_state_manager.players[self._get_owner_id(caster_card)]]
 
     def _get_target_opponent_field(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 상대 필드 전체. 주석 규정을 엄격하게 준수합니다."""
+        """대상 - 상대 필드 전체"""
         opponent_id = game_state_manager.opponent_id[self._get_owner_id(caster_card)]
         opponent = game_state_manager.players[opponent_id]
         return opponent.field.get_cards()
 
     def _get_target_all_opponent_followers_damaged(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
-        """대상 - 피해를 입은 상대 추종자 전체. 주석 규정을 엄격하게 준수합니다."""
+        """대상 - 피해를 입은 상대 추종자 전체"""
         opponent_id = game_state_manager.opponent_id[self._get_owner_id(caster_card)]
         opponent = game_state_manager.players[opponent_id]
         opponent_followers = [c for c in opponent.field.get_cards() if c.get_type() == CardType.FOLLOWER]
@@ -494,7 +494,7 @@ class EffectProcessor:
 
 
     def _process_stat_buff(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 스탯 버프."""
+        """처리 - 스탯 버프"""
         value = effect_data.value
         attack, defense = value
         target.current_attack += attack
@@ -503,7 +503,7 @@ class EffectProcessor:
         self._log_info(f"[LOG] 처리 내용: 스텟 버프, 타겟: {target.get_display_name()}, 증가량: {value}")
 
     def _process_draw(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
-        """처리 - 카드 드로우."""
+        """처리 - 카드 드로우"""
         value = effect_data.value
         target_id = target.player_id
         condition_val = effect_data.get('condition')
@@ -542,13 +542,13 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 카드 드로우, 타겟: {target_id}, 드로우 장수: {count}")
 
     def _process_heal(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 체력 회복."""
+        """처리 - 체력 회복"""
         value = effect_data.value
         target.heal_damage(value)
         print(f"[LOG] 처리 내용: 체력 회복, 타겟: {target.get_display_name()}, 회복량: {value}")
 
     def _process_add_card_to_hand(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
-        """처리 - 패에 카드 추가. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 패에 카드 추가"""
         value = effect_data.value
         target_id = target.player_id
 
@@ -598,7 +598,7 @@ class EffectProcessor:
                         handler(post_action, card, game_state_manager)
 
     def _process_summon(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
-        """처리 - 필드에 카드 소환."""
+        """처리 - 필드에 카드 소환"""
         value = effect_data.value
         target_id = target.player_id
 
@@ -618,7 +618,7 @@ class EffectProcessor:
                 print(f"[LOG] 처리 내용: 필드에 카드 소환, 타겟: {target_id}, 소환 카드: {card.get_display_name()}")
 
     def _process_deal_damage(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 피해 입히기."""
+        """처리 - 피해 입히기"""
         value = effect_data.value
 
         if target.has_keyword(EffectType.BARRIER):
@@ -677,7 +677,7 @@ class EffectProcessor:
                 self._process_deal_damage(temp_effect, leader, game_state_manager)
 
     def _process_destroy(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 파괴."""
+        """처리 - 파괴"""
         if not hasattr(target, "card_id"):
             return
         if hasattr(target, "is_super_evolved") and target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
@@ -689,7 +689,7 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 파괴, 타겟: {target.get_display_name()}")
 
     def _process_banish(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 소멸. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 소멸"""
         if not hasattr(target, "card_id"):
             return
         current_zone = getattr(target, "current_zone", Zone.FIELD)
@@ -709,13 +709,13 @@ class EffectProcessor:
             print(f"[LOG] 처리 내용: 선택 파괴, 타겟 {target.get_display_name()}")
 
     def _process_recover_pp(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
-        """처리 - PP 회복."""
+        """처리 - PP 회복"""
         value = effect_data.value
         target.gain_pp(value)
         print(f"[LOG] 처리 내용: PP 회복, 타겟: {target.player_id}, 회복량: {value}")
 
     def _process_super_evolve(self, effect_data: Effect, target: Card, game_state_manager: 'GameStateManager'):
-        """처리 - 초진화."""
+        """처리 - 초진화"""
         game_state_manager.super_evolve_card(target.card_id)
         self.event_manager.publish(FollowerSuperEvolvedEvent(target.card_id, spend_sep="False"))
         print(f"[LOG] 처리 내용: 초진화, 타겟: {target.get_display_name()}")
@@ -728,7 +728,7 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 카드 진화, 타겟 {target.get_display_name()}")
 
     def _process_replace_deck(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
-        """처리 - 덱 교체."""
+        """처리 - 덱 교체"""
         value = effect_data.value
         target_id = target.player_id
         replaced_deck_list = []
@@ -741,13 +741,13 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용: 덱 교체, 타겟: {target.player_id}, 덱 사이즈: {len(replaced_deck)}")
 
     def _process_set_max_health(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 최대 체력 설정."""
+        """처리 - 최대 체력 설정"""
         value = effect_data.value
         target.max_defense = value
         print(f"[LOG] 처리 내용: 최대 체력 설정, 타겟: {target.get_display_name()}, 설정값: {value}")
 
     def _process_add_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 키워드 부여. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 키워드 부여"""
         value = effect_data.value
         if value is None:
             print(f"[LOG] 처리 내용: 키워드 부여 실패. 키워드가 존재하지 않습니다.")
@@ -787,7 +787,7 @@ class EffectProcessor:
                 print(f"[LOG] 처리 내용: 키워드 부여 경고. 알 수 없는 키워드 문자열 {value}")
 
     def _process_remove_keyword(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 키워드 제거."""
+        """처리 - 키워드 제거"""
         value = effect_data.value
         if value is None:
             target.effects = []
@@ -799,18 +799,18 @@ class EffectProcessor:
 
 
     def _process_return_to_deck(self, effect_data: Effect, target: Card, game_state_manager: 'GameStateManager'):
-        """처리 - 덱으로 되돌리기."""
+        """처리 - 덱으로 되돌리기"""
         game_state_manager.move_card(target.card_id, Zone.HAND, Zone.DECK)
         print(f"[LOG] 처리 내용: 덱으로 되돌리기, 타겟: {target.get_display_name()}")
 
     def _process_return_to_hand(self, effect_data: Effect, target: Card, game_state_manager: 'GameStateManager'):
-        """처리 - 패로 되돌리기."""
+        """처리 - 패로 되돌리기"""
         game_state_manager.move_card(target.card_id, Zone.FIELD, Zone.HAND)
         target.current_cost = target.card_data['cost']
         print(f"[LOG] 처리 내용: 패로 되돌리기, 타겟: {target.get_display_name()}")
 
     def _process_trigger_effect(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 다른 효과 발동."""
+        """처리 - 다른 효과 발동"""
         value = effect_data.value
         if value == "random_unactivated":
             spell_effects = []
@@ -922,7 +922,7 @@ class EffectProcessor:
         if isinstance(caster_card, Card) and effect_type in [EffectType.FANFARE, EffectType.SPELL]:
             raw_text = caster_card.card_data.get("raw_effects_text", "").lower()
             if "instead" in raw_text:
-                # 콤보 대체 조건 검사.
+                # 콤보 대체 조건 검사
                 has_combo = any(e.type == EffectType.COMBO for e in caster_card.effects)
                 if has_combo:
                     import re
@@ -933,7 +933,7 @@ class EffectProcessor:
                         print(f"[LOG] 콤보 조건 만족으로 인해 {effect_type.value if effect_type else 'None'} 효과 발동을 건너뛰고 콤보 효과로 대체합니다.")
                         return
 
-                # 오의 대체 조건 검사.
+                # 오의 대체 조건 검사
                 has_sa = any(e.type == EffectType.SKYBOUND_ART for e in caster_card.effects)
                 if has_sa:
                     sa_effects = [e for e in caster_card.effects if e.type == EffectType.SKYBOUND_ART]
@@ -941,7 +941,7 @@ class EffectProcessor:
                         print(f"[LOG] 오의 조건 만족으로 인해 {effect_type.value if effect_type else 'None'} 효과 발동을 건너뛰고 오의 효과로 대체합니다")
                         return
 
-                # 해방오의 대체 조건 검사.
+                # 해방오의 대체 조건 검사
                 has_ssa = any(e.type == EffectType.SUPER_SKYBOUND_ART for e in caster_card.effects)
                 if has_ssa:
                     ssa_effects = [e for e in caster_card.effects if e.type == EffectType.SUPER_SKYBOUND_ART]
@@ -1068,7 +1068,7 @@ class EffectProcessor:
                 handler(effect_data, target, game_state_manager)
 
     def _process_reduce_cost(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 코스트 감소. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 코스트 감소"""
         value = effect_data.value
         # target이 Card 인스턴스인지 확인합니다.
         if hasattr(target, "current_cost"):
@@ -1084,7 +1084,7 @@ class EffectProcessor:
             print(f"[LOG] 처리 내용 코스트 감소, 타겟 {target.get_display_name()}, 현재 코스트 {target.current_cost}.")
 
     def _process_increase_cost(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 코스트 증가. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 코스트 증가"""
         value = effect_data.value
         if hasattr(target, "current_cost"):
             try:
@@ -1095,7 +1095,7 @@ class EffectProcessor:
             print(f"[LOG] 처리 내용 코스트 증가, 타겟 {target.get_display_name()}, 현재 코스트 {target.current_cost}.")
 
     def _process_set_cost(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 코스트 설정. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 코스트 설정"""
         value = effect_data.value
         if hasattr(target, "current_cost"):
             try:
@@ -1106,7 +1106,7 @@ class EffectProcessor:
             print(f"[LOG] 처리 내용 코스트 설정, 타겟 {target.get_display_name()}, 현재 코스트 {target.current_cost}.")
 
     def _process_set_attack(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 공격력 설정. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 공격력 설정"""
         value = effect_data.value
         if hasattr(target, "current_attack"):
             try:
@@ -1117,7 +1117,7 @@ class EffectProcessor:
             print(f"[LOG] 처리 내용 공격력 설정, 타겟 {target.get_display_name()}, 현재 공격력 {target.current_attack}.")
 
     def _process_advance_crest(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 문장 카운트 변경. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 문장 카운트 변경"""
         player = target
         if hasattr(target, "owner_id"):
             player = game_state_manager.players[target.owner_id]
@@ -1149,7 +1149,7 @@ class EffectProcessor:
                 print(f"[LOG] {crest.name} 문장 카운트 {amount}만큼 변경. 현재 카운트 {crest.count}.")
 
     def _process_destroy_crest(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 문장 파괴. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 문장 파괴"""
         player = target
         if hasattr(target, "owner_id"):
             player = game_state_manager.players[target.owner_id]
@@ -1164,7 +1164,7 @@ class EffectProcessor:
             print(f"[LOG] 처리 내용 문장 파괴, 타겟 {player.player_id}, 문장명 {crest_name}.")
 
     def _process_recover_ep(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - EP 회복. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - EP 회복"""
         player = target
         if hasattr(target, "owner_id"):
             player = game_state_manager.players[target.owner_id]
@@ -1179,7 +1179,7 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용 EP 회복, 타겟 {player.player_id}, 회복량 {value}.")
 
     def _process_heal_linked(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 연계 회복. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 연계 회복"""
         if hasattr(target, "current_defense") and hasattr(target, "max_defense"):
             heal_amount = max(0, target.max_defense - target.current_defense)
             target.heal_damage(heal_amount)
@@ -1188,7 +1188,7 @@ class EffectProcessor:
             print(f"[LOG] 처리 내용 연계 회복, 타겟 {target.get_display_name()}, 회복량 {heal_amount}.")
 
     def _process_gain_shadow(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 묘지 그림자 증가. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 묘지 그림자 증가"""
         player = target
         if hasattr(target, "owner_id"):
             player = game_state_manager.players[target.owner_id]
@@ -1203,7 +1203,7 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용 묘지 그림자 증가, 타겟 {player.player_id}, 증가량 {val}.")
 
     def _process_reanimate(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 사령 재생. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 사령 재생"""
         player = target
         if hasattr(target, "owner_id"):
             player = game_state_manager.players[target.owner_id]
@@ -1231,7 +1231,7 @@ class EffectProcessor:
         print(f"[LOG] 사령 재생 {max_cost} 발동, 소환된 추종자 {selected_card.get_display_name()}.")
 
     def _process_gain_earth_sigil(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 비술 마법진 획득. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 비술 마법진 획득"""
         player = target
         if hasattr(target, "owner_id"):
             player = game_state_manager.players[target.owner_id]
@@ -1252,7 +1252,7 @@ class EffectProcessor:
             print(f"[LOG] 비술 마법진 획득 발동, 필드에 Earth Sigil 소환.")
 
     def _process_transform(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 변신. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 변신"""
         if not isinstance(target, Card) or target.current_zone != Zone.FIELD:
             return
 
@@ -1297,7 +1297,7 @@ class EffectProcessor:
         print(f"[LOG] 변신 완료, {target.get_display_name()}이(가) {new_card.get_display_name()}으로 변신하였습니다.")
 
     def _process_conditional_effect(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 조건부 효과. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 조건부 효과"""
         val = effect_data.value
         if not isinstance(val, dict) or "condition" not in val:
             return
@@ -1322,7 +1322,7 @@ class EffectProcessor:
                 self.resolve_effect(if_false_effect, caster_id, game_state_manager, getattr(target, "card_id", None) or getattr(target, "player_id", None))
 
     def _process_spellboost_hand(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 손패 주문 증폭. 주석 규정을 엄격하게 준수합니다."""
+        """처리 - 손패 주문 증폭"""
         player = target
         if hasattr(target, "owner_id"):
             player = game_state_manager.players[target.owner_id]
@@ -1349,7 +1349,7 @@ class EffectProcessor:
                     if effect.type == EffectType.SPELLBOOST:
                         self.resolve_effect(effect, card.card_id, game_state_manager, None)
     def _process_increase_skybound_art_gauge(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 오의 및 해방오의 게이지 증가."""
+        """처리 - 오의 및 해방오의 게이지 증가"""
         player = target
         if hasattr(target, "owner_id"):
             player = game_state_manager.players[target.owner_id]

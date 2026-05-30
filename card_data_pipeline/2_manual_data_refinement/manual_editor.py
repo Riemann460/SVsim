@@ -48,12 +48,12 @@ class CardEditorApp:
         self.parsed_card_data = {}  # 원본 파싱 데이터를 보관합니다.
         self.df = pd.DataFrame()
 
-        # 왼쪽 패널 - 카드 목록 영역.
+        # 왼쪽 패널 - 카드 목록 영역
         self.left_pane = ttk.Frame(self.paned_window, width=600)
         self.paned_window.add(self.left_pane, weight=2)
         self.setup_left_pane()
 
-        # 오른쪽 패널 - 에디터 영역.
+        # 오른쪽 패널 - 에디터 영역
         self.right_pane = ttk.Frame(self.paned_window, width=600)
         self.paned_window.add(self.right_pane, weight=3)
         self.setup_right_pane()

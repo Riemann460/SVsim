@@ -69,7 +69,7 @@ class Player:
         print(f"[LOG] {self.player_id} 리더가 {amount} 피해를 입었습니다. 현재 체력: {self.current_defense}")
         if self.current_defense <= 0:
             print(f"[LOG] {self.player_id} 리더의 체력이 0 이하가 되어 게임 종료 조건 충족.")
-            return True  # 게임 종료.
+            return True  # 게임 종료
         return False
 
     def heal_damage(self, amount: int):
@@ -143,7 +143,7 @@ class Player:
 
     @property
     def is_overflow(self) -> bool:
-        """각성 상태 여부를 반환합니다. 주석 규정을 엄격하게 준수합니다."""
+        """각성 상태 여부를 반환합니다."""
         return self.max_pp >= 7
 
     def get_type(self):

@@ -11,7 +11,7 @@ from src.common.effect import Effect
 class Card:
     """게임 내 개별 카드 인스턴스를 관리합니다."""
     def __init__(self, card_data: Dict[str, Any], owner_id: str, card_id: str):
-        self.card_id = card_id  # 고유 ID.
+        self.card_id = card_id  # 고유 ID
         self.card_data = card_data  # CardData에서 로드된 정적 데이터입니다.
         self.owner_id = owner_id
         self.current_cost = card_data.get("cost", 0)  # 현재 코스트입니다. 주문 증폭 등에 의해 변경될 수 있습니다.

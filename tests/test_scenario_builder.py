@@ -219,11 +219,24 @@ class TestScenarioBuilderCore(unittest.TestCase):
                         if ":" in docstring:
                             errors.append(f"{filepath} docstring 콜론 포함 - {docstring[:30]}")
                         # docstring 문장 마침표를 검사합니다.
+                        import re
+                        def is_sentence(text: str) -> bool:
+                            clean = text.rstrip(".").strip()
+                            if not clean:
+                                return False
+                            clean = re.sub(r"\(.*?\)$", "", clean).strip()
+                            return clean.endswith(('\ub2e4', '\uc694', '\uc624', '\uc8e3', '\uae4c', '\ub124'))
+
                         lines = [l.strip() for l in docstring.split("\n") if l.strip()]
                         for line in lines:
-                            # 대시 시작 항목이나 단순 단어 외의 문장은 온점으로 끝나야 합니다.
-                            if line and not line.endswith(".") and not line.startswith("-") and len(line.split()) > 1:
-                                errors.append(f"{filepath} docstring 마침표 누락 - {line}")
+                            if line.startswith("-") or len(line.split()) <= 1:
+                                continue
+                            if is_sentence(line):
+                                if not line.endswith("."):
+                                    errors.append(f"{filepath} docstring 마침표 누락 - {line}")
+                            else:
+                                if line.endswith("."):
+                                    errors.append(f"{filepath} docstring 구문 마침표 포함 - {line}")
 
             # tokenize 기반의 한 줄 주석 콜론 및 마침표를 검사합니다.
             tokens = tokenize.generate_tokens(io.StringIO(content).readline)
@@ -235,18 +248,33 @@ class TestScenarioBuilderCore(unittest.TestCase):
                     # 주석 내부 콜론을 검사합니다.
                     if ":" in comment_text:
                         errors.append(f"{filepath} 주석 콜론 포함 - {token.string}")
-                    # 주석 문장 마침표를 검사합니다 (단어가 2개 이상이고 문장 형태일 때).
+                    # 주석 문장 마침표를 검사합니다.
                     words = comment_text.split()
-                    if len(words) > 1 and not comment_text.endswith("."):
-                        # 영어 태그 혹은 단순 표시용 주석 등 예외 사항을 필터링합니다.
+                    if len(words) > 1:
                         if not comment_text.startswith("TODO") and not comment_text.startswith("FIXME"):
-                            errors.append(f"{filepath} 주석 마침표 누락 - {token.string}")
+                            import re
+                            def is_sentence(text: str) -> bool:
+                                clean = text.rstrip(".").strip()
+                                if not clean:
+                                    return False
+                                clean = re.sub(r"\(.*?\)$", "", clean).strip()
+                                return clean.endswith(('\ub2e4', '\uc694', '\uc624', '\uc8e3', '\uae4c', '\ub124'))
+                            
+                            if is_sentence(comment_text):
+                                if not comment_text.endswith("."):
+                                    errors.append(f"{filepath} 주석 마침표 누락 - {token.string}")
+                            else:
+                                if comment_text.endswith("."):
+                                    errors.append(f"{filepath} 주석 구문 마침표 포함 - {token.string}")
 
         # 에러 발생 시 단언 실패로 처리합니다.
         if errors:
             print("\n--- 주석 규칙 위반 목록 ---")
             for err in errors:
-                print(err)
+                try:
+                    print(err)
+                except UnicodeEncodeError:
+                    print(err.encode('ascii', errors='replace').decode('ascii'))
             self.fail(f"총 {len(errors)}개의 주석 규칙 위반이 발견되었습니다.")
 
     def test_combo_mechanism(self):
@@ -254,14 +282,14 @@ class TestScenarioBuilderCore(unittest.TestCase):
         builder = GameScenarioBuilder("player1", "player2")
         builder.set_pp("player1", 10, 10)
 
-        # 콤보 검증용 추종자 배치.
+        # 콤보 검증용 추종자 배치
         sagebrush = builder.add_to_hand("player1", "10111150")
         target_f1 = builder.add_to_field("player2", "Leah, Bellringer Angel")
         target_f2 = builder.add_to_field("player2", "Leah, Bellringer Angel")
 
         game = builder.build()
 
-        # 1. 콤보가 아닐 때 (첫 카드 플레이).
+        # 1. 콤보가 아닐 때 (첫 카드 플레이)
         # 팬페어만 발동하여 타겟 중 1명에게만 피해를 주어야 합니다.
         game.play_card("player1", sagebrush.card_id)
 
@@ -269,7 +297,7 @@ class TestScenarioBuilderCore(unittest.TestCase):
         dead_count = sum(1 for f in [target_f1, target_f2] if f.current_zone == Zone.GRAVEYARD)
         self.assertEqual(dead_count, 1)
 
-        # 2. 콤보가 3일 때 (콤보 달성).
+        # 2. 콤보가 3일 때 (콤보 달성)
         # 콤보 효과(3명 무작위 피해)가 대신 발동하여 두 타겟 모두 파괴되어야 합니다.
         builder2 = GameScenarioBuilder("player1", "player2")
         builder2.set_pp("player1", 10, 10)
@@ -291,16 +319,16 @@ class TestScenarioBuilderCore(unittest.TestCase):
         builder = GameScenarioBuilder("player1", "player2")
         builder.set_pp("player1", 5, 5)
 
-        # 주문 증폭용 카드 배치.
+        # 주문 증폭용 카드 배치
         blaze = builder.add_to_hand("player1", "10032120")
         spell = builder.add_to_hand("player1", "10012310")
 
         game = builder.build()
 
-        # 초기 코스트 검증.
+        # 초기 코스트 검증
         self.assertEqual(blaze.current_cost, 10)
 
-        # 주문 시전.
+        # 주문 시전
         game.play_card("player1", spell.card_id)
 
         # 주문 시전 후 패에 있는 Blaze Destroyer의 비용이 1 감소하여 9가 되어야 합니다.
@@ -317,11 +345,11 @@ class TestScenarioBuilderCore(unittest.TestCase):
 
         game = builder.build()
 
-        # 초기 해방오의 게이지 충전량 확인.
+        # 초기 해방오의 게이지 충전량 확인
         ssa_effect = [e for e in seofon.effects if e.type.name == "SUPER_SKYBOUND_ART"][0]
         self.assertEqual(ssa_effect.skybound_art_evo_charge, 0)
 
-        # 아군 추종자 진화.
+        # 아군 추종자 진화
         game.evolve_follower(my_follower.card_id, "player1")
 
         # 게이지 충전량이 1 늘어야 합니다.
@@ -353,7 +381,7 @@ class TestScenarioBuilderCore(unittest.TestCase):
         """마법진 카운트다운 가속 진행 메커니즘을 테스트합니다."""
         builder = GameScenarioBuilder("player1", "player2")
         # 카운트다운이 2인 마법진을 배치합니다.
-        amulet = builder.add_to_field("player1", "10031320")  # Truth Summons.
+        amulet = builder.add_to_field("player1", "10031320")  # Truth Summons
         amulet.countdown_value = 2
 
         game = builder.build()
@@ -504,7 +532,7 @@ class TestScenarioBuilderCore(unittest.TestCase):
         builder.set_health("player2", 18)
         builder.set_pp("player2", 5, 5)
 
-        # 플레이어1 손패 구성.
+        # 플레이어1 손패 구성
         builder.add_to_hand("player1", "Lyanthoth, Eld Tome")
         builder.add_to_hand("player1", "Missionary of Recruitment")
         builder.add_to_hand("player1", "Missionary of Recruitment")
@@ -512,18 +540,18 @@ class TestScenarioBuilderCore(unittest.TestCase):
         builder.add_to_hand("player1", "Troue, Heroic Visionary")
         timepiece = builder.add_to_hand("player1", "Timepiece of Perfection")
 
-        # 플레이어2 손패 구성.
+        # 플레이어2 손패 구성
         builder.add_to_hand("player2", "Belial, Archangel of Cunning")
         builder.add_to_hand("player2", "Harmony of Youth")
         builder.add_to_hand("player2", "Ephemeral Demon Princess")
         builder.add_to_hand("player2", "Ginsetsu & Yuzuki, Twin Calamities")
         builder.add_to_hand("player2", "Belial, Archangel of Cunning")
 
-        # 플레이어1 필드 구성.
+        # 플레이어1 필드 구성
         builder.add_to_field("player1", "Temple of Repose")
         builder.add_to_field("player1", "Altaro Superfan")
 
-        # 플레이어2 필드 구성.
+        # 플레이어2 필드 구성
         builder.add_to_field("player2", "Altaro Superfan")
         builder.add_to_field("player2", "Bat")
 

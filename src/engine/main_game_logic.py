@@ -753,7 +753,7 @@ class Game:
         self.gui.update()
 
     def _increase_skybound_art_gauges(self, player_id: str):
-        """손패에 있는 오의 및 해방오의 카드 진화 보너스 게이지를 누적 증가시킵니다. 주석 규정을 엄격하게 준수합니다."""
+        """손패에 있는 오의 및 해방오의 카드 진화 보너스 게이지를 누적 증가시킵니다."""
         hand = self.game_state_manager.get_cards_in_zone(player_id, Zone.HAND)
         for card in hand:
             for effect in card.effects:
@@ -763,7 +763,7 @@ class Game:
                         print(f"[LOG] {card.get_display_name()} 의 오의 진화 충전량 1 증가. 현재 충전량 {effect.skybound_art_evo_charge}.")
 
     def _check_invoke(self, player_id: str):
-        """덱에 있는 직접소환 카드 조건을 검사하여 필드로 소환합니다. 주석 규정을 엄격하게 준수합니다."""
+        """덱에 있는 직접소환 카드 조건을 검사하여 필드로 소환합니다."""
         deck = self.game_state_manager.get_cards_in_zone(player_id, Zone.DECK)
         invoke_cards = []
         for card in deck:

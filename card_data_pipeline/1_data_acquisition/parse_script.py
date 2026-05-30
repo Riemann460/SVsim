@@ -153,7 +153,7 @@ def parse_effect_text(description: str, card_type_enum):
 
 # 패턴과 해당 효과를 매핑하는 데이터 구조입니다.
 EFFECT_PATTERNS = [
-    # 키워드 - 설명 (정규식 그룹).
+    # 키워드 - 설명 (정규식 그룹)
     {'regex': r"Enhance \((\d+)\): (.*)", 'type': EffectType.ENHANCE, 'groups': ['enhance_cost', 'action_text']},
     {'regex': r"Evolve: (.*)", 'type': EffectType.ON_EVOLVE, 'groups': ['action_text']},
     {'regex': r"Super-Evolve: (.*)", 'type': EffectType.ON_SUPER_EVOLVE, 'groups': ['action_text']},
@@ -279,7 +279,7 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
 
 # 대상 파싱을 위한 패턴 목록입니다.
 TARGET_PATTERNS = [
-    # 대상 - 설명.
+    # 대상 - 설명
     {'regex': r"\bthis follower\b", 'target': TargetType.SELF},
     {'regex': r"\byour leader\b", 'target': TargetType.OWN_LEADER},
     {'regex': r"\bthe enemy leader\b", 'target': TargetType.OPPONENT_LEADER},
@@ -335,7 +335,7 @@ TARGET_PATTERNS = [
 
 # 액션 파싱을 위한 패턴 목록입니다.
 ACTION_PATTERNS = [
-    # 패턴 - 설명 (정규식 그룹).
+    # 패턴 - 설명 (정규식 그룹)
     {'regex': r"Select (?:an|a)? (?:super-evolved|evolved|damaged)? enemy follower on the field and destroy it", 'process': ProcessType.DESTROY, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
     {'regex': r"Select an enemy follower on the field and banish it", 'process': ProcessType.BANISH, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
     {'regex': r"Select an enemy card on the field and banish it", 'process': ProcessType.BANISH, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
@@ -356,7 +356,7 @@ ACTION_PATTERNS = [
     {'regex': r"Add (.*?) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
 
 
-    # 비용(Cost) 관련 세부 패턴들을 정의합니다 (우선 순위가 높아 상단에 배치합니다).
+    # 비용(Cost) 관련 세부 패턴들을 정의합니다 (우선 순위가 높아 상단에 배치합니다)
     {'regex': r"Select a follower in your hand and increase its cost by (\d+)", 'process': ProcessType.INCREASE_COST, 'target': TargetType.OWN_HAND_CHOICE, 'groups': ['value']},
     {'regex': r"increase its cost by (\d+)", 'process': ProcessType.INCREASE_COST, 'target': TargetType.SELF, 'groups': ['value']},
 
@@ -366,7 +366,7 @@ ACTION_PATTERNS = [
     {'regex': r"Select a follower on the field and give it ([+-]?\d+|[+-]?[XYZ])\/([+-]?\d+|[+-]?[XYZ])", 'process': ProcessType.STAT_BUFF, 'target': TargetType.ALLY_FOLLOWER_CHOICE, 'groups': ['value', 'value2']},
     {'regex': r"give [+-]?([+-]?\d+|[+-]?[XYZ])\/[+-]?([+-]?\d+|[+-]?[XYZ])", 'process': ProcessType.STAT_BUFF, 'target': TargetType.SELF, 'groups': ['value', 'value2']},
 
-    # 피해(Damage) 효과를 정의합니다 (비어있는 대상 매칭을 방지하기 위해 (.+)를 사용합니다).
+    # 피해(Damage) 효과를 정의합니다 (비어있는 대상 매칭을 방지하기 위해 (.+)를 사용합니다)
     {'regex': r"Deal (\d+|[XYZ]) damage split between (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text'], 'is_split': True},
     {'regex': r"Deal (\d+|[XYZ]) damage to (.+)", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value', 'target_text']},
     {'regex': r"(.+) and deal it (\d+|[XYZ]) damage", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['target_text', 'value']},

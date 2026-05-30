@@ -49,7 +49,7 @@ class Effect:
             if isinstance(value, Enum):
                 data[key] = value.name
             elif isinstance(value, Effect):
-                data[key] = value.to_dict()  # 재귀 호출.
+                data[key] = value.to_dict()  # 재귀 호출
             elif isinstance(value, list):
                 # 리스트 내의 Effect 객체들도 변환합니다.
                 data[key] = [
