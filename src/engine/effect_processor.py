@@ -118,6 +118,25 @@ class EffectProcessor:
             return caster_card.player_id
         return ""
 
+    def _get_player_entity(self, target: Any, game_state_manager: 'GameStateManager') -> Player:
+        """대상으로부터 플레이어 객체를 반환합니다."""
+        if hasattr(target, "owner_id"):
+            return game_state_manager.players[target.owner_id]
+        if hasattr(target, "player_id"):
+            return target
+        return target
+
+    def _safe_int(self, value: Any, default_val: int = 0) -> int:
+        """안전하게 정수형으로 캐스팅합니다."""
+        try:
+            return int(value)
+        except (ValueError, TypeError):
+            return default_val
+
+    def _is_protected_by_super_evolution(self, target: Any, game_state_manager: 'GameStateManager') -> bool:
+        """초진화에 의해 보호받는지 확인합니다."""
+        return bool(hasattr(target, "is_super_evolved") and target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id)
+
     def _resolve_val(self, val, x_val):
         """동적 변수 X, Y, Z가 포함된 값을 실제 정수로 변환합니다."""
         if x_val is None:
@@ -479,10 +498,7 @@ class EffectProcessor:
         count = 1
         if hasattr(self, 'current_effect') and self.current_effect:
             count = getattr(self.current_effect, 'target_count', 1)
-            try:
-                count = int(count)
-            except (ValueError, TypeError):
-                count = 1
+            count = self._safe_int(count, 1)
         selected_cards = []
         for _ in range(min(count, len(opponent_followers))):
             selected_cards.append(opponent_followers.pop())
@@ -599,10 +615,7 @@ class EffectProcessor:
         if isinstance(value, list):
             count = len(value)
         else:
-            try:
-                count = int(value)
-            except (ValueError, TypeError):
-                count = 1
+            count = self._safe_int(value, 1)
 
         for _ in range(count):
             if not deck:
@@ -760,17 +773,14 @@ class EffectProcessor:
         """처리 - 피해 입히기"""
         value = effect_data.value
 
-        try:
-            val = int(value)
-        except (ValueError, TypeError):
-            val = 0
+        val = self._safe_int(value, 0)
 
         if target.has_keyword(EffectType.BARRIER):
             print(f"[LOG] {target.get_display_name()} 배리어로 데미지 0 받음.")
             val = 0
             target.effects = [effect for effect in target.effects if effect.type != EffectType.BARRIER]
 
-        elif hasattr(target, "is_super_evolved") and target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
+        elif self._is_protected_by_super_evolution(target, game_state_manager):
             print(f"[LOG] {target.get_display_name()} 초진화 효과로 데미지 0 받음.")
             val = 0
 
@@ -786,10 +796,7 @@ class EffectProcessor:
 
     def _resolve_split_damage(self, effect_data: Effect, target_list: List[Any], game_state_manager: 'GameStateManager'):
         import copy
-        try:
-            remaining_damage = int(effect_data.value)
-        except (ValueError, TypeError):
-            remaining_damage = 0
+        remaining_damage = self._safe_int(effect_data.value, 0)
 
         target_followers = [t for t in target_list if isinstance(t, Card) and t.get_type() == CardType.FOLLOWER]
         target_leaders = [t for t in target_list if isinstance(t, Player)]
@@ -824,7 +831,7 @@ class EffectProcessor:
         """처리 - 파괴"""
         if not hasattr(target, "card_id"):
             return
-        if hasattr(target, "is_super_evolved") and target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
+        if self._is_protected_by_super_evolution(target, game_state_manager):
             print(f"[LOG] 처리 내용: 파괴, 타겟: {target.get_display_name()}")
             print(f"[LOG] {target.get_display_name()} 초진화 효과로 파괴되지 않음.")
             return
@@ -872,7 +879,7 @@ class EffectProcessor:
             return
 
         # 선택된 타겟 카드를 필드에서 묘지로 파괴 이동합니다.
-        if target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
+        if self._is_protected_by_super_evolution(target, game_state_manager):
             print(f"[LOG] 처리 내용: 선택 파괴 실패, 타겟 {target.get_display_name()}")
             print(f"[LOG] {target.get_display_name()} 초진화 효과로 파괴되지 않음.")
             return
@@ -1254,10 +1261,7 @@ class EffectProcessor:
                 # 코스트를 절반으로 줄이며 홀수인 경우 올림 처리합니다.
                 target.current_cost = (target.current_cost + 1) // 2
             else:
-                try:
-                    val = int(value)
-                except (ValueError, TypeError):
-                    val = 0
+                val = self._safe_int(value, 0)
                 target.current_cost = max(0, target.current_cost - val)
             print(f"[LOG] 처리 내용 코스트 감소, 타겟 {target.get_display_name()}, 현재 코스트 {target.current_cost}.")
 
@@ -1265,10 +1269,7 @@ class EffectProcessor:
         """처리 - 코스트 증가"""
         value = effect_data.value
         if hasattr(target, "current_cost"):
-            try:
-                val = int(value)
-            except (ValueError, TypeError):
-                val = 0
+            val = self._safe_int(value, 0)
             target.current_cost = target.current_cost + val
             print(f"[LOG] 처리 내용 코스트 증가, 타겟 {target.get_display_name()}, 현재 코스트 {target.current_cost}.")
 
@@ -1276,10 +1277,7 @@ class EffectProcessor:
         """처리 - 코스트 설정"""
         value = effect_data.value
         if hasattr(target, "current_cost"):
-            try:
-                val = int(value)
-            except (ValueError, TypeError):
-                val = 0
+            val = self._safe_int(value, 0)
             target.current_cost = val
             print(f"[LOG] 처리 내용 코스트 설정, 타겟 {target.get_display_name()}, 현재 코스트 {target.current_cost}.")
 
@@ -1287,39 +1285,26 @@ class EffectProcessor:
         """처리 - 공격력 설정"""
         value = effect_data.value
         if hasattr(target, "current_attack"):
-            try:
-                val = int(value)
-            except (ValueError, TypeError):
-                val = 0
+            val = self._safe_int(value, 0)
             target.current_attack = val
             print(f"[LOG] 처리 내용 공격력 설정, 타겟 {target.get_display_name()}, 현재 공격력 {target.current_attack}.")
 
     def _process_advance_crest(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 문장 카운트 변경"""
-        player = target
-        if hasattr(target, "owner_id"):
-            player = game_state_manager.players[target.owner_id]
-        elif hasattr(target, "player_id"):
-            player = target
+        player = self._get_player_entity(target, game_state_manager)
 
         value = effect_data.value
         value2 = getattr(effect_data, "value2", None)
 
         if isinstance(value, list) and len(value) == 2:
             crest_name = value[0]
-            try:
-                amount = int(value[1])
-            except (ValueError, TypeError):
-                amount = 0
+            amount = self._safe_int(value[1], 0)
             for crest in player.crests:
                 if crest.name == crest_name:
                     crest.count += amount
                     print(f"[LOG] {crest.name} 문장 카운트 {amount}만큼 변경. 현재 카운트 {crest.count}.")
         else:
-            try:
-                amount = int(value)
-            except (ValueError, TypeError):
-                amount = 0
+            amount = self._safe_int(value, 0)
             if value2 == "-0" or (isinstance(value2, str) and value2.startswith("-")):
                 amount = -amount
             for crest in player.crests:
@@ -1328,11 +1313,7 @@ class EffectProcessor:
 
     def _process_destroy_crest(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 문장 파괴"""
-        player = target
-        if hasattr(target, "owner_id"):
-            player = game_state_manager.players[target.owner_id]
-        elif hasattr(target, "player_id"):
-            player = target
+        player = self._get_player_entity(target, game_state_manager)
 
         crest_name = effect_data.value
         crests_to_remove = [c for c in player.crests if c.name == crest_name]
@@ -1343,16 +1324,9 @@ class EffectProcessor:
 
     def _process_recover_ep(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - EP 회복"""
-        player = target
-        if hasattr(target, "owner_id"):
-            player = game_state_manager.players[target.owner_id]
-        elif hasattr(target, "player_id"):
-            player = target
+        player = self._get_player_entity(target, game_state_manager)
 
-        try:
-            value = int(effect_data.value)
-        except (ValueError, TypeError):
-            value = 1
+        value = self._safe_int(effect_data.value, 1)
         player.gain_ep(value)
         print(f"[LOG] 처리 내용 EP 회복, 타겟 {player.player_id}, 회복량 {value}.")
 
@@ -1367,31 +1341,17 @@ class EffectProcessor:
 
     def _process_gain_shadow(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 묘지 그림자 증가"""
-        player = target
-        if hasattr(target, "owner_id"):
-            player = game_state_manager.players[target.owner_id]
-        elif hasattr(target, "player_id"):
-            player = target
+        player = self._get_player_entity(target, game_state_manager)
 
-        try:
-            val = int(effect_data.value)
-        except (ValueError, TypeError):
-            val = 0
+        val = self._safe_int(effect_data.value, 0)
         player.graveyard.shadows_count += val
         print(f"[LOG] 처리 내용 묘지 그림자 증가, 타겟 {player.player_id}, 증가량 {val}.")
 
     def _process_reanimate(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 사령 재생"""
-        player = target
-        if hasattr(target, "owner_id"):
-            player = game_state_manager.players[target.owner_id]
-        elif hasattr(target, "player_id"):
-            player = target
+        player = self._get_player_entity(target, game_state_manager)
 
-        try:
-            max_cost = int(effect_data.value)
-        except (ValueError, TypeError):
-            max_cost = 0
+        max_cost = self._safe_int(effect_data.value, 0)
 
         graveyard_cards = player.graveyard.get_cards()
         candidates = [c for c in graveyard_cards if c.get_type() == CardType.FOLLOWER and c.current_cost <= max_cost]
@@ -1410,11 +1370,7 @@ class EffectProcessor:
 
     def _process_gain_earth_sigil(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 비술 마법진 획득"""
-        player = target
-        if hasattr(target, "owner_id"):
-            player = game_state_manager.players[target.owner_id]
-        elif hasattr(target, "player_id"):
-            player = target
+        player = self._get_player_entity(target, game_state_manager)
 
         sigil_data = card_data.CardData(
             card_id="Earth Sigil",
@@ -1501,21 +1457,14 @@ class EffectProcessor:
 
     def _process_spellboost_hand(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 손패 주문 증폭"""
-        player = target
-        if hasattr(target, "owner_id"):
-            player = game_state_manager.players[target.owner_id]
-        elif hasattr(target, "player_id"):
-            player = target
+        player = self._get_player_entity(target, game_state_manager)
 
         caster_id = getattr(effect_data, "caster_id", None)
         times = 1
         if caster_id and game_state_manager.get_card_name(caster_id) == "William, Mysterian Student":
             times = 2
         elif effect_data.value is not None:
-            try:
-                times = int(effect_data.value)
-            except (ValueError, TypeError):
-                times = 1
+            times = self._safe_int(effect_data.value, 1)
 
         for _ in range(times):
             hand_cards = player.hand.get_cards()
@@ -1528,17 +1477,10 @@ class EffectProcessor:
                         self.resolve_effect(effect, card.card_id, game_state_manager, None)
     def _process_increase_skybound_art_gauge(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 오의 및 해방오의 게이지 증가"""
-        player = target
-        if hasattr(target, "owner_id"):
-            player = game_state_manager.players[target.owner_id]
-        elif hasattr(target, "player_id"):
-            player = target
+        player = self._get_player_entity(target, game_state_manager)
 
         value = effect_data.value
-        try:
-            amount = int(value)
-        except (ValueError, TypeError):
-            amount = 1
+        amount = self._safe_int(value, 1)
 
         hand_cards = player.hand.get_cards()
         for card in hand_cards:
@@ -1589,16 +1531,9 @@ class EffectProcessor:
 
     def _process_gain_max_pp(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """최대 PP를 증가시키는 처리를 담당합니다."""
-        player = target
-        if hasattr(target, "owner_id"):
-            player = game_state_manager.players[target.owner_id]
-        elif hasattr(target, "player_id"):
-            player = target
+        player = self._get_player_entity(target, game_state_manager)
 
-        try:
-            val = int(effect_data.value)
-        except (ValueError, TypeError):
-            val = 1
+        val = self._safe_int(effect_data.value, 1)
 
         player.max_pp = min(player.max_pp + val, player.MAX_PP)
         print(f"[LOG] 처리 내용 최대 PP 증가, 타겟 {player.player_id}, 증가량 {val}.")
@@ -1608,10 +1543,7 @@ class EffectProcessor:
         if not isinstance(target, Card) or target.countdown_value is None:
             return
 
-        try:
-            val = int(effect_data.value)
-        except (ValueError, TypeError):
-            val = 1
+        val = self._safe_int(effect_data.value, 1)
 
         target.countdown_value = max(0, target.countdown_value - val)
         print(f"[LOG] 처리 내용 카운트다운 진행, 타겟 {target.get_display_name()}, 진행 값 {val}, 남은 카운트다운 {target.countdown_value}.")
@@ -1622,16 +1554,9 @@ class EffectProcessor:
 
     def _process_increase_combo(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """콤보 카운트를 강제로 증가시키는 처리를 담당합니다."""
-        player = target
-        if hasattr(target, "owner_id"):
-            player = game_state_manager.players[target.owner_id]
-        elif hasattr(target, "player_id"):
-            player = target
+        player = self._get_player_entity(target, game_state_manager)
 
-        try:
-            val = int(effect_data.value)
-        except (ValueError, TypeError):
-            val = 1
+        val = self._safe_int(effect_data.value, 1)
 
         player.combo_count += val
         print(f"[LOG] 처리 내용 콤보 카운트 증가, 타겟 {player.player_id}, 증가량 {val}, 현재 콤보 {player.combo_count}.")
@@ -1641,10 +1566,7 @@ class EffectProcessor:
         if not isinstance(target, Card):
             return
 
-        try:
-            val = int(effect_data.value)
-        except (ValueError, TypeError):
-            val = 2
+        val = self._safe_int(effect_data.value, 2)
 
         target.max_attack_count = val
         print(f"[LOG] 처리 내용 다중 공격 부여, 타겟 {target.get_display_name()}, 최대 공격 횟수 {val}.")
