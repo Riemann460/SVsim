@@ -55,8 +55,8 @@
         ],
         "raw_effects_text": "Ward\nLast Words: Draw a card.\nEvolve: Draw a card.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
             "DESTROYED_ON_FIELD",
+            "FOLLOWER_SUPER_EVOLVED",
             "FOLLOWER_EVOLVED"
         ]
     },
@@ -90,15 +90,20 @@
         "tribes": [],
         "effects": [
             {
+                "type": "ENGAGE",
                 "process": "DESTROY",
-                "target": "SELF",
-                "type": "ENGAGE"
+                "target": "SELF"
             },
             {
-                "process": "REMOVE_KEYWORD",
-                "target": "SELF",
-                "value": "Ward",
-                "type": "ENGAGE"
+                "type": "ENGAGE",
+                "process": "SELECT",
+                "target": "OPPONENT_FOLLOWER_CHOICE",
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "REMOVE_KEYWORD",
+                    "target": "SELF",
+                    "value": "Ward"
+                }
             }
         ],
         "raw_effects_text": "Engage: Destroy this card. Select an enemy follower on the field and remove Ward from it.",
@@ -132,8 +137,8 @@
         ],
         "raw_effects_text": "Evolve: Restore 2 defense to your leader.\nSuper-Evolve: Restore 4 defense instead.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10002120": {
@@ -169,15 +174,20 @@
                 "condition": "CARD_TYPE_FOLLOWER"
             },
             {
+                "type": "ENGAGE",
                 "process": "DESTROY",
-                "target": "SELF",
-                "type": "ENGAGE"
+                "target": "SELF"
             },
             {
-                "process": "ADD_EFFECT",
-                "value": "Rush",
+                "type": "ENGAGE",
+                "process": "SELECT",
                 "target": "ALLY_FOLLOWER_CHOICE",
-                "type": "ENGAGE"
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "ADD_EFFECT",
+                    "target": "SELF",
+                    "value": "Rush"
+                }
             }
         ],
         "raw_effects_text": "Fanfare: Draw a follower.\nEngage: Destroy this card. Select an allied follower on the field and give it Rush.",
@@ -258,8 +268,8 @@
         ],
         "raw_effects_text": "Fanfare: Combo (3) - Evolve this follower.\nStrike: Restore 2 defense to your leader.",
         "required_listeners": [
-            "ATTACK_DECLARED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "ATTACK_DECLARED"
         ]
     },
     "10011210": {
@@ -293,8 +303,8 @@
         ],
         "raw_effects_text": "Fanfare: Add a Fairy to your hand.\nCountdown (2)\nWhenever an allied Pixie follower enters the field, deal 1 damage to a random enemy follower.",
         "required_listeners": [
-            "TURN_START",
             "CARD_PLAYED",
+            "TURN_START",
             "FOLLOWER_ENTER_FIELD"
         ]
     },
@@ -311,9 +321,14 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "DEAL_DAMAGE",
+                "process": "SELECT",
                 "target": "OPPONENT_FOLLOWER_CHOICE",
-                "value": 3
+                "post_action": {
+                    "type": "FANFARE",
+                    "process": "DEAL_DAMAGE",
+                    "value": 3,
+                    "target": "SELF"
+                }
             }
         ],
         "raw_effects_text": "Fanfare: Combo (3) - Select an enemy follower on the field and deal it 3 damage.",
@@ -358,9 +373,13 @@
         "tribes": [],
         "effects": [
             {
-                "process": "RETURN_TO_HAND",
-                "target": "ALLY_CARD_CHOICE",
-                "type": "SPELL"
+                "type": "SPELL",
+                "process": "SELECT",
+                "raw_target_text": "an allied card on the field",
+                "post_action": {
+                    "type": "SPELL",
+                    "raw_action_text": "return it to hand"
+                }
             },
             {
                 "process": "DEAL_DAMAGE",
@@ -448,9 +467,13 @@
         "tribes": [],
         "effects": [
             {
-                "process": "RETURN_TO_DECK",
+                "type": "SPELL",
+                "process": "SELECT",
                 "target": "OWN_HAND_CHOICE",
-                "type": "SPELL"
+                "post_action": {
+                    "type": "SPELL",
+                    "raw_action_text": "return it to deck"
+                }
             },
             {
                 "process": "DRAW",
@@ -606,9 +629,8 @@
                 "type": "EARTH_SIGIL"
             },
             {
-                "cost": 1,
-                "process": "GAIN_EARTH_SIGIL",
-                "type": "ENGAGE"
+                "type": "ENGAGE",
+                "process": "GAIN_EARTH_SIGIL"
             }
         ],
         "raw_effects_text": "Fanfare: Draw a card.\nEarth Sigil\nEngage (1): Gain an earth sigil.",
@@ -692,8 +714,8 @@
         ],
         "raw_effects_text": "Fanfare: Earth Rite (1) - Summon a Guardian Golem.\nSuper-Evolve: Select an allied Golem follower on the field, evolve it, and give it +3/+3.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10032120": {
@@ -759,9 +781,14 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "DEAL_DAMAGE",
+                "process": "SELECT",
                 "target": "OPPONENT_FOLLOWER_CHOICE",
-                "value": 1
+                "post_action": {
+                    "type": "FANFARE",
+                    "process": "DEAL_DAMAGE",
+                    "value": 1,
+                    "target": "SELF"
+                }
             }
         ],
         "raw_effects_text": "Fanfare: Select an enemy follower on the field and deal it 1 damage.",
@@ -822,10 +849,15 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DEAL_DAMAGE",
+                "type": "SPELL",
+                "process": "SELECT",
                 "target": "OPPONENT_FOLLOWER_CHOICE",
-                "value": 2,
-                "type": "SPELL"
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "DEAL_DAMAGE",
+                    "value": 2,
+                    "target": "SELF"
+                }
             },
             {
                 "process": "CONDITIONAL_EFFECT",
@@ -863,8 +895,8 @@
         ],
         "raw_effects_text": "Evolve: Select an enemy follower on the field and deal it 4 damage.\nSuper-Evolve: Deal damage to all enemy followers instead.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10042120": {
@@ -1071,8 +1103,8 @@
         ],
         "raw_effects_text": "Evolve: Summon 2 copies of Ghost.\nSuper-Evolve: Give them Drain.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10052310": {
@@ -1087,9 +1119,13 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DESTROY",
+                "type": "SPELL",
+                "process": "SELECT",
                 "target": "ALLY_FOLLOWER_CHOICE",
-                "type": "SPELL"
+                "post_action": {
+                    "type": "SPELL",
+                    "raw_action_text": "destroy it"
+                }
             },
             {
                 "process": "DRAW",
@@ -1160,12 +1196,17 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "STAT_BUFF",
-                "target": "SELF",
-                "value": [
-                    1,
-                    1
-                ]
+                "process": "SELECT",
+                "target": "ANOTHER_ALLY_FOLLOWER_CHOICE",
+                "post_action": {
+                    "type": "FANFARE",
+                    "process": "STAT_BUFF",
+                    "target": "SELF",
+                    "value": [
+                        1,
+                        1
+                    ]
+                }
             },
             {
                 "process": "TRIGGER_EFFECT",
@@ -1175,9 +1216,9 @@
         ],
         "raw_effects_text": "Fanfare: Select another allied follower on the field and give it +1/+1.\nEvolve: Replicate the effects of this card's Fanfare ability.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10061210": {
@@ -1202,16 +1243,15 @@
                 "type": "LAST_WORDS"
             },
             {
-                "cost": 2,
+                "type": "ENGAGE",
                 "process": "ADVANCE_COUNTDOWN",
-                "value": 2,
-                "type": "ENGAGE"
+                "value": 2
             }
         ],
         "raw_effects_text": "Countdown (2)\nLast Words: Summon a Regal Falcon.\nEngage (2): Advance this amulet's count by 2.",
         "required_listeners": [
-            "TURN_START",
             "DESTROYED_ON_FIELD",
+            "TURN_START",
             "CARD_ENGAGED"
         ]
     },
@@ -1240,8 +1280,8 @@
         ],
         "raw_effects_text": "Evolve: Select an enemy follower on the field with 3 defense or less and banish it.\nSuper-Evolve: Banish all enemy followers with 3 defense or less instead.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10062120": {
@@ -1292,16 +1332,15 @@
                 "type": "LAST_WORDS"
             },
             {
-                "cost": 1,
+                "type": "ENGAGE",
                 "process": "ADVANCE_COUNTDOWN",
-                "value": 1,
-                "type": "ENGAGE"
+                "value": 1
             }
         ],
         "raw_effects_text": "Countdown (4)\nLast Words: Summon a Holy Falcon.\nEngage (1): Advance this amulet's count by 1.",
         "required_listeners": [
-            "TURN_START",
             "DESTROYED_ON_FIELD",
+            "TURN_START",
             "CARD_ENGAGED"
         ]
     },
@@ -1387,9 +1426,13 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DESTROY",
+                "type": "SPELL",
+                "process": "SELECT",
                 "target": "OPPONENT_FOLLOWER_CHOICE",
-                "type": "SPELL"
+                "post_action": {
+                    "type": "SPELL",
+                    "raw_action_text": "destroy it"
+                }
             },
             {
                 "process": "ADD_CARD_TO_HAND",
@@ -1458,8 +1501,8 @@
         ],
         "raw_effects_text": "Ward\nEvolve: Summon a Mecha Cavalier.\nSuper-Evolve: Summon 2 instead.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10072210": {
@@ -1492,9 +1535,9 @@
         ],
         "raw_effects_text": "Fanfare: Add a Puppet to your hand.\nCountdown (2)\nAt the end of your turn, add a Puppet to your hand.",
         "required_listeners": [
-            "TURN_START",
+            "TURN_END",
             "CARD_PLAYED",
-            "TURN_END"
+            "TURN_START"
         ]
     }
 }

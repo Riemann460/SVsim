@@ -8,6 +8,8 @@ from typing import Any, List, Union
 
 def to_target_type(val):
     """문자열 혹은 enum을 TargetType enum으로 변환합니다."""
+    if val is None:
+        return TargetType.SELF
     if isinstance(val, TargetType):
         return val
     try:
@@ -370,6 +372,47 @@ class EffectProcessor:
         if not hand_cards:
             return []
 
+        # 동적 타겟 조건 필터링 (Tribe, CardType, Cost 조건 처리)
+        if hasattr(self, 'current_effect') and self.current_effect:
+            eff = self.current_effect
+            target_tribe = getattr(eff, 'target_tribe', None)
+            target_class = getattr(eff, 'target_class', None)
+            target_card_type = getattr(eff, 'target_card_type', None)
+            target_cost = getattr(eff, 'target_cost', None)
+            target_cost_condition = getattr(eff, 'target_cost_condition', None)
+
+            if target_tribe:
+                from src.common.enums import TribeType
+                try:
+                    tribe_enum = TribeType[target_tribe]
+                    hand_cards = [c for c in hand_cards if tribe_enum in c.card_data.tribes]
+                except KeyError:
+                    pass
+
+            if target_class:
+                from src.common.enums import ClassType
+                try:
+                    class_enum = ClassType[target_class]
+                    hand_cards = [c for c in hand_cards if c.class_type == class_enum]
+                except KeyError:
+                    pass
+
+            if target_card_type:
+                from src.common.enums import CardType
+                try:
+                    type_enum = CardType[target_card_type]
+                    hand_cards = [c for c in hand_cards if c.get_type() == type_enum]
+                except KeyError:
+                    pass
+
+            if target_cost is not None:
+                if target_cost_condition == 'LESS':
+                    hand_cards = [c for c in hand_cards if c.current_cost <= target_cost]
+                elif target_cost_condition == 'MORE':
+                    hand_cards = [c for c in hand_cards if c.current_cost >= target_cost]
+                else:
+                    hand_cards = [c for c in hand_cards if c.current_cost == target_cost]
+
         count = getattr(self.current_effect, 'value', 1) if hasattr(self, 'current_effect') and self.current_effect else 1
         if not isinstance(count, int):
             count = 1
@@ -625,6 +668,36 @@ class EffectProcessor:
                 game_state_manager.add_card(card, Zone.FIELD, target_id)
             print(f"[LOG] 처리 내용: 필드에 카드 소환, 타겟: {target_id}, 소환 카드: {card.get_display_name()}")
 
+            # 소환 후 연계된 추가 효과(상대 턴 종료 시 파괴 등)가 정의되어 있다면 카드에 직접 효과를 추가합니다.
+            curr_action = getattr(effect_data, "post_action", None)
+            has_opponent_turn_end = False
+            has_destroy_self = False
+            from src.common.enums import EffectType, ProcessType, TargetType
+            while curr_action:
+                raw_text = getattr(curr_action, "raw_action_text", "").lower()
+                process = getattr(curr_action, "process", None)
+                target_type = getattr(curr_action, "target", None)
+
+                if "opponent's turn" in raw_text or "opponents turn" in raw_text:
+                    has_opponent_turn_end = True
+                if process == ProcessType.DESTROY and target_type == TargetType.SELF:
+                    has_destroy_self = True
+                if "destroy this card" in raw_text or "destroy it" in raw_text:
+                    has_destroy_self = True
+                    if "opponent's turn" in raw_text or "opponents turn" in raw_text:
+                        has_opponent_turn_end = True
+
+                curr_action = getattr(curr_action, "post_action", None)
+
+            if has_destroy_self and has_opponent_turn_end:
+                from src.common.effect import Effect
+                destroy_effect = Effect(
+                    type=EffectType.ON_OPPONENTS_TURN_END,
+                    process=ProcessType.DESTROY,
+                    target=TargetType.SELF
+                )
+                card.effects.append(destroy_effect)
+
         elif isinstance(value, list):
             value_copy = list(value)
             while value_copy:
@@ -719,16 +792,44 @@ class EffectProcessor:
         print(f"[LOG] 처리 내용 소멸, 타겟 {target.get_display_name()}.")
 
     def _process_select(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
-        """처리 - 선택. 선택된 아군 카드를 파괴 처리합니다."""
+        """처리 선택. 선택된 아군 카드를 파괴 처리하거나 후속 조치를 실행합니다."""
+        from src.common.enums import Zone, TargetType, ProcessType
+        if not target or not hasattr(target, 'card_id'):
+            return
+
+        post_action = getattr(effect_data, "post_action", None)
+        if post_action:
+            proc_val = post_action.process if hasattr(post_action, "process") else post_action.get("process")
+            handler = self.process_handlers.get(proc_val)
+            if handler:
+                # target이 손패에 있는 카드인 경우 (패 선택 후속 조치)
+                if getattr(target, "current_zone", None) == Zone.HAND:
+                    tgt_val = post_action.target if hasattr(post_action, "target") else post_action.get("target")
+                    # post_action이 TargetType.SELF 를 지목하면 시전자 카드를 대상으로 후속 조치를 취합니다.
+                    if tgt_val == TargetType.SELF:
+                        caster_id = getattr(effect_data, "caster_id", None)
+                        caster_card = game_state_manager.get_entity_by_id(caster_id) if caster_id else None
+                        handler(post_action, caster_card or target, game_state_manager)
+                    # 그 외 TRANSFORM, ADD_EFFECT 등의 카드 자체를 변형시키는 경우 target(선택된 카드)을 직접 전달합니다.
+                    elif proc_val in (ProcessType.TRANSFORM, ProcessType.ADD_EFFECT):
+                        handler(post_action, target, game_state_manager)
+                    else:
+                        post_action.value = target.card_data
+                        owner = game_state_manager.players[target.owner_id]
+                        handler(post_action, owner, game_state_manager)
+                else:
+                    # target이 필드에 있는 카드인 경우 (필드 선택 후속 조치)
+                    handler(post_action, target, game_state_manager)
+            return
+
         # 선택된 타겟 카드를 필드에서 묘지로 파괴 이동합니다.
-        if target and hasattr(target, 'card_id'):
-            if target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
-                print(f"[LOG] 처리 내용: 선택 파괴 실패, 타겟 {target.get_display_name()}")
-                print(f"[LOG] {target.get_display_name()} 초진화 효과로 파괴되지 않음.")
-                return
-            game_state_manager.move_card(target.card_id, Zone.FIELD, Zone.GRAVEYARD)
-            self.event_manager.publish(DestroyedOnFieldEvent(target.card_id))
-            print(f"[LOG] 처리 내용: 선택 파괴, 타겟 {target.get_display_name()}")
+        if target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
+            print(f"[LOG] 처리 내용: 선택 파괴 실패, 타겟 {target.get_display_name()}")
+            print(f"[LOG] {target.get_display_name()} 초진화 효과로 파괴되지 않음.")
+            return
+        game_state_manager.move_card(target.card_id, Zone.FIELD, Zone.GRAVEYARD)
+        self.event_manager.publish(DestroyedOnFieldEvent(target.card_id))
+        print(f"[LOG] 처리 내용: 선택 파괴, 타겟 {target.get_display_name()}")
 
     def _process_recover_pp(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
         """처리 - PP 회복"""
@@ -1063,9 +1164,17 @@ class EffectProcessor:
             print(f"[LOG] {self._get_owner_id(caster_card)}의 선택 대기. 선택지: {effect_data.get('choices')}")
             return  # 여기서 처리를 중단하고 플레이어의 입력을 기다립니다.
 
-        # 효과 처리 방식이 없거나 변수 정의인 경우 처리를 스킵합니다.
+        # 효과 처리 방식이 없거나 변수 정의인 경우 처리를 스킵하거나 후속 조치를 실행합니다.
         process_type = getattr(effect_data, "process", None)
         if not process_type or process_type == ProcessType.DEFINE_VARIABLE:
+            # process가 없더라도 post_action이 있는 경우 시전자 카드를 대상으로 후속 조치를 직접 처리합니다.
+            post_action = getattr(effect_data, "post_action", None)
+            if post_action:
+                proc_val = post_action.process if hasattr(post_action, "process") else post_action.get("process")
+                handler = self.process_handlers.get(proc_val)
+                if handler:
+                    target = game_state_manager.get_entity_by_id(target_id) if target_id else caster_card
+                    handler(post_action, target, game_state_manager)
             return
 
         handler = self.process_handlers.get(process_type)

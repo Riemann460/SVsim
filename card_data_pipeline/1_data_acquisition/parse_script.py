@@ -235,6 +235,65 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
                         extracted_data[key] = int(value)
                     except (ValueError, TypeError):
                         pass
+            # 마침표나 쉼표로 분리된 다중 액션을 가진 FANFARE/SPELL/ENGAGE의 처리를 수행합니다.
+            if pattern['type'] in [EffectType.FANFARE, EffectType.SPELL, EffectType.ENGAGE] and 'action_text' in extracted_data:
+                action_text = extracted_data['action_text']
+                # 콤마를 포함한 예외 카드명이 쪼개지지 않도록 임시 치환한다.
+                temp_map = {
+                    "White Psalm, New Revelation": "White Psalm__TEMP__New Revelation",
+                    "Black Psalm, New Revelation": "Black Psalm__TEMP__New Revelation"
+                }
+                for k, v in temp_map.items():
+                    action_text = re.sub(re.escape(k), v, action_text, flags=re.IGNORECASE)
+
+                # 변수 정의문과 같은 특수 문장은 split하지 않고 통째로 처리합니다.
+                is_special_definition = False
+                if "determined randomly" in action_text.lower() and "faith" in action_text.lower():
+                    is_special_definition = True
+
+                if is_special_definition:
+                    raw_actions = [action_text]
+                else:
+                    raw_actions = re.split(r'\s*,\s*and\s+|\s*,\s*|\s+and\s+', action_text)
+                actions = []
+                for act in raw_actions:
+                    act_clean = act.strip().replace("__TEMP__", ", ")
+                    if act_clean:
+                        actions.append(act_clean)
+
+                # 후속 절 중 대명사나 복사본 참조 지시어가 포함되어 있는지 확인한다.
+                def should_chain_actions(acts):
+                    if len(acts) <= 1:
+                        return False
+                    pronouns = ["it", "them", "exact copy", "the copy", "its", "give it", "give them"]
+                    for a in acts[1:]:
+                        if any(p in a.lower() for p in pronouns):
+                            return True
+                    return False
+
+                if should_chain_actions(actions):
+                    # 대명사 참조가 있는 경우 post_action 체인으로 결합한다.
+                    effects_list = []
+                    for act in actions:
+                        action_attrs = parse_action(act)
+                        ef = Effect(type=pattern['type'], **action_attrs)
+                        effects_list.append(ef)
+                    
+                    root_effect = effects_list[0]
+                    current = root_effect
+                    for next_ef in effects_list[1:]:
+                        current.post_action = next_ef
+                        current.attributes['post_action'] = next_ef
+                        current = next_ef
+                    return root_effect
+
+                effects: list[Effect] = []
+                for act in actions:
+                    action_attrs = parse_action(act)
+                    ef = Effect(type=pattern['type'], **action_attrs)
+                    effects.append(ef)
+                return effects
+
             # 버려졌을 때 마침표로 구분된 다중 액션의 예외 처리를 수행합니다.
             if pattern['type'] == EffectType.ON_DISCARD and 'action_text' in extracted_data:
                 actions = [a.strip() for a in extracted_data['action_text'].split('.') if a.strip()]
@@ -246,15 +305,6 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
                         effects.append(ef)
                     return effects
 
-            # 마침표나 쉼표로 분리된 다중 액션을 가진 FANFARE의 예외 처리를 수행합니다.
-            if pattern['type'] == EffectType.FANFARE and 'action_text' in extracted_data:
-                actions = [a.strip() for a in re.split(r'[.,]\s*', extracted_data['action_text']) if a.strip()]
-                effects: list[Effect] = []
-                for act in actions:
-                    action_attrs = parse_action(act)
-                    ef = Effect(type=EffectType.FANFARE, **action_attrs)
-                    effects.append(ef)
-                return effects
             # 일반적인 액션 파싱을 수행합니다.
             if 'action_text' in extracted_data:
                 action_text = extracted_data.pop('action_text')
@@ -271,6 +321,56 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
             return effect
 
     # 3. 패턴이 없는 독립 액션을 처리합니다.
+    # 콤마를 포함한 예외 카드명이 쪼개지지 않도록 임시 치환한다.
+    temp_map = {
+        "White Psalm, New Revelation": "White Psalm__TEMP__New Revelation",
+        "Black Psalm, New Revelation": "Black Psalm__TEMP__New Revelation"
+    }
+    temp_text = text_clean
+    for k, v in temp_map.items():
+        temp_text = re.sub(re.escape(k), v, temp_text, flags=re.IGNORECASE)
+
+    # 변수 정의문과 같은 특수 문장은 split하지 않고 통째로 처리합니다.
+    is_special_definition = False
+    if "determined randomly" in temp_text.lower() and "faith" in temp_text.lower():
+        is_special_definition = True
+
+    if is_special_definition:
+        raw_actions = [temp_text]
+    else:
+        raw_actions = re.split(r'\s*,\s*and\s+|\s*,\s*|\s+and\s+', temp_text)
+    actions = []
+    for act in raw_actions:
+        act_clean = act.strip().replace("__TEMP__", ", ")
+        if act_clean:
+            actions.append(act_clean)
+
+    # 후속 절 중 대명사나 복사본 참조 지시어가 포함되어 있는지 확인한다.
+    def should_chain_actions(acts):
+        if len(acts) <= 1:
+            return False
+        pronouns = ["it", "them", "exact copy", "the copy", "its", "give it", "give them"]
+        for a in acts[1:]:
+            if any(p in a.lower() for p in pronouns):
+                return True
+        return False
+
+    if should_chain_actions(actions):
+        # 대명사 참조가 있는 경우 post_action 체인으로 결합한다.
+        effects_list = []
+        for act in actions:
+            action_attrs = parse_action(act)
+            ef = Effect(type=EffectType.SPELL, **action_attrs)
+            effects_list.append(ef)
+        
+        root_effect = effects_list[0]
+        current = root_effect
+        for next_ef in effects_list[1:]:
+            current.post_action = next_ef
+            current.attributes['post_action'] = next_ef
+            current = next_ef
+        return root_effect
+
     action_attrs = parse_action(text_clean)
     if 'raw_action_text' not in action_attrs:
         effect = Effect(**action_attrs)
@@ -503,7 +603,7 @@ ACTION_PATTERNS = [
     {'regex': r"Destroy all enemy followers with (\d+) defense", 'process': ProcessType.DESTROY, 'target': TargetType.ALL_OPPONENT_FOLLOWERS, 'groups': ['value']},
 
     # 덜 구체적인 매칭 조건으로 하단에 위치시켜야 하는 패턴들입니다.
-    {'regex': r"Select (.*?) on the field", 'process': ProcessType.SELECT, 'groups': ['target_text']},
+    {'regex': r"Select (.*)", 'process': ProcessType.SELECT, 'groups': ['target_text']},
     {'regex': r"Deal (\d+|X) damage", 'process': ProcessType.DEAL_DAMAGE, 'groups': ['value']},
 ]
 
@@ -511,6 +611,49 @@ ACTION_PATTERNS = [
 def parse_target(text: str) -> Dict:
     """텍스트에서 대상을 분석하여 TargetType enum 매핑 결과를 반환합니다."""
     text_clean = text.strip().rstrip('.')
+
+    # 대상이 손패에 있고 구체적인 조건들이 포함된 경우를 동적으로 분석한다.
+    hand_match = re.search(
+        r"(?:an?|all|another|random)?\s*(.*?)\s*(follower|spell|amulet|card)s?\s+in your hand(?:\s+that costs?\s+(\d+|X)\s+or\s+(less|more))?",
+        text_clean, re.IGNORECASE
+    )
+    if hand_match:
+        res = {'target': TargetType.OWN_HAND_CHOICE}
+        
+        # 종족 및 클래스 정보를 추출하여 매핑한다.
+        tribe_str = hand_match.group(1).strip()
+        if tribe_str:
+            from enums import TribeType, ClassType
+            try:
+                res['target_tribe'] = TribeType[tribe_str.upper()].name
+            except KeyError:
+                try:
+                    res['target_class'] = ClassType[tribe_str.upper()].name
+                except KeyError:
+                    res['target_tribe'] = tribe_str
+
+        # 카드 타입 정보를 추출하여 매핑한다.
+        card_type_str = hand_match.group(2).strip().lower()
+        if card_type_str == "follower":
+            res['target_card_type'] = "FOLLOWER"
+        elif card_type_str == "spell":
+            res['target_card_type'] = "SPELL"
+        elif card_type_str == "amulet":
+            res['target_card_type'] = "AMULET"
+
+        # 코스트 조건 정보를 추출하여 매핑한다.
+        cost_val = hand_match.group(3)
+        cost_dir = hand_match.group(4)
+        if cost_val is not None:
+            try:
+                res['target_cost'] = int(cost_val)
+            except ValueError:
+                res['target_cost_var'] = cost_val
+            if cost_dir:
+                res['target_cost_condition'] = cost_dir.upper()
+
+        return res
+
     for pattern in TARGET_PATTERNS:
         match = re.search(pattern['regex'], text_clean, re.IGNORECASE)
         if match:

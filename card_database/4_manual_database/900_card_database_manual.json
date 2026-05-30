@@ -123,10 +123,15 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DEAL_DAMAGE",
-                "raw_target_text": "Select an enemy",
-                "value": 2,
-                "type": "SPELL"
+                "type": "SPELL",
+                "process": "SELECT",
+                "raw_target_text": "an enemy",
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "DEAL_DAMAGE",
+                    "value": 2,
+                    "target": "SELF"
+                }
             },
             {
                 "process": "HEAL",
@@ -216,8 +221,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Last Words</color></b>: Deal 1 damage to the enemy leader. Summon a <b><i><color=Keyword>White Psalm, New Revelation</color></i></b>.",
         "required_listeners": [
-            "TURN_START",
-            "DESTROYED_ON_FIELD"
+            "DESTROYED_ON_FIELD",
+            "TURN_START"
         ]
     },
     "90014310": {
@@ -232,10 +237,15 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DEAL_DAMAGE",
+                "type": "SPELL",
+                "process": "SELECT",
                 "target": "OPPONENT_LEADER",
-                "value": 3,
-                "type": "SPELL"
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "DEAL_DAMAGE",
+                    "value": 3,
+                    "target": "SELF"
+                }
             }
         ],
         "raw_effects_text": "Select an enemy follower on the field or the enemy leader and deal it 3 damage.",
@@ -349,9 +359,18 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "DEAL_DAMAGE",
-                "target": "OPPONENT_LEADER",
-                "value": 6
+                "process": "CHOOSE",
+                "value": 2,
+                "post_action": {
+                    "type": "FANFARE",
+                    "process": "DEAL_DAMAGE",
+                    "target": "SELF",
+                    "value": 6,
+                    "post_action": {
+                        "type": "FANFARE",
+                        "raw_action_text": "the enemy leader"
+                    }
+                }
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select 2 enemy followers on the field and deal 6 damage to them and the enemy leader.",
@@ -398,10 +417,21 @@
         "tribes": [],
         "effects": [
             {
-                "process": "ADD_CARD_TO_HAND",
-                "target": "OWN_LEADER",
-                "value": "copy of it",
-                "type": "SPELL"
+                "type": "SPELL",
+                "process": "SELECT",
+                "target": "ALLY_FOLLOWER_CHOICE",
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "ADD_CARD_TO_HAND",
+                    "target": "OWN_LEADER",
+                    "value": "copy of it",
+                    "post_action": {
+                        "type": "SPELL",
+                        "process": "REDUCE_COST",
+                        "raw_target_text": "the copy",
+                        "value": 3
+                    }
+                }
             }
         ],
         "raw_effects_text": "Select an allied follower on the field with a base cost of 5 or more, add a copy of it to your hand without revealing it, and reduce the cost of the copy by 3.",
@@ -456,11 +486,19 @@
         "tribes": [],
         "effects": [
             {
+                "type": "SPELL",
                 "process": "SUMMON",
                 "target": "OWN_LEADER",
-                "extra_effect": "+X/+X",
                 "value": "Crystalspawn",
-                "type": "SPELL"
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "STAT_BUFF",
+                    "target": "SELF",
+                    "value": [
+                        "+X",
+                        "+X"
+                    ]
+                }
             },
             {
                 "process": "HEAL",
@@ -499,7 +537,7 @@
         "effects": [
             {
                 "process": "SELECT",
-                "raw_target_text": "an unevolved allied follower",
+                "raw_target_text": "an unevolved allied follower on the field",
                 "type": "SPELL"
             },
             {
@@ -548,10 +586,15 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DEAL_DAMAGE",
+                "type": "SPELL",
+                "process": "SELECT",
                 "target": "OPPONENT_FOLLOWER_CHOICE",
-                "value": 1,
-                "type": "SPELL"
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "DEAL_DAMAGE",
+                    "value": 1,
+                    "target": "SELF"
+                }
             },
             {
                 "enhance_cost": 1,
@@ -577,9 +620,13 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DESTROY",
-                "raw_target_text": "Select a card on the field",
-                "type": "SPELL"
+                "type": "SPELL",
+                "process": "SELECT",
+                "raw_target_text": "a card on the field",
+                "post_action": {
+                    "type": "SPELL",
+                    "raw_action_text": "destroy it"
+                }
             },
             {
                 "process": "ADD_CARD_TO_HAND",
@@ -664,7 +711,9 @@
         "effects": [
             {
                 "process": "STAT_BUFF",
-                "target": "ALL_FOLLOWERS",
+                "target": "OWN_HAND_CHOICE",
+                "target_tribe": "the cost of all",
+                "target_card_type": "FOLLOWER",
                 "value": 1,
                 "type": "SPELL"
             }
@@ -752,22 +801,24 @@
                 "type": "SPELL"
             },
             {
-                "raw_effect_text": "When you Fuse to this card, transform it based on the total cost of the cards fused."
+                "type": "SPELL",
+                "raw_action_text": "When you Fuse to this card",
+                "post_action": {
+                    "type": "SPELL",
+                    "raw_action_text": "transform it based on the total cost of the cards fused"
+                }
             },
             {
-                "value": 1,
-                "raw_action_text": "Ominous Artifact",
-                "type": "SPELL"
+                "type": "SPELL",
+                "raw_action_text": "Ominous Artifact"
             },
             {
-                "value": 2,
-                "raw_action_text": "Ominous Artifact",
-                "type": "SPELL"
+                "type": "SPELL",
+                "raw_action_text": "Ominous Artifact"
             },
             {
-                "value": 3,
-                "raw_action_text": "Ominous Artifact",
-                "type": "SPELL"
+                "type": "SPELL",
+                "raw_action_text": "Ominous Artifact"
             },
             {
                 "type": "WARD"
@@ -797,10 +848,14 @@
                 "type": "SPELL"
             },
             {
-                "process": "TRANSFORM",
-                "target": "SELF",
-                "value": "a Striker Artifact",
-                "type": "SPELL"
+                "type": "SPELL",
+                "raw_action_text": "When you Fuse to this card",
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "TRANSFORM",
+                    "target": "SELF",
+                    "value": "a Striker Artifact"
+                }
             },
             {
                 "type": "SPELL"
@@ -830,10 +885,14 @@
                 "type": "SPELL"
             },
             {
-                "process": "TRANSFORM",
-                "target": "SELF",
-                "value": "a Fortifier Artifact",
-                "type": "SPELL"
+                "type": "SPELL",
+                "raw_action_text": "When you Fuse to this card",
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "TRANSFORM",
+                    "target": "SELF",
+                    "value": "a Fortifier Artifact"
+                }
             },
             {
                 "type": "SPELL"
@@ -873,8 +932,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Storm</color></b>\nWhen this card leaves the field, banish it.\nAt the end of your turn, banish this card.",
         "required_listeners": [
-            "LEAVE_FIELD",
-            "TURN_END"
+            "TURN_END",
+            "LEAVE_FIELD"
         ]
     },
     "90021310": {
@@ -889,10 +948,15 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DEAL_DAMAGE",
+                "type": "SPELL",
+                "process": "SELECT",
                 "target": "OPPONENT_LEADER",
-                "value": 1,
-                "type": "SPELL"
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "DEAL_DAMAGE",
+                    "value": 1,
+                    "target": "SELF"
+                }
             }
         ],
         "raw_effects_text": "Select an enemy follower on the field or the enemy leader and deal it 1 damage.",
@@ -912,13 +976,22 @@
         "tribes": [],
         "effects": [
             {
-                "process": "STAT_BUFF",
-                "target": "SELF",
-                "value": [
-                    1,
-                    0
-                ],
-                "type": "SPELL"
+                "type": "SPELL",
+                "process": "SELECT",
+                "target": "ALLY_FOLLOWER_CHOICE",
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "STAT_BUFF",
+                    "target": "SELF",
+                    "value": [
+                        1,
+                        0
+                    ],
+                    "post_action": {
+                        "type": "SPELL",
+                        "raw_action_text": "Rush"
+                    }
+                }
             }
         ],
         "raw_effects_text": "Select an allied follower on the field and give it +1/+0 and <b><color=Keyword>Rush</color></b>.",
@@ -961,13 +1034,22 @@
         "tribes": [],
         "effects": [
             {
-                "process": "STAT_BUFF",
-                "target": "SELF",
-                "value": [
-                    0,
-                    1
-                ],
-                "type": "SPELL"
+                "type": "SPELL",
+                "process": "SELECT",
+                "target": "ALLY_FOLLOWER_CHOICE",
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "STAT_BUFF",
+                    "target": "SELF",
+                    "value": [
+                        0,
+                        1
+                    ],
+                    "post_action": {
+                        "type": "SPELL",
+                        "raw_action_text": "Ward"
+                    }
+                }
             }
         ],
         "raw_effects_text": "Select an allied follower on the field and give it +0/+1 and <b><color=Keyword>Ward</color></b>.",
@@ -1035,9 +1117,13 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DESTROY",
+                "type": "SPELL",
+                "process": "SELECT",
                 "target": "OPPONENT_FOLLOWER_CHOICE",
-                "type": "SPELL"
+                "post_action": {
+                    "type": "SPELL",
+                    "raw_action_text": "destroy it"
+                }
             }
         ],
         "raw_effects_text": "Select an enemy follower on the field and destroy it.",
@@ -1170,11 +1256,15 @@
                 "type": "WARD"
             },
             {
-                "raw_effect_text": "Your opponent can't select anything other than this card for abilities."
+                "process": "SELECT",
+                "target": "SELF",
+                "type": "SPELL"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Ward</color></b>\nYour opponent can't select anything other than this card for abilities.",
-        "required_listeners": []
+        "required_listeners": [
+            "CARD_PLAYED"
+        ]
     },
     "90033310": {
         "card_id": "90033310",
@@ -1224,9 +1314,8 @@
                 "type": "EARTH_SIGIL"
             },
             {
-                "cost": 1,
-                "process": "GAIN_EARTH_SIGIL",
-                "type": "ENGAGE"
+                "type": "ENGAGE",
+                "process": "GAIN_EARTH_SIGIL"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Earth Sigil</color></b>\n<hr><b><color=Keyword>Engage</color> (1)</b>: Gain an earth sigil.",
@@ -1306,9 +1395,13 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DESTROY",
-                "target": "ALLY_CARD_CHOICE",
-                "type": "SPELL"
+                "type": "SPELL",
+                "process": "SELECT",
+                "raw_target_text": "an allied card on the field",
+                "post_action": {
+                    "type": "SPELL",
+                    "raw_action_text": "destroy it"
+                }
             },
             {
                 "process": "DEAL_DAMAGE",
@@ -1439,6 +1532,10 @@
                 ]
             },
             {
+                "type": "FANFARE",
+                "raw_action_text": "Bane"
+            },
+            {
                 "type": "WARD"
             }
         ],
@@ -1466,10 +1563,14 @@
                 "type": "SPELL"
             },
             {
-                "process": "TRANSFORM",
-                "target": "SELF",
-                "value": "a Masterwork Artifact Ω",
-                "type": "SPELL"
+                "type": "SPELL",
+                "raw_action_text": "When you've Fused both to this card",
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "TRANSFORM",
+                    "target": "SELF",
+                    "value": "a Masterwork Artifact Ω"
+                }
             },
             {
                 "process": "HEAL",
@@ -1783,14 +1884,19 @@
         "tribes": [],
         "effects": [
             {
+                "type": "SPELL",
                 "process": "SUMMON",
                 "value": [
                     "Rulenye & Valnareik",
                     "Rulenye & Valnareik"
                 ],
                 "target": "OWN_LEADER",
-                "extra_effect": "Rush",
-                "type": "SPELL"
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "ADD_EFFECT",
+                    "target": "SELF",
+                    "value": "Rush"
+                }
             }
         ],
         "raw_effects_text": "Summon 2 copies of <b><i><color=Keyword>Rulenye & Valnareik</color></i></b> and give them <b><color=Keyword>Rush</color></b>.",
@@ -1905,22 +2011,24 @@
                 "type": "SPELL"
             },
             {
-                "raw_effect_text": "When you Fuse to this card, transform it based on the total cost of the cards fused."
+                "type": "SPELL",
+                "raw_action_text": "When you Fuse to this card",
+                "post_action": {
+                    "type": "SPELL",
+                    "raw_action_text": "transform it based on the total cost of the cards fused"
+                }
             },
             {
-                "value": 1,
-                "raw_action_text": "Ominous Artifact",
-                "type": "SPELL"
+                "type": "SPELL",
+                "raw_action_text": "Ominous Artifact"
             },
             {
-                "value": 2,
-                "raw_action_text": "Ominous Artifact",
-                "type": "SPELL"
+                "type": "SPELL",
+                "raw_action_text": "Ominous Artifact"
             },
             {
-                "value": 3,
-                "raw_action_text": "Ominous Artifact",
-                "type": "SPELL"
+                "type": "SPELL",
+                "raw_action_text": "Ominous Artifact"
             },
             {
                 "type": "RUSH"
@@ -2101,8 +2209,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Last Words</color></b>: Restore 1 defense to your leader. Summon a <b><i><color=Keyword>Black Psalm, New Revelation</color></i></b>.",
         "required_listeners": [
-            "TURN_START",
-            "DESTROYED_ON_FIELD"
+            "DESTROYED_ON_FIELD",
+            "TURN_START"
         ]
     },
     "90044310": {
@@ -2150,10 +2258,15 @@
         "tribes": [],
         "effects": [
             {
-                "process": "ADD_EFFECT",
-                "target": "SELF",
-                "value": "Storm",
-                "type": "SPELL"
+                "type": "SPELL",
+                "process": "SELECT",
+                "raw_target_text": "an allied Rulenye & Valnareik on the field",
+                "post_action": {
+                    "type": "SPELL",
+                    "process": "ADD_EFFECT",
+                    "target": "SELF",
+                    "value": "Storm"
+                }
             }
         ],
         "raw_effects_text": "Select an allied <b><i><color=Keyword>Rulenye & Valnareik</color></i></b> on the field and give it <b><color=Keyword>Storm</color></b>.",

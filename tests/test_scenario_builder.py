@@ -660,6 +660,9 @@ class TestScenarioBuilderCore(unittest.TestCase):
         builder.add_to_deck("player2", "Leah, Bellringer Angel")
 
         game = builder.build()
+        # player1의 패에 임의의 카드를 추가하고, 선택 모크를 설정합니다.
+        hand_card = builder.add_to_hand("player1", "Indomitable Fighter")
+        game.gui.get_user_choice.return_value = hand_card.card_id
 
         # 침략당한 세계의 Engage 활성화 효과를 트리거합니다.
         # Engage 효과를 발동시키면 변신 효과가 트리거됩니다.
@@ -908,6 +911,50 @@ class TestScenarioBuilderCore(unittest.TestCase):
 
         # Rally 10 이상이므로 6 + 3 = 9데미지를 입어야 합니다.
         self.assertEqual(target_follower2.max_defense - target_follower2.current_defense, 9)
+
+    def test_artifact_catapult_summon_and_destroy_flow(self):
+        """아티팩트 캐터펄트의 활성화 효과가 정상 작동하여 패의 아티팩트 추종자를 복사 소환하고 상대 턴 종료 시 파괴하는지 검증한다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        builder.set_pp("player1", 3, 3)
+
+        # 1. 아티팩트 캐터펄트를 필드에 배치한다.
+        catapult = builder.add_to_field("player1", "10271210")
+
+        # 2. 손패에 5코스트 이하 아티팩트 추종자를 배치한다.
+        artifact_follower = builder.add_to_hand("player1", "90071140")
+
+        game = builder.build()
+
+        # 3. 사용자 선택을 모사하여 손패의 아티팩트 추종자를 선택하게 한다.
+        game.gui.get_user_choice.return_value = artifact_follower.card_id
+
+        # 4. 아티팩트 캐터펄트를 활성화(Engage)한다.
+        success = game.engage_card(catapult.card_id, "player1")
+        self.assertTrue(success)
+
+        # 5. 캐터펄트가 필드에서 파괴되었는지 검증한다.
+        p1_field_ids = [c.card_id for c in game.game_state_manager.get_cards_in_zone("player1", Zone.FIELD)]
+        self.assertNotIn(catapult.card_id, p1_field_ids)
+
+        # 6. 복사 소환된 Ancient Artifact가 필드에 소환되었는지 검증한다.
+        p1_field_cards = game.game_state_manager.get_cards_in_zone("player1", Zone.FIELD)
+        summoned_artifacts = [c for c in p1_field_cards if c.card_data.name == "Ancient Artifact"]
+        self.assertEqual(len(summoned_artifacts), 1)
+        summoned_card = summoned_artifacts[0]
+
+        # 7. 턴을 상대(player2)에게 넘기고, 상대가 턴을 종료할 때 소환된 복사본이 파괴되는지 검증한다.
+        # player1의 턴을 종료한다.
+        game.end_turn("player1")
+        # player2의 턴을 종료한다. (상대 턴의 종료)
+        game.end_turn("player2")
+
+        # player2의 턴 종료 후 복사 소환된 아티팩트가 파괴되어 묘지로 갔는지 검증한다.
+        p1_field_ids_after = [c.card_id for c in game.game_state_manager.get_cards_in_zone("player1", Zone.FIELD)]
+        self.assertNotIn(summoned_card.card_id, p1_field_ids_after)
+        p1_graveyard_ids = [c.card_id for c in game.game_state_manager.get_cards_in_zone("player1", Zone.GRAVEYARD)]
+        self.assertIn(summoned_card.card_id, p1_graveyard_ids)
+
 
 
 

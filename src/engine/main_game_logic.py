@@ -786,12 +786,16 @@ class Game:
                     print(f"[LOG] 직접소환 조건 만족, {card.get_display_name()} 카드를 덱에서 필드로 직접 소환합니다.")
                     break
 
-    def engage_card(self, card_id: str, player_id: str):
+    def engage_card(self, card_id: str, player_id: str) -> bool:
         """카드의 활성화 능력을 처리합니다."""
+        if not self.rule_engine.validate_engage_card(card_id, player_id):
+            return False
         self.game_state_manager.engage_card(card_id, player_id)
         self.event_manager.publish(CardEngagedEvent(card_id=card_id))
         self.process_events()
         self.gui.update()
+        return True
+
 
     def get_start_turn_ifo(self, player_id: str):
         """턴 시작 시 필요한 정보를 가져옵니다."""
