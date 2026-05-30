@@ -362,14 +362,26 @@ class EffectProcessor:
         """대상 - 자신의 패에서 카드 선택"""
         owner_id = self._get_owner_id(caster_card)
         hand_cards = game_state_manager.get_cards_in_zone(owner_id, Zone.HAND)
-        if not hand_cards: return []
+        if not hand_cards:
+            return []
 
-        choices = {f"{c.get_display_name()} (ID: {c.card_id})": c.card_id for c in hand_cards}
-        selected_card_id = game_state_manager.game.request_user_choice("패의 카드를 선택하세요:", choices)
+        count = getattr(self.current_effect, 'value', 1) if hasattr(self, 'current_effect') and self.current_effect else 1
+        if not isinstance(count, int):
+            count = 1
 
-        if selected_card_id:
-            return [game_state_manager.get_entity_by_id(selected_card_id)]
-        return []
+        selected_targets = []
+        for i in range(count):
+            choices = {f"{c.get_display_name()} (ID {c.card_id})": c.card_id for c in hand_cards if c.card_id not in selected_targets}
+            if not choices:
+                break
+            selected_card_id = game_state_manager.game.request_user_choice(f"패의 카드를 선택하세요 ({i+1}/{count}).", choices)
+            if selected_card_id:
+                selected_targets.append(selected_card_id)
+            else:
+                break
+
+        return [game_state_manager.get_entity_by_id(cid) for cid in selected_targets]
+
 
     def _get_target_own_hand_random(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
         """자신의 패에서 무작위 카드를 선택합니다."""
@@ -1038,7 +1050,7 @@ class EffectProcessor:
             game_state_manager.is_awaiting_choice = True
             game_state_manager.pending_choice = effect_data
             game_state_manager.player_awaiting_choice = self._get_owner_id(caster_card)
-            print(f"[LOG] {self._get_owner_id(caster_card)}의 선택 대기. 선택지: {effect_data.choices}")
+            print(f"[LOG] {self._get_owner_id(caster_card)}의 선택 대기. 선택지: {effect_data.get('choices')}")
             return  # 여기서 처리를 중단하고 플레이어의 입력을 기다립니다.
 
         # 효과 처리 방식이 없거나 변수 정의인 경우 처리를 스킵합니다.

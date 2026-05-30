@@ -815,5 +815,43 @@ class TestScenarioBuilderCore(unittest.TestCase):
 
         self.assertEqual(ssa_effect.skybound_art_evo_charge, 1)
 
+    def test_starlight_goddess_evolve_discard_three(self):
+        """스타라이트 가디스 진화 시 손패 3장을 선택하여 버리는 효과가 정상 작동하는지 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        builder.set_pp("player1", 5, 5)
+        builder.set_ep("player1", 1, 2)
+
+        # 스타라이트 가디스를 필드에 배치합니다.
+        goddess = builder.add_to_field("player1", "10502110")
+
+        # 버리기 대상으로 삼을 손패 카드 3장을 추가합니다.
+        discard_card1 = builder.add_to_hand("player1", "10642110")
+        discard_card2 = builder.add_to_hand("player1", "10642110")
+        discard_card3 = builder.add_to_hand("player1", "10642110")
+
+        game = builder.build()
+
+        # 사용자 선택을 모사하여 3장의 카드 ID를 순차적으로 반환하도록 설정합니다.
+        game.gui.get_user_choice.side_effect = [
+            discard_card1.card_id,
+            discard_card2.card_id,
+            discard_card3.card_id
+        ]
+
+        # 스타라이트 가디스를 진화시킵니다.
+        game.evolve_follower(goddess.card_id, "player1")
+
+        # 진화 상태를 검증합니다.
+        self.assertTrue(goddess.is_evolved)
+
+        # 선택한 3장의 카드가 손패에서 사라졌는지 검증합니다.
+        hand_cards = game.game_state_manager.get_cards_in_zone("player1", Zone.HAND)
+        hand_ids = [c.card_id for c in hand_cards]
+        self.assertNotIn(discard_card1.card_id, hand_ids)
+        self.assertNotIn(discard_card2.card_id, hand_ids)
+        self.assertNotIn(discard_card3.card_id, hand_ids)
+
+
 
 

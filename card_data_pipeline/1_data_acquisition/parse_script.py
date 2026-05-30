@@ -417,6 +417,7 @@ ACTION_PATTERNS = [
     
     {'regex': r"Select a card in your hand and return it to deck", 'process': ProcessType.RETURN_TO_DECK, 'target': TargetType.OWN_HAND_CHOICE, 'groups': []},
     {'regex': r"Return a random card from your hand to deck", 'process': ProcessType.RETURN_TO_DECK, 'target': TargetType.OWN_HAND_RANDOM, 'value': 1, 'groups': []},
+    {'regex': r"Select (\d+) (?:cards|followers|spells|amulets) in your hand and discard them", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_HAND_CHOICE, 'groups': ['value']},
     {'regex': r"Select a (?:card|follower|spell|amulet) in your hand and discard it", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_HAND_CHOICE, 'groups': []},
     {'regex': r"Discard a card", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_LEADER, 'groups': []},
     {'regex': r"Discard (\d+) cards", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_LEADER, 'groups': ['value']},

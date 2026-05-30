@@ -13946,8 +13946,9 @@
             "tribes": [],
             "effects": [
                 {
-                    "process": "CHOOSE",
+                    "process": "DISCARD",
                     "value": 3,
+                    "target": "OWN_HAND_CHOICE",
                     "type": "ON_EVOLVE"
                 },
                 {
