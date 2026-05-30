@@ -28,8 +28,16 @@ def load_kor_names(kor_db_dir: str = 'card_database/2_kor_database'):
 
 class CardDatabase(dict):
     """card_id와 name 모두로 검색이 가능한 데이터베이스 클래스입니다."""
+    def __contains__(self, key):
+        if super().__contains__(key):
+            return True
+        for card_data_obj in self.values():
+            if card_data_obj.name == key:
+                return True
+        return False
+
     def __getitem__(self, key):
-        if key in self:
+        if super().__contains__(key):
             return super().__getitem__(key)
         for card_data_obj in self.values():
             if card_data_obj.name == key:
@@ -190,6 +198,7 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
         EffectType.ON_OPPONENTS_TURN_END: EventType.TURN_END,
         EffectType.DRAIN: EventType.DAMAGE_DEALT_BY_COMBAT,
         EffectType.ON_LEAVE_FIELD: EventType.LEAVE_FIELD,
+        EffectType.ON_DISCARD: EventType.CARD_DISCARDED,
     }
     listeners = []
     for effect in effects:
@@ -304,7 +313,9 @@ def _resolve_effect_references_recursive(effect: Effect, card_id: str, global_ca
     if "process" in effect.attributes.keys() and effect.process in [ProcessType.ADD_CARD_TO_HAND, ProcessType.SUMMON, ProcessType.REPLACE_DECK]:
         effect_value = getattr(effect, "value", None)
         if isinstance(effect_value, str):
-            effect.value = _resolve_single_value(effect_value, effect, card_id, global_card_db)
+            resolved_val = _resolve_single_value(effect_value, effect, card_id, global_card_db)
+            effect.value = resolved_val
+            effect.attributes["value"] = resolved_val
         elif isinstance(effect_value, list):
             resolved_list = []
             for item in effect_value:
@@ -313,6 +324,7 @@ def _resolve_effect_references_recursive(effect: Effect, card_id: str, global_ca
                 else:
                     resolved_list.append(item)
             effect.value = resolved_list
+            effect.attributes["value"] = resolved_list
     elif "value" in effect.attributes.keys():
         process_type = getattr(effect, 'process', None)
         process_name = process_type.name if process_type else 'None'

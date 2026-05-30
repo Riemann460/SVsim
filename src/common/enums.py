@@ -197,6 +197,7 @@ class TargetType(Enum):
     OPPONENT_DECK_RANDOM = "상대 덱 중 랜덤"
     OWN_DECK_RANDOM_FOLLOWER = "자신 덱 추종자 중 랜덤"
     SUMMONED_FOLLOWERS = "방금 소환된 아군 추종자들"
+    EXACT_COPY = "복사본"
 
     # 미구현 타겟들을 정의합니다.
     ALL_FOLLOWERS_MAX_DEFENSE = "가장 체력이 높은 추종자 전체"

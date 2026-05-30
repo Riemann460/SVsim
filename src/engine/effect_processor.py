@@ -63,6 +63,7 @@ class EffectProcessor:
             TargetType.ALLY_FOLLOWER_RANDOM_SUPER_EVOLVED: self._get_target_ally_follower_random_super_evolved,
             TargetType.OWN_HAND_RANDOM: self._get_target_own_hand_random,
             TargetType.SUMMONED_FOLLOWERS: self._get_target_summoned_followers,
+            TargetType.EXACT_COPY: self._get_target_summoned_followers,
         }
         self.process_handlers = {
             ProcessType.STAT_BUFF: self._process_stat_buff,
@@ -142,6 +143,27 @@ class EffectProcessor:
         elif isinstance(val, list):
             return [self._resolve_val(item, x_val) for item in val]
         return val
+
+    def _resolve_effect_variables(self, effect: Effect, x_val: Any) -> None:
+        """효과 내의 모든 동적 변수를 재귀적으로 해석하여 업데이트합니다."""
+        if not effect:
+            return
+        for key in list(effect.attributes.keys()):
+            val = effect.attributes[key]
+            if isinstance(val, Effect):
+                self._resolve_effect_variables(val, x_val)
+            elif isinstance(val, list):
+                new_list = []
+                for item in val:
+                    if isinstance(item, Effect):
+                        self._resolve_effect_variables(item, x_val)
+                        new_list.append(item)
+                    else:
+                        new_list.append(self._resolve_val(item, x_val))
+                effect.update(**{key: new_list})
+            else:
+                resolved = self._resolve_val(val, x_val)
+                effect.update(**{key: resolved})
 
     def _get_variable_value(self, caster_card, game_state_manager):
         """카드 정보 및 텍스트를 기반으로 동적 변수 X의 값을 계산합니다."""
@@ -668,35 +690,12 @@ class EffectProcessor:
                 game_state_manager.add_card(card, Zone.FIELD, target_id)
             print(f"[LOG] 처리 내용: 필드에 카드 소환, 타겟: {target_id}, 소환 카드: {card.get_display_name()}")
 
-            # 소환 후 연계된 추가 효과(상대 턴 종료 시 파괴 등)가 정의되어 있다면 카드에 직접 효과를 추가합니다.
-            curr_action = getattr(effect_data, "post_action", None)
-            has_opponent_turn_end = False
-            has_destroy_self = False
-            from src.common.enums import EffectType, ProcessType, TargetType
-            while curr_action:
-                raw_text = getattr(curr_action, "raw_action_text", "").lower()
-                process = getattr(curr_action, "process", None)
-                target_type = getattr(curr_action, "target", None)
-
-                if "opponent's turn" in raw_text or "opponents turn" in raw_text:
-                    has_opponent_turn_end = True
-                if process == ProcessType.DESTROY and target_type == TargetType.SELF:
-                    has_destroy_self = True
-                if "destroy this card" in raw_text or "destroy it" in raw_text:
-                    has_destroy_self = True
-                    if "opponent's turn" in raw_text or "opponents turn" in raw_text:
-                        has_opponent_turn_end = True
-
-                curr_action = getattr(curr_action, "post_action", None)
-
-            if has_destroy_self and has_opponent_turn_end:
-                from src.common.effect import Effect
-                destroy_effect = Effect(
-                    type=EffectType.ON_OPPONENTS_TURN_END,
-                    process=ProcessType.DESTROY,
-                    target=TargetType.SELF
-                )
-                card.effects.append(destroy_effect)
+            # 후속 조치 효과가 정의되어 있다면 실행합니다.
+            post_action = getattr(effect_data, "post_action", None)
+            if post_action:
+                handler = self.process_handlers.get(post_action.process)
+                if handler:
+                    handler(post_action, card, game_state_manager)
 
         elif isinstance(value, list):
             value_copy = list(value)
@@ -706,6 +705,13 @@ class EffectProcessor:
                 if len(game_state_manager.get_cards_in_zone(target_id, Zone.FIELD)) < 5:
                     game_state_manager.add_card(card, Zone.FIELD, target_id)
                 print(f"[LOG] 처리 내용: 필드에 카드 소환, 타겟: {target_id}, 소환 카드: {card.get_display_name()}")
+
+                # 후속 조치 효과가 정의되어 있다면 실행합니다.
+                post_action = getattr(effect_data, "post_action", None)
+                if post_action:
+                    handler = self.process_handlers.get(post_action.process)
+                    if handler:
+                        handler(post_action, card, game_state_manager)
 
     def _process_deal_damage(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 피해 입히기"""
@@ -1035,9 +1041,7 @@ class EffectProcessor:
 
         # 변수 X의 값을 동적으로 해석하여 적용합니다.
         x_val = self._get_variable_value(caster_card, game_state_manager)
-        if "value" in effect_data.attributes:
-            effect_data.value = self._resolve_val(effect_data.value, x_val)
-            effect_data.attributes["value"] = effect_data.value
+        self._resolve_effect_variables(effect_data, x_val)
 
         effect_type = getattr(effect_data, "type", None)
 

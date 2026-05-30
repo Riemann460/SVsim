@@ -28,6 +28,7 @@ EFFECT_TO_EVENT_MAP = {
     EffectType.DRAIN.name: EventType.DAMAGE_DEALT_BY_COMBAT,
     EffectType.ON_LEAVE_FIELD.name: EventType.LEAVE_FIELD,
     EffectType.ON_MY_TURN_START.name: EventType.TURN_START,
+    EffectType.ON_DISCARD.name: EventType.CARD_DISCARDED,
 }
 
 def parse_effect_text(description: str, card_type_enum):
@@ -154,6 +155,15 @@ def parse_effect_text(description: str, card_type_enum):
 
     return parsed_effects
 
+def _replace_inside_quotes(text: str) -> str:
+    """쌍따옴표 내부에 있는 콤마와 and를 쪼개지지 않게 임시 치환합니다."""
+    def replace_fn(match):
+        quoted_text = match.group(1)
+        # 따옴표 내부의 콤마와 and를 치환합니다.
+        quoted_text = quoted_text.replace(",", "__COMMA__").replace(" and ", "__AND__")
+        return f'"{quoted_text}"'
+    return re.sub(r'"([^"]*)"', replace_fn, text)
+
 
 # 패턴과 해당 효과를 매핑하는 데이터 구조입니다.
 EFFECT_PATTERNS = [
@@ -216,7 +226,8 @@ SIMPLE_KEYWORD_EFFECTS = {
 
 def _parse_single_effect(text: str) -> Effect | list[Effect]:
     text_clean = text.strip().rstrip('.')
-    text_clean = text_clean.replace('"', '')
+    # 따옴표 내부에 있는 콤마와 and를 쪼개지지 않게 임시 치환합니다.
+    text_clean = _replace_inside_quotes(text_clean)
     low_text = text_clean.lower()
     
     # 1. 단순 키워드 효과를 처리합니다.
@@ -245,6 +256,9 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
                 }
                 for k, v in temp_map.items():
                     action_text = re.sub(re.escape(k), v, action_text, flags=re.IGNORECASE)
+
+                # 따옴표 내부에 있는 콤마와 and를 쪼개지지 않게 임시 치환합니다.
+                action_text = _replace_inside_quotes(action_text)
 
                 # 변수 정의문과 같은 특수 문장은 split하지 않고 통째로 처리합니다.
                 is_special_definition = False
@@ -330,6 +344,9 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
     for k, v in temp_map.items():
         temp_text = re.sub(re.escape(k), v, temp_text, flags=re.IGNORECASE)
 
+    # 따옴표 내부에 있는 콤마와 and를 쪼개지지 않게 임시 치환합니다.
+    temp_text = _replace_inside_quotes(temp_text)
+
     # 변수 정의문과 같은 특수 문장은 split하지 않고 통째로 처리합니다.
     is_special_definition = False
     if "determined randomly" in temp_text.lower() and "faith" in temp_text.lower():
@@ -386,6 +403,8 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
 # 대상 파싱을 위한 패턴 목록입니다.
 TARGET_PATTERNS = [
     # 대상 - 설명
+    {'regex': r"^\s*the exact copy\s*$", 'target': TargetType.EXACT_COPY},
+    {'regex': r"^\s*exact copy\s*$", 'target': TargetType.EXACT_COPY},
     {'regex': r"\bthis follower\b", 'target': TargetType.SELF},
     {'regex': r"\byour leader\b", 'target': TargetType.OWN_LEADER},
     {'regex': r"\bthe enemy leader\b", 'target': TargetType.OPPONENT_LEADER},
@@ -442,6 +461,7 @@ TARGET_PATTERNS = [
 # 액션 파싱을 위한 패턴 목록입니다.
 ACTION_PATTERNS = [
     # 패턴 - 설명 (정규식 그룹)
+    {'regex': r'give (.*?) "(.*)"', 'process': ProcessType.ADD_EFFECT, 'groups': ['target_text', 'nested_action_text']},
     {'regex': r"Select (?:an|a)? (?:super-evolved|evolved|damaged)? enemy follower on the field and destroy it", 'process': ProcessType.DESTROY, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
     {'regex': r"Select an enemy follower on the field and banish it", 'process': ProcessType.BANISH, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
     {'regex': r"Select an enemy card on the field and banish it", 'process': ProcessType.BANISH, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': []},
@@ -672,12 +692,22 @@ def parse_target(text: str) -> Dict:
 def parse_action(text: str):
     """텍스트에서 수행할 액션을 분석하여 ProcessType enum 및 속성 매핑 결과를 반환합니다."""
     text_clean = text.strip().rstrip('.')
-    text_clean = text_clean.replace('"', '')
+    # 임시 치환된 콤마와 and를 복원합니다.
+    text_clean = text_clean.replace("__COMMA__", ",").replace("__AND__", " and ")
     for pattern in ACTION_PATTERNS:
         match = re.search(pattern['regex'], text_clean, re.IGNORECASE)
         if match:
             action = {'process': pattern['process']}
             groups = dict(zip(pattern.get('groups', []), match.groups()))
+
+            if 'nested_action_text' in groups:
+                # nested_action_text는 재귀적으로 단일 효과를 파싱하여 Effect 객체로 할당합니다.
+                nested_text = groups['nested_action_text'].replace("__COMMA__", ",").replace("__AND__", " and ")
+                nested_effect = _parse_single_effect(nested_text)
+                if nested_effect:
+                    action['value'] = nested_effect
+                else:
+                    action['value'] = nested_text
 
             if 'target_text' in groups:
                 action.update(parse_target(groups['target_text']))
