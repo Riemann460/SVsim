@@ -162,6 +162,23 @@ if __name__ == "__main__":
     def replace_effect_values(section: dict) -> None:
         for card in section.values():
             for effect in card.get("effects", []):
+                # processes 리스트를 순회하며 개별 프로세스의 value를 ID로 치환합니다.
+                for process in effect.get("processes", []):
+                    val = process.get("value")
+                    if isinstance(val, str):
+                        key = val.strip()
+                        if key in name_to_id:
+                            process["value"] = name_to_id[key]
+                    elif isinstance(val, list):
+                        new_list = []
+                        for item in val:
+                            if isinstance(item, str) and item.strip() in name_to_id:
+                                new_list.append(name_to_id[item.strip()])
+                            else:
+                                new_list.append(item)
+                        process["value"] = new_list
+
+                # 하위 호환성을 위해 Effect 레벨의 value 치환 로직도 유지합니다.
                 val = effect.get("value")
                 if isinstance(val, str):
                     key = val.strip()

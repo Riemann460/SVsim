@@ -7,7 +7,7 @@ from typing import Dict, List
 
 from enums import EffectType, ProcessType, TargetType, CardType, EventType, ClassType
 from card_data import CardData
-from effect import Effect
+from effect import Effect, Process
 
 EFFECT_TO_EVENT_MAP = {
     EffectType.FANFARE.name: EventType.CARD_PLAYED,
@@ -30,6 +30,15 @@ EFFECT_TO_EVENT_MAP = {
     EffectType.ON_MY_TURN_START.name: EventType.TURN_START,
     EffectType.ON_DISCARD.name: EventType.CARD_DISCARDED,
 }
+
+def _dict_to_process_recursive(p_dict: dict) -> Process:
+    """딕셔너리와 그 하위 post_action을 재귀적으로 Process 객체로 변환합니다."""
+    attrs = p_dict.copy()
+    post_action = attrs.get("post_action")
+    if post_action and isinstance(post_action, dict):
+        attrs["post_action"] = _dict_to_process_recursive(post_action)
+    return Process(**attrs)
+
 
 def parse_effect_text(description: str, card_type_enum):
     """카드 텍스트의 줄바꿈과 HTML 요소를 정돈하고 구조화된 리스트로 변환합니다."""
@@ -80,18 +89,9 @@ def parse_effect_text(description: str, card_type_enum):
             # "Select a Mode" 또는 "Select X Modes" 또는 "abilities from the following" 구문이 포함된 라인을 찾습니다.
             if ("Select" in line and "Mode" in line) or "abilities from the following" in line:
                 trigger_effect = _parse_single_effect(line)
-                if isinstance(trigger_effect, list):
-                    if trigger_effect:
-                        inherited_type = trigger_effect[0].get('type')
-                        inherited_enhance_cost = trigger_effect[0].get('enhance_cost')
-                        inherited_cost = trigger_effect[0].get('cost')
-                        trigger_effect = trigger_effect[0]
-                    else:
-                        trigger_effect = Effect()
-                else:
-                    inherited_type = trigger_effect.get('type')
-                    inherited_enhance_cost = trigger_effect.get('enhance_cost')
-                    inherited_cost = trigger_effect.get('cost')
+                inherited_type = trigger_effect.get('type')
+                inherited_enhance_cost = trigger_effect.get('enhance_cost')
+                inherited_cost = trigger_effect.get('cost')
                 
                 trigger_effect.update(process=ProcessType.CHOOSE, choices=[])
 
@@ -110,36 +110,28 @@ def parse_effect_text(description: str, card_type_enum):
                 inherited_cost = None
             else:
                 result = _parse_single_effect(line)
-                if isinstance(result, list):
-                    if result:
-                        inherited_type = result[0].get('type')
-                        inherited_enhance_cost = result[0].get('enhance_cost')
-                        inherited_cost = result[0].get('cost')
-                    for r in result:
-                        paragraph_effects.append(r)
+                # 명시적인 이펙트 패턴이 존재하는지 확인합니다.
+                has_explicit_pattern = False
+                if line.lower().strip() in SIMPLE_KEYWORD_EFFECTS:
+                    has_explicit_pattern = True
                 else:
-                    # 명시적인 이펙트 패턴이 존재하는지 확인합니다.
-                    has_explicit_pattern = False
-                    if line.lower().strip() in SIMPLE_KEYWORD_EFFECTS:
-                        has_explicit_pattern = True
-                    else:
-                        for pattern in EFFECT_PATTERNS:
-                            if re.match(pattern['regex'], line, re.IGNORECASE):
-                                has_explicit_pattern = True
-                                break
-                    
-                    if not has_explicit_pattern and inherited_type is not None:
-                        result.update(type=inherited_type)
-                        if inherited_enhance_cost is not None:
-                            result.update(enhance_cost=inherited_enhance_cost)
-                        if inherited_cost is not None:
-                            result.update(cost=inherited_cost)
-                    else:
-                        inherited_type = result.get('type')
-                        inherited_enhance_cost = result.get('enhance_cost')
-                        inherited_cost = result.get('cost')
-                    
-                    paragraph_effects.append(result)
+                    for pattern in EFFECT_PATTERNS:
+                        if re.match(pattern['regex'], line, re.IGNORECASE):
+                            has_explicit_pattern = True
+                            break
+                
+                if not has_explicit_pattern and inherited_type is not None:
+                    result.update(type=inherited_type)
+                    if inherited_enhance_cost is not None:
+                        result.update(enhance_cost=inherited_enhance_cost)
+                    if inherited_cost is not None:
+                        result.update(cost=inherited_cost)
+                else:
+                    inherited_type = result.get('type')
+                    inherited_enhance_cost = result.get('enhance_cost')
+                    inherited_cost = result.get('cost')
+                
+                paragraph_effects.append(result)
                 i += 1
 
         parsed_effects.extend(paragraph_effects)
@@ -224,7 +216,7 @@ SIMPLE_KEYWORD_EFFECTS = {
 }
 
 
-def _parse_single_effect(text: str) -> Effect | list[Effect]:
+def _parse_single_effect(text: str) -> Effect:
     text_clean = text.strip().rstrip('.')
     # 따옴표 내부에 있는 콤마와 and를 쪼개지지 않게 임시 치환합니다.
     text_clean = _replace_inside_quotes(text_clean)
@@ -246,6 +238,10 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
                         extracted_data[key] = int(value)
                     except (ValueError, TypeError):
                         pass
+            
+            effect_attrs = {k: v for k, v in extracted_data.items() if k not in ['action_text']}
+            ef = Effect(type=pattern['type'], **effect_attrs)
+
             # 마침표나 쉼표로 분리된 다중 액션을 가진 FANFARE/SPELL/ENGAGE의 처리를 수행합니다.
             if pattern['type'] in [EffectType.FANFARE, EffectType.SPELL, EffectType.ENGAGE] and 'action_text' in extracted_data:
                 action_text = extracted_data['action_text']
@@ -285,39 +281,31 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
                             return True
                     return False
 
+                processes_list = []
                 if should_chain_actions(actions):
                     # 대명사 참조가 있는 경우 post_action 체인으로 결합한다.
-                    effects_list = []
+                    action_dicts = [parse_action(act) for act in actions]
+                    root_p_dict = action_dicts[0]
+                    current = root_p_dict
+                    for next_p_dict in action_dicts[1:]:
+                        current['post_action'] = next_p_dict
+                        current = next_p_dict
+                    processes_list.append(_dict_to_process_recursive(root_p_dict))
+                else:
                     for act in actions:
-                        action_attrs = parse_action(act)
-                        ef = Effect(type=pattern['type'], **action_attrs)
-                        effects_list.append(ef)
-                    
-                    root_effect = effects_list[0]
-                    current = root_effect
-                    for next_ef in effects_list[1:]:
-                        current.post_action = next_ef
-                        current.attributes['post_action'] = next_ef
-                        current = next_ef
-                    return root_effect
-
-                effects: list[Effect] = []
-                for act in actions:
-                    action_attrs = parse_action(act)
-                    ef = Effect(type=pattern['type'], **action_attrs)
-                    effects.append(ef)
-                return effects
+                        processes_list.append(Process(**parse_action(act)))
+                
+                ef.update(processes=processes_list)
+                return ef
 
             # 버려졌을 때 마침표로 구분된 다중 액션의 예외 처리를 수행합니다.
             if pattern['type'] == EffectType.ON_DISCARD and 'action_text' in extracted_data:
                 actions = [a.strip() for a in extracted_data['action_text'].split('.') if a.strip()]
-                if len(actions) > 1:
-                    effects: list[Effect] = []
-                    for act in actions:
-                        action_attrs = parse_action(act)
-                        ef = Effect(type=EffectType.ON_DISCARD, **action_attrs)
-                        effects.append(ef)
-                    return effects
+                processes_list = []
+                for act in actions:
+                    processes_list.append(Process(**parse_action(act)))
+                ef.update(processes=processes_list)
+                return ef
 
             # 일반적인 액션 파싱을 수행합니다.
             if 'action_text' in extracted_data:
@@ -328,11 +316,23 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
                 else:
                     action_attrs = parse_action(action_text)
                     extracted_data.update(action_attrs)
-            effect = Effect(**extracted_data)
-            if 'process' not in extracted_data and 'process' in pattern:
-                effect.update(process=pattern['process'])
-            effect.update(type=pattern['type'])
-            return effect
+            
+            # 단일 프로세스가 생성된 경우 processes 리스트로 래핑합니다.
+            process_keys = [
+                "process", "target", "value", "condition", "is_split",
+                "extra_effect", "target_count", "target_count_var",
+                "target_tribe", "target_class", "target_card_type",
+                "target_cost", "target_cost_condition", "post_action"
+            ]
+            p_attrs = {}
+            for key in process_keys:
+                if key in extracted_data:
+                    p_attrs[key] = extracted_data[key]
+            if "process" not in p_attrs and pattern.get("process"):
+                p_attrs["process"] = pattern["process"]
+            p_attrs = {k: v for k, v in p_attrs.items() if v is not None}
+            ef.update(processes=[Process(**p_attrs)])
+            return ef
 
     # 3. 패턴이 없는 독립 액션을 처리합니다.
     # 콤마를 포함한 예외 카드명이 쪼개지지 않도록 임시 치환한다.
@@ -372,28 +372,28 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
                 return True
         return False
 
+    ef = Effect(type=EffectType.SPELL)
+    processes_list = []
     if should_chain_actions(actions):
-        # 대명사 참조가 있는 경우 post_action 체인으로 결합한다.
-        effects_list = []
+        action_dicts = [parse_action(act) for act in actions]
+        root_p_dict = action_dicts[0]
+        current = root_p_dict
+        for next_p_dict in action_dicts[1:]:
+            current['post_action'] = next_p_dict
+            current = next_p_dict
+        processes_list.append(_dict_to_process_recursive(root_p_dict))
+    else:
         for act in actions:
-            action_attrs = parse_action(act)
-            ef = Effect(type=EffectType.SPELL, **action_attrs)
-            effects_list.append(ef)
-        
-        root_effect = effects_list[0]
-        current = root_effect
-        for next_ef in effects_list[1:]:
-            current.post_action = next_ef
-            current.attributes['post_action'] = next_ef
-            current = next_ef
-        return root_effect
+            processes_list.append(Process(**parse_action(act)))
+
+    if processes_list:
+        ef.update(processes=processes_list)
+        return ef
 
     action_attrs = parse_action(text_clean)
     if 'raw_action_text' not in action_attrs:
-        effect = Effect(**action_attrs)
-        effect.update(type=EffectType.SPELL)
-        return effect
-
+        ef.update(processes=[Process(**action_attrs)])
+        return ef
 
     # 4. 파싱에 완전히 실패한 경우의 대체 처리입니다.
     print(f"[WARNING] Could not parse effect text: '{text}'")
