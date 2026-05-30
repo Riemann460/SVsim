@@ -103,6 +103,7 @@ class EffectProcessor:
             ProcessType.INCREASE_COMBO: self._process_increase_combo,
             ProcessType.MULTI_ATTACK: self._process_multi_attack,
             ProcessType.SELECT: self._process_select,
+            ProcessType.INCREASE_SKYBOUND_ART_GAUGE: self._process_increase_skybound_art_gauge,
         }
 
     def _get_owner_id(self, caster_card: Any) -> str:
@@ -936,16 +937,16 @@ class EffectProcessor:
                 has_sa = any(e.type == EffectType.SKYBOUND_ART for e in caster_card.effects)
                 if has_sa:
                     sa_effects = [e for e in caster_card.effects if e.type == EffectType.SKYBOUND_ART]
-                    if any(getattr(e, "skybound_art_gauge", 999) == 0 for e in sa_effects):
-                        print(f"[LOG] 오의 조건 만족으로 인해 {effect_type.value if effect_type else 'None'} 효과 발동을 건너뛰고 오의 효과로 대체합니다.")
+                    if any(game_state_manager.turn_number + getattr(e, "skybound_art_evo_charge", 0) >= 10 for e in sa_effects):
+                        print(f"[LOG] 오의 조건 만족으로 인해 {effect_type.value if effect_type else 'None'} 효과 발동을 건너뛰고 오의 효과로 대체합니다")
                         return
 
                 # 해방오의 대체 조건 검사.
                 has_ssa = any(e.type == EffectType.SUPER_SKYBOUND_ART for e in caster_card.effects)
                 if has_ssa:
                     ssa_effects = [e for e in caster_card.effects if e.type == EffectType.SUPER_SKYBOUND_ART]
-                    if any(getattr(e, "skybound_art_gauge", 999) == 0 for e in ssa_effects):
-                        print(f"[LOG] 해방오의 조건 만족으로 인해 {effect_type.value if effect_type else 'None'} 효과 발동을 건너뛰고 해방오의 효과로 대체합니다.")
+                    if any(game_state_manager.turn_number + getattr(e, "skybound_art_evo_charge", 0) >= 15 for e in ssa_effects):
+                        print(f"[LOG] 해방오의 조건 만족으로 인해 {effect_type.value if effect_type else 'None'} 효과 발동을 건너뛰고 해방오의 효과로 대체합니다")
                         return
 
         if effect_type == EffectType.COMBO:
@@ -973,16 +974,18 @@ class EffectProcessor:
             print(f"[LOG] 콤보 {req_combo} 효과 발동.")
 
         elif effect_type == EffectType.SKYBOUND_ART:
-            gauge = getattr(effect_data, "skybound_art_gauge", 999)
-            if gauge > 0:
-                print(f"[LOG] 오의 게이지({gauge}) 부족으로 효과 발동 실패.")
+            evo_charge = getattr(effect_data, "skybound_art_evo_charge", 0)
+            total_charge = game_state_manager.turn_number + evo_charge
+            if total_charge < 10:
+                print(f"[LOG] 오의 게이지({total_charge}/10) 부족으로 효과 발동 실패.")
                 return
             print(f"[LOG] 오의 효과 발동.")
 
         elif effect_type == EffectType.SUPER_SKYBOUND_ART:
-            gauge = getattr(effect_data, "skybound_art_gauge", 999)
-            if gauge > 0:
-                print(f"[LOG] 해방오의 게이지({gauge}) 부족으로 효과 발동 실패.")
+            evo_charge = getattr(effect_data, "skybound_art_evo_charge", 0)
+            total_charge = game_state_manager.turn_number + evo_charge
+            if total_charge < 15:
+                print(f"[LOG] 해방오의 게이지({total_charge}/15) 부족으로 효과 발동 실패.")
                 return
             print(f"[LOG] 해방오의 효과 발동.")
 
@@ -1345,6 +1348,27 @@ class EffectProcessor:
                 for effect in card.effects:
                     if effect.type == EffectType.SPELLBOOST:
                         self.resolve_effect(effect, card.card_id, game_state_manager, None)
+    def _process_increase_skybound_art_gauge(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리 - 오의 및 해방오의 게이지 증가."""
+        player = target
+        if hasattr(target, "owner_id"):
+            player = game_state_manager.players[target.owner_id]
+        elif hasattr(target, "player_id"):
+            player = target
+
+        value = effect_data.value
+        try:
+            amount = int(value)
+        except (ValueError, TypeError):
+            amount = 1
+
+        hand_cards = player.hand.get_cards()
+        for card in hand_cards:
+            for effect in card.effects:
+                if effect.type in [EffectType.SKYBOUND_ART, EffectType.SUPER_SKYBOUND_ART]:
+                    if hasattr(effect, "skybound_art_evo_charge"):
+                        effect.skybound_art_evo_charge += amount
+                        print(f"[LOG] {card.get_display_name()} 의 오의 진화 충전량 {amount} 증가 현재 충전량 {effect.skybound_art_evo_charge}")
 
     def _get_target_all_leaders_max_defense(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
         """체력이 가장 높은 리더들을 반환합니다."""

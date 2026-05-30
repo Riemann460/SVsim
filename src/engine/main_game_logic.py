@@ -231,8 +231,7 @@ class Game:
                 from src.common.event import DestroyedOnFieldEvent
                 self.event_manager.publish(DestroyedOnFieldEvent(card_id=card_id))
 
-        # 턴 시작 시 손패의 오의 게이지를 감소시킵니다.
-        self._reduce_skybound_art_gauges(player_id)
+        # 턴 수 경과에 따른 오의 게이지 자연 증가 효과가 turn_number 계산을 통해 실시간으로 처리됩니다.
         
     def _on_spell_cast(self, event: SpellCastEvent):
         """주문 증폭 효과를 처리합니다."""
@@ -739,7 +738,7 @@ class Game:
         player = self.game_state_manager.players[player_id]
         player.evolution_count += 1
         self.event_manager.publish(FollowerEvolvedEvent(card_id=card_id, spend_ep=True))
-        self._reduce_skybound_art_gauges(player_id)
+        self._increase_skybound_art_gauges(player_id)
         self.process_events()
         self.gui.update()
 
@@ -749,19 +748,19 @@ class Game:
         player = self.game_state_manager.players[player_id]
         player.evolution_count += 1
         self.event_manager.publish(FollowerSuperEvolvedEvent(card_id=card_id, spend_sep=True))
-        self._reduce_skybound_art_gauges(player_id)
+        self._increase_skybound_art_gauges(player_id)
         self.process_events()
         self.gui.update()
 
-    def _reduce_skybound_art_gauges(self, player_id: str):
-        """손패에 있는 오의 및 해방오의 카드 게이지를 차감합니다. 주석 규정을 엄격하게 준수합니다."""
+    def _increase_skybound_art_gauges(self, player_id: str):
+        """손패에 있는 오의 및 해방오의 카드 진화 보너스 게이지를 누적 증가시킵니다. 주석 규정을 엄격하게 준수합니다."""
         hand = self.game_state_manager.get_cards_in_zone(player_id, Zone.HAND)
         for card in hand:
             for effect in card.effects:
                 if effect.type in [EffectType.SKYBOUND_ART, EffectType.SUPER_SKYBOUND_ART]:
-                    if hasattr(effect, "skybound_art_gauge"):
-                        effect.skybound_art_gauge = max(0, effect.skybound_art_gauge - 1)
-                        print(f"[LOG] {card.get_display_name()} 의 오의 게이지 1 차감. 현재 게이지 {effect.skybound_art_gauge}.")
+                    if hasattr(effect, "skybound_art_evo_charge"):
+                        effect.skybound_art_evo_charge += 1
+                        print(f"[LOG] {card.get_display_name()} 의 오의 진화 충전량 1 증가. 현재 충전량 {effect.skybound_art_evo_charge}.")
 
     def _check_invoke(self, player_id: str):
         """덱에 있는 직접소환 카드 조건을 검사하여 필드로 소환합니다. 주석 규정을 엄격하게 준수합니다."""

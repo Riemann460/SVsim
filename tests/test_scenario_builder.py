@@ -2,7 +2,7 @@
 
 import unittest
 from tests.scenario_helper import GameScenarioBuilder
-from src.common.enums import Zone
+from src.common.enums import Zone, EffectType
 
 class TestScenarioBuilderCore(unittest.TestCase):
     """시나리오 빌더의 코어 리소스 설정을 테스트하는 클래스입니다."""
@@ -307,7 +307,7 @@ class TestScenarioBuilderCore(unittest.TestCase):
         self.assertEqual(blaze.current_cost, 9)
 
     def test_skybound_art_mechanism(self):
-        """오의 및 해방오의 카운터 감소를 테스트합니다."""
+        """오의 및 해방오의 카운터 증가를 테스트합니다."""
         builder = GameScenarioBuilder("player1", "player2")
         builder.set_pp("player1", 5, 5)
         builder.set_ep("player1", 1, 1)
@@ -317,15 +317,15 @@ class TestScenarioBuilderCore(unittest.TestCase):
 
         game = builder.build()
 
-        # 초기 해방오의 게이지 확인.
+        # 초기 해방오의 게이지 충전량 확인.
         ssa_effect = [e for e in seofon.effects if e.type.name == "SUPER_SKYBOUND_ART"][0]
-        self.assertEqual(ssa_effect.skybound_art_gauge, 15)
+        self.assertEqual(ssa_effect.skybound_art_evo_charge, 0)
 
         # 아군 추종자 진화.
         game.evolve_follower(my_follower.card_id, "player1")
 
-        # 게이지가 1 줄어야 합니다.
-        self.assertEqual(ssa_effect.skybound_art_gauge, 14)
+        # 게이지 충전량이 1 늘어야 합니다.
+        self.assertEqual(ssa_effect.skybound_art_evo_charge, 1)
 
     def test_gain_max_pp_mechanism(self):
         """최대 PP 증가 메커니즘을 테스트합니다."""
@@ -767,6 +767,25 @@ class TestScenarioBuilderCore(unittest.TestCase):
         new_card2 = hand_cards2[0]
         self.assertEqual(new_card2.card_data.name, "Beheading Eld Blades")
         self.assertEqual(new_card2.current_cost, 3)
+
+    def test_tsubasa_reduce_skybound_art_gauge_scenario(self):
+        """폭연의 총장 츠바사 카드를 플레이했을 때 패의 오의 카드의 게이지 충전량이 올바르게 증가하는지 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player1")
+        builder.set_pp("player1", 2, 2)
+        
+        tsubasa = builder.add_to_hand("player1", "10471120")
+        seofon = builder.add_to_hand("player1", "10424120")
+
+        game = builder.build()
+
+        ssa_effect = next(e for e in seofon.effects if e.type == EffectType.SUPER_SKYBOUND_ART)
+        self.assertEqual(ssa_effect.skybound_art_evo_charge, 0)
+
+        played = game.play_card("player1", tsubasa.card_id)
+        self.assertTrue(played)
+
+        self.assertEqual(ssa_effect.skybound_art_evo_charge, 1)
 
 
 

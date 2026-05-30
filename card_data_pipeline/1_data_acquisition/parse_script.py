@@ -229,6 +229,17 @@ def _parse_single_effect(text: str) -> Effect | list[Effect]:
                         extracted_data[key] = int(value)
                     except (ValueError, TypeError):
                         pass
+            # 버려졌을 때 마침표로 구분된 다중 액션의 예외 처리를 수행합니다.
+            if pattern['type'] == EffectType.ON_DISCARD and 'action_text' in extracted_data:
+                actions = [a.strip() for a in extracted_data['action_text'].split('.') if a.strip()]
+                if len(actions) > 1:
+                    effects: list[Effect] = []
+                    for act in actions:
+                        action_attrs = parse_action(act)
+                        ef = Effect(type=EffectType.ON_DISCARD, **action_attrs)
+                        effects.append(ef)
+                    return effects
+
             # 마침표나 쉼표로 분리된 다중 액션을 가진 FANFARE의 예외 처리를 수행합니다.
             if pattern['type'] == EffectType.FANFARE and 'action_text' in extracted_data:
                 actions = [a.strip() for a in re.split(r'[.,]\s*', extracted_data['action_text']) if a.strip()]
@@ -338,6 +349,7 @@ ACTION_PATTERNS = [
     {'regex': r"Summon (.*)", 'process': ProcessType.SUMMON, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
 
     # 패로 카드를 가져오는 효과를 처리하는 패턴입니다.
+    {'regex': r"if (?:this card's|its) cost is (\d+), add a (.*?) to your hand and set its cost to (\d+)", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['condition_val', 'card_names', 'post_action_val'], 'target': TargetType.OWN_LEADER, 'special_handling': 'discard_cost_conditional_add'},
     {'regex': r"Add (\d+) copies of (.*?) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['value', 'card_name'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Add an (.*?) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Add a (.*?) to your hand", 'process': ProcessType.ADD_CARD_TO_HAND, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
@@ -415,6 +427,7 @@ ACTION_PATTERNS = [
     {'regex': r"Spellboost your hand", 'process': ProcessType.SPELLBOOST_HAND, 'target': TargetType.OWN_LEADER, 'groups': []},
     {'regex': r"Select a Mode to activate", 'process': ProcessType.CHOOSE, 'groups': []},
     {'regex': r"X is (.*)", 'process': ProcessType.DEFINE_VARIABLE, 'groups': ['value']},
+    {'regex': r"Increase the Skybound Art gauges of all cards in your hand by (\d+)", 'process': ProcessType.INCREASE_SKYBOUND_ART_GAUGE, 'target': TargetType.OWN_LEADER, 'groups': ['value']},
     {'regex': r"Increase (.*) by (\d+|X)", 'process': ProcessType.STAT_BUFF, 'groups': ['target_text', 'value']},
     {'regex': r"Recover (\d+|X) play points?", 'process': ProcessType.RECOVER_PP, 'target': TargetType.OWN_LEADER, 'groups': ['value']},
     {'regex': r"Select an enemy follower on the field with (\d+) defense or less and banish it", 'process': ProcessType.BANISH, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': ['value']},
@@ -472,7 +485,6 @@ ACTION_PATTERNS = [
     {'regex': r"Advance the count of your Crest: (.*?) by (\d+)", 'process': ProcessType.ADVANCE_CREST, 'groups': ['value', 'value2']},
     {'regex': r"Destroy your Crest: (.*)", 'process': ProcessType.DESTROY_CREST, 'groups': ['value']},
     {'regex': r"Recover (\d+) evolution points?", 'process': ProcessType.RECOVER_EP, 'target': TargetType.OWN_LEADER, 'groups': ['value']},
-    {'regex': r"Increase the Skybound Art gauges of all cards in your hand by (\d+)", 'process': ProcessType.ADD_EFFECT, 'target': TargetType.OWN_HAND_CHOICE, 'groups': ['value']},
     {'regex': r"Activate (\d+) random abilities from the following", 'process': ProcessType.TRIGGER_EFFECT, 'groups': ['value']},
     {'regex': r"Set the enemy leader's max defense to (\d+)", 'process': ProcessType.SET_MAX_HEALTH, 'target': TargetType.OPPONENT_LEADER, 'groups': ['value']},
     {'regex': r"Delay the counts of all your crests by (\d+)", 'process': ProcessType.ADVANCE_CREST, 'groups': ['value', 'value2'], 'special_handling': 'neg_val'},
@@ -562,6 +574,17 @@ def parse_action(text: str):
                     action['value2'] = -int(groups['value2'])
                 except (ValueError, KeyError):
                     action['value2'] = f"-{groups.get('value2', 0)}"
+            elif pattern.get('special_handling') == 'discard_cost_conditional_add':
+                # 조건과 후속 조치를 설정합니다.
+                action['condition'] = f"COST_IS_{groups['condition_val']}"
+                try:
+                    set_cost_val = int(groups['post_action_val'])
+                except ValueError:
+                    set_cost_val = groups['post_action_val']
+                action['post_action'] = {
+                    'process': 'SET_COST',
+                    'value': set_cost_val
+                }
 
             # 카드 이름과 추가 효과 지시어가 혼합된 텍스트를 전처리합니다.
             def _clean_card_text(text_val, action_dict):

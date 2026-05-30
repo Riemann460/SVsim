@@ -12876,8 +12876,8 @@
             "effects": [
                 {
                     "type": "FANFARE",
-                    "process": "STAT_BUFF",
-                    "target": "OWN_HAND_CHOICE",
+                    "process": "INCREASE_SKYBOUND_ART_GAUGE",
+                    "target": "OWN_LEADER",
                     "value": 1
                 },
                 {

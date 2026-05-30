@@ -25,14 +25,11 @@ class Card:
         self.current_zone = None  # 현재 카드 위치를 의미합니다.
         self.effects: List[Effect] = copy.deepcopy(card_data.get("effects", []))  # 카드 효과 인스턴스들입니다.
 
-        # 오의와 해방오의 게이지를 초기화합니다.
+        # 오의와 해방오의 진화 보너스 게이지를 초기화합니다.
         for effect in self.effects:
-            if effect.type == EffectType.SKYBOUND_ART:
-                if not hasattr(effect, "skybound_art_gauge"):
-                    effect.skybound_art_gauge = 10
-            elif effect.type == EffectType.SUPER_SKYBOUND_ART:
-                if not hasattr(effect, "skybound_art_gauge"):
-                    effect.skybound_art_gauge = 15
+            if effect.type in [EffectType.SKYBOUND_ART, EffectType.SUPER_SKYBOUND_ART]:
+                if not hasattr(effect, "skybound_art_evo_charge"):
+                    effect.skybound_art_evo_charge = 0
 
         # 키워드별 추가 상태들을 설정합니다.
         self.countdown_value = card_data.get("countdown", None)  # 카운트다운 마법진용입니다.

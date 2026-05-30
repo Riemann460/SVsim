@@ -155,6 +155,7 @@ class ProcessType(Enum):
     ADVANCE_COUNTDOWN = "카운트다운 진행"
     MULTI_ATTACK = "다중 공격"
     GAIN_MAX_PP = "최대 PP 증가"
+    INCREASE_SKYBOUND_ART_GAUGE = "오의 게이지 증가"
 
     # 미구현 프로세스들을 정의합니다.
     DEFINE_VARIABLE = "변수 정의"
