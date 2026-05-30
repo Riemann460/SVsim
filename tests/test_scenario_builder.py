@@ -291,7 +291,9 @@ class TestScenarioBuilderCore(unittest.TestCase):
 
         # 1. 콤보가 아닐 때 (첫 카드 플레이)
         # 팬페어만 발동하여 타겟 중 1명에게만 피해를 주어야 합니다.
+        print("[DEBUG COMBO] combo_count before play:", game.game_state_manager.players["player1"].combo_count)
         game.play_card("player1", sagebrush.card_id)
+        print("[DEBUG COMBO] combo_count after play:", game.game_state_manager.players["player1"].combo_count)
 
         # 콤보 미달성으로 1명만 파괴되고 1명은 살아야 합니다.
         dead_count = sum(1 for f in [target_f1, target_f2] if f.current_zone == Zone.GRAVEYARD)
@@ -827,6 +829,8 @@ class TestScenarioBuilderCore(unittest.TestCase):
 
         # 스타라이트 가디스를 필드에 배치합니다.
         goddess = builder.add_to_field("player1", "10502110")
+        print("[DEBUG GODDESS EFFECTS] raw data:", goddess.card_data.get("effects"))
+        print("[DEBUG GODDESS EFFECTS] parsed objects:", [(e.type, [p.attributes for p in e.processes]) for e in goddess.effects])
 
         # 버리기 대상으로 삼을 손패 카드 3장을 추가합니다.
         discard_card1 = builder.add_to_hand("player1", "10642110")

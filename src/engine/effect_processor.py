@@ -21,7 +21,7 @@ from src.common.enums import CardType, EventType, Zone, TargetType, ProcessType,
 from src.models.card import Card
 from src.engine.game_state_manager import GameStateManager
 from src.models.player import Player
-from src.common.effect import Effect
+from src.common.effect import Effect, Process
 from src.common.event import Event, DestroyedOnFieldEvent, FollowerSuperEvolvedEvent
 
 
@@ -164,18 +164,26 @@ class EffectProcessor:
             return [self._resolve_val(item, x_val) for item in val]
         return val
 
-    def _resolve_effect_variables(self, effect: Effect, x_val: Any) -> None:
-        """효과 내의 모든 동적 변수를 재귀적으로 해석하여 업데이트합니다."""
+    def _resolve_effect_variables(self, effect: Any, x_val: Any) -> None:
+        """효과 및 프로세스 내의 모든 동적 변수를 재귀적으로 해석하여 업데이트합니다."""
         if not effect:
             return
+
+        processes = getattr(effect, "processes", None)
+        if processes:
+            for process in processes:
+                self._resolve_effect_variables(process, x_val)
+
         for key in list(effect.attributes.keys()):
+            if key == "processes":
+                continue
             val = effect.attributes[key]
-            if isinstance(val, Effect):
+            if isinstance(val, (Effect, Process)):
                 self._resolve_effect_variables(val, x_val)
             elif isinstance(val, list):
                 new_list = []
                 for item in val:
-                    if isinstance(item, Effect):
+                    if isinstance(item, (Effect, Process)):
                         self._resolve_effect_variables(item, x_val)
                         new_list.append(item)
                     else:
@@ -190,8 +198,11 @@ class EffectProcessor:
         definition = None
         if isinstance(caster_card, Card):
             for e in caster_card.effects:
-                if getattr(e, 'process', None) == ProcessType.DEFINE_VARIABLE:
-                    definition = e.value
+                for p in e.processes:
+                    if getattr(p, 'process', None) == ProcessType.DEFINE_VARIABLE:
+                        definition = getattr(p, 'value', None)
+                        break
+                if definition:
                     break
             if not definition and caster_card.card_data.raw_effects_text:
                 import re
@@ -200,6 +211,14 @@ class EffectProcessor:
                     definition = match.group(1).strip()
 
         if not definition:
+            # instead 대체 카드의 경우, X의 정의가 명시되지 않았을 때 앞선 Fanfare/Spell 효과의 수치값을 fallback으로 제공합니다.
+            if isinstance(caster_card, Card) and caster_card.card_data.raw_effects_text and "instead" in caster_card.card_data.raw_effects_text.lower():
+                for e in caster_card.effects:
+                    if e.type in [EffectType.FANFARE, EffectType.SPELL]:
+                        for p in e.processes:
+                            val = getattr(p, "value", None)
+                            if val is not None and isinstance(val, int):
+                                return val
             return None
 
         player_id = self._get_owner_id(caster_card)
@@ -267,6 +286,7 @@ class EffectProcessor:
             self._log_error(str(e))
             return []
         handler = self.target_handlers.get(target_type)
+        print(f"[DEBUG INVOKE] target_type={target_type}, handler={handler.__name__ if handler else 'None'}")
         if not handler:
             self._log_error(f"Target type {target_type} has no handler.")
             return []
@@ -409,8 +429,10 @@ class EffectProcessor:
 
     def _get_target_own_hand_choice(self, caster_card: Card, game_state_manager: 'GameStateManager') -> List[Any]:
         """대상 - 자신의 패에서 카드 선택"""
+        print(f"[DEBUG HAND CHOICE] entering choice, caster={caster_card.get_display_name()}")
         owner_id = self._get_owner_id(caster_card)
         hand_cards = game_state_manager.get_cards_in_zone(owner_id, Zone.HAND)
+        print(f"[DEBUG HAND CHOICE] hand_cards={[c.card_id for c in hand_cards]}")
         if not hand_cards:
             return []
 
@@ -603,6 +625,7 @@ class EffectProcessor:
 
     def _process_draw(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
         """처리 - 카드 드로우"""
+        target = self._get_player_entity(target, game_state_manager)
         value = effect_data.value
         target_id = target.player_id
         condition_val = effect_data.get('condition')
@@ -645,6 +668,7 @@ class EffectProcessor:
 
     def _process_add_card_to_hand(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
         """처리 - 패에 카드 추가"""
+        target = self._get_player_entity(target, game_state_manager)
         value = effect_data.value
         target_id = target.player_id
 
@@ -695,6 +719,7 @@ class EffectProcessor:
 
     def _process_summon(self, effect_data: Effect, target: Player, game_state_manager: 'GameStateManager'):
         """처리 - 필드에 카드 소환"""
+        target = self._get_player_entity(target, game_state_manager)
         value = effect_data.value
         target_id = target.player_id
 
@@ -1076,7 +1101,11 @@ class EffectProcessor:
             return
 
         # 설정된 조건이 있는 경우 시전자 카드가 이를 만족하는지 확인합니다.
-        condition_str = effect_data.get("condition")
+        # attributes에 직접 명시된 조건만 이펙트 전체 조건으로 판단하며 위임된 프로세스 조건은 제외합니다.
+        if hasattr(effect_data, "attributes") and isinstance(effect_data.attributes, dict):
+            condition_str = effect_data.attributes.get("condition")
+        else:
+            condition_str = effect_data.get("condition")
         if condition_str and isinstance(condition_str, str):
             from src.common import card_data as cd
             if not cd.evaluate_condition(caster_card, condition_str):
@@ -1086,6 +1115,12 @@ class EffectProcessor:
         from copy import copy
         effect_data = copy(effect_data)
         effect_data.attributes = copy(effect_data.attributes)
+
+        # 하위 프로세스들의 부모 참조를 복사본으로 재바인딩합니다.
+        if hasattr(effect_data, "processes"):
+            for p in effect_data.processes:
+                if isinstance(p, Process):
+                    p.parent_effect = effect_data
 
         effect_data.update(caster_id=caster_id)
 
@@ -1106,6 +1141,7 @@ class EffectProcessor:
                     match = re.search(r"Combo\s*\((\d+)\)", caster_card.card_data.raw_effects_text, re.IGNORECASE)
                     req_combo = int(match.group(1)) if match else 3
                     player = game_state_manager.players[self._get_owner_id(caster_card)]
+                    print(f"[DEBUG INSTEAD] card={caster_card.card_data.name}, req={req_combo}, combo={player.combo_count}")
                     if player.combo_count >= req_combo:
                         print(f"[LOG] 콤보 조건 만족으로 인해 {effect_type.value if effect_type else 'None'} 효과 발동을 건너뛰고 콤보 효과로 대체합니다.")
                         return
@@ -1210,47 +1246,82 @@ class EffectProcessor:
                 print(f"[LOG] 필드에 비술 마법진(Earth Sigil)이 존재하지 않아 흙의 비술 발동 실패.")
                 return
 
-        if effect_data.get('process') == ProcessType.CHOOSE:
-            effect_data.update(caster_id=caster_id)  # caster_id를 Effect 객체에 저장합니다.
-            game_state_manager.is_awaiting_choice = True
-            game_state_manager.pending_choice = effect_data
-            game_state_manager.player_awaiting_choice = self._get_owner_id(caster_card)
-            print(f"[LOG] {self._get_owner_id(caster_card)}의 선택 대기. 선택지: {effect_data.get('choices')}")
-            return  # 여기서 처리를 중단하고 플레이어의 입력을 기다립니다.
+        # Effect 내의 processes 리스트를 순서대로 순회하며 각 프로세스 단계를 처리합니다.
+        for process in effect_data.processes:
+            # 개별 프로세스 레벨의 조건을 검사합니다.
+            proc_condition = getattr(process, "condition", None)
+            if caster_card and hasattr(caster_card, "current_cost"):
+                print(f"[DEBUG DISCARD] process_type={getattr(process, 'process', None)}, condition={proc_condition}, card_cost={caster_card.current_cost}")
+            if proc_condition and isinstance(proc_condition, str):
+                from src.common import card_data as cd
+                if not cd.evaluate_condition(caster_card, proc_condition):
+                    print(f"[LOG] 프로세스 조건 {proc_condition} 미충족으로 프로세스 스킵.")
+                    continue
 
-        # 효과 처리 방식이 없거나 변수 정의인 경우 처리를 스킵하거나 후속 조치를 실행합니다.
-        process_type = getattr(effect_data, "process", None)
-        if not process_type or process_type == ProcessType.DEFINE_VARIABLE:
-            # process가 없더라도 post_action이 있는 경우 시전자 카드를 대상으로 후속 조치를 직접 처리합니다.
-            post_action = getattr(effect_data, "post_action", None)
-            if post_action:
-                proc_val = post_action.process if hasattr(post_action, "process") else post_action.get("process")
-                handler = self.process_handlers.get(proc_val)
-                if handler:
-                    target = game_state_manager.get_entity_by_id(target_id) if target_id else caster_card
-                    handler(post_action, target, game_state_manager)
-            return
+            process_type = getattr(process, "process", None)
 
-        handler = self.process_handlers.get(process_type)
-        if not handler:
-            print(f"[ERROR] 처리 타입 {process_type.value}에 대한 핸들러가 정의되지 않았습니다.")
-            return
+            # process가 없거나 변수 정의인 경우, post_action이 있는 경우에만 처리합니다.
+            if not process_type or process_type == ProcessType.DEFINE_VARIABLE:
+                post_action = getattr(process, "post_action", None)
+                if post_action:
+                    proc_val = post_action.process if hasattr(post_action, "process") else post_action.get("process")
+                    handler = self.process_handlers.get(proc_val)
+                    if handler:
+                        target = game_state_manager.get_entity_by_id(target_id) if target_id else caster_card
+                        if target:
+                            handler(post_action, target, game_state_manager)
+                else:
+                    # post_action이 없고 raw_action_text가 카드 이름이라면 소환 효과로 대체 처리합니다.
+                    raw_text = getattr(process, "raw_action_text", None)
+                    if raw_text and isinstance(raw_text, str):
+                        from src.common import card_data as cd
+                        clean_name = raw_text.strip()
+                        resolved_card = cd.get_card_data_by_id(clean_name)
+                        if not resolved_card:
+                            import re
+                            clean_name = re.sub(r'^(?:an?|the)\s+', '', clean_name, flags=re.IGNORECASE).strip()
+                            resolved_card = cd.get_card_data_by_id(clean_name)
+                        if resolved_card:
+                            player_id = self._get_owner_id(caster_card)
+                            player = game_state_manager.players[player_id]
+                            temp_eff = Effect(value=resolved_card)
+                            self._process_summon(temp_eff, player, game_state_manager)
+                continue
 
-        print(f"[LOG] {caster_card.get_display_name()} (ID: {caster_id})의 키워드 {effect_type.value if effect_type else 'None'} 처리 시작")
+            # ProcessType.CHOOSE (선택 모드) 인 경우 pending_choice 에 전체 이펙트 등록 후 사용자 선택을 대기합니다.
+            if process_type == ProcessType.CHOOSE:
+                effect_data.update(caster_id=caster_id)
+                game_state_manager.is_awaiting_choice = True
+                game_state_manager.pending_choice = effect_data
+                game_state_manager.player_awaiting_choice = self._get_owner_id(caster_card)
+                print(f"[LOG] {self._get_owner_id(caster_card)}의 선택 대기. 선택지: {effect_data.get('choices')}")
+                return
 
-        if target_id:
-            target = game_state_manager.get_entity_by_id(target_id)
-            handler(effect_data, target, game_state_manager)
-            return
+            handler = self.process_handlers.get(process_type)
+            if not handler:
+                print(f"[ERROR] 처리 타입 {process_type.value}에 대한 핸들러가 정의되지 않았습니다.")
+                continue
 
-        target_type = effect_data.get('target')
-        target_list = self.list_target(target_type, caster_id, game_state_manager, effect_data)
+            print(f"[LOG] {caster_card.get_display_name()} (ID: {caster_id})의 키워드 {effect_type.value if effect_type else 'None'} 중 프로세스 {process_type.name} 처리 시작")
 
-        if process_type == ProcessType.DEAL_DAMAGE and effect_data.get('is_split'):
-            self._resolve_split_damage(effect_data, target_list, game_state_manager)
-        else:
-            for target in target_list:
-                handler(effect_data, target, game_state_manager)
+            if target_id:
+                target = game_state_manager.get_entity_by_id(target_id)
+                if target:
+                    handler(process, target, game_state_manager)
+                continue
+
+            target_type = process.get('target')
+            # 개별 프로세스에 target 이 지정되지 않은 경우, Effect 레벨의 target을 대체 사용합니다.
+            if target_type is None:
+                target_type = effect_data.get('target')
+
+            target_list = self.list_target(target_type, caster_id, game_state_manager, process)
+
+            if process_type == ProcessType.DEAL_DAMAGE and process.get('is_split'):
+                self._resolve_split_damage(process, target_list, game_state_manager)
+            else:
+                for target in target_list:
+                    handler(process, target, game_state_manager)
 
     def _process_reduce_cost(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 코스트 감소"""
@@ -1391,6 +1462,12 @@ class EffectProcessor:
             return
 
         new_card_data = effect_data.value
+        # target_type 이 문자열인 경우 TargetType enum으로 안전하게 변환합니다.
+        if isinstance(new_card_data, str):
+            try:
+                new_card_data = TargetType[new_card_data]
+            except KeyError:
+                pass
         owner_id = target.owner_id
         player = game_state_manager.players[owner_id]
 

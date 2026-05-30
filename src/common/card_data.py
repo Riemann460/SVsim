@@ -3,7 +3,7 @@ import os
 import glob
 from typing import List, Any, Dict
 from src.common.enums import CardType, EffectType, TargetType, ProcessType, ClassType, TribeType, EventType
-from src.common.effect import Effect
+from src.common.effect import Effect, Process
 
 KOR_NAME_MAP = {}
 
@@ -96,36 +96,20 @@ class CardData:
             return getattr(self, key)
         raise KeyError(f"CardData에 '{key}' 속성이 없습니다.")
 
-def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
-    """딕셔너리에서 Effect 객체를 로드합니다."""
-    attrs = effect_dict
-    if "type" not in attrs:
-        attrs["type"] = None
-    if "value" not in attrs:
-        attrs["value"] = None
-    if "type" in effect_dict and effect_dict["type"] is not None:
+def _load_process_from_dict(p_dict: Dict[str, Any]) -> Process:
+    """딕셔너리에서 Process 객체를 로드합니다."""
+    attrs = p_dict.copy()
+    if "process" in attrs and attrs["process"] is not None:
         try:
-            attrs["type"] = EffectType[effect_dict["type"]]
+            attrs["process"] = ProcessType[attrs["process"]]
         except KeyError:
-            print(f"[WARNING] EffectType '{effect_dict['type']}' not recognized. Keeping as string.")
-            attrs["type"] = effect_dict["type"]
-    if "target" in effect_dict and effect_dict["target"] is not None:
+            print(f"[WARNING] ProcessType '{attrs['process']}' not recognized. Keeping as string.")
+    if "target" in attrs and attrs["target"] is not None:
         try:
-            attrs["target"] = TargetType[effect_dict["target"]]
+            attrs["target"] = TargetType[attrs["target"]]
         except KeyError:
-            print(f"[WARNING] TargetType '{effect_dict['target']}' not recognized. Keeping as string.")
-            attrs["target"] = effect_dict["target"]
-    if "process" in effect_dict and effect_dict["process"] is not None:
-        try:
-            attrs["process"] = ProcessType[effect_dict["process"]]
-        except KeyError:
-            print(f"[WARNING] ProcessType '{effect_dict['process']}' not recognized. Keeping as string.")
-            attrs["process"] = effect_dict["process"]
+            print(f"[WARNING] TargetType '{attrs['target']}' not recognized. Keeping as string.")
 
-    if isinstance(attrs.get("type"), str):
-        original = attrs["type"]
-        attrs["type"] = EffectType.FANFARE
-        attrs["raw_type"] = original
     if isinstance(attrs.get("target"), str):
         original = attrs["target"]
         attrs["target"] = TargetType.SELF
@@ -134,27 +118,92 @@ def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
         original = attrs["process"]
         attrs["process"] = ProcessType.ADD_CARD_TO_HAND
         attrs["raw_process"] = original
+
+    if "process" in attrs and (attrs["process"] in [ProcessType.REMOVE_KEYWORD, ProcessType.TRIGGER_EFFECT]) and "value" in attrs and isinstance(attrs["value"], str):
+        try:
+            attrs["value"] = EffectType[attrs["value"].upper()]
+        except KeyError:
+            print(f"[WARNING] EffectType '{attrs['value']}' not found for {attrs['process'].name} process.")
+
+    if "value" in attrs and isinstance(attrs["value"], dict):
+        attrs["value"] = _load_effect_from_dict(attrs["value"])
+    elif "value" in attrs and isinstance(attrs["value"], list):
+        attrs["value"] = [
+            _load_effect_from_dict(item) if isinstance(item, dict) else item
+            for item in attrs["value"]
+        ]
+
+    return Process(**attrs)
+
+
+def _load_effect_from_dict(effect_dict: Dict[str, Any]) -> Effect:
+    """딕셔너리에서 Effect 객체를 로드합니다."""
+    attrs = effect_dict.copy()
+    if "type" not in attrs:
+        attrs["type"] = None
+    if "type" in attrs and attrs["type"] is not None:
+        try:
+            attrs["type"] = EffectType[attrs["type"]]
+        except KeyError:
+            print(f"[WARNING] EffectType '{attrs['type']}' not recognized. Keeping as string.")
+
+    if isinstance(attrs.get("type"), str):
+        original = attrs["type"]
+        attrs["type"] = EffectType.FANFARE
+        attrs["raw_type"] = original
+
+    if "choices" in attrs and isinstance(attrs["choices"], list):
+        attrs["choices"] = [_load_effect_from_dict(item) for item in attrs["choices"] if isinstance(item, dict)]
+
+    processes = []
+    if "processes" in attrs and isinstance(attrs["processes"], list):
+        for p_dict in attrs["processes"]:
+            if isinstance(p_dict, dict):
+                processes.append(_load_process_from_dict(p_dict))
+    elif "process" in attrs and attrs["process"] is not None:
+        p_dict = {
+            "process": attrs.get("process"),
+            "target": attrs.get("target"),
+            "value": attrs.get("value"),
+            "condition": attrs.get("condition"),
+            "is_split": attrs.get("is_split"),
+            "extra_effect": attrs.get("extra_effect")
+        }
+        p_dict = {k: v for k, v in p_dict.items() if v is not None}
+        processes.append(_load_process_from_dict(p_dict))
+
+    attrs["processes"] = processes
+
     if attrs.get("target") is None:
         effect_type = attrs.get("type")
-        process_type = attrs.get("process")
+        process_val = attrs.get("process")
+        process_type = None
+        if isinstance(process_val, str):
+            try:
+                process_type = ProcessType[process_val]
+            except KeyError:
+                pass
+        elif isinstance(process_val, ProcessType):
+            process_type = process_val
+
         if effect_type in [EffectType.ON_EVOLVE, EffectType.ON_SUPER_EVOLVE] or process_type == ProcessType.TRIGGER_EFFECT:
             attrs["target"] = TargetType.SELF
         elif process_type == ProcessType.RETURN_TO_DECK:
             attrs["target"] = TargetType.OWN_HAND_CHOICE
-    for key, value in effect_dict.items():
-        if isinstance(value, dict):
-            attrs[key] = _load_effect_from_dict(value)
-        elif isinstance(value, list) and key == "choices":
-            attrs[key] = [_load_effect_from_dict(item) for item in value if isinstance(item, dict)]
-    if "process" in effect_dict and (attrs["process"] in [ProcessType.REMOVE_KEYWORD, ProcessType.TRIGGER_EFFECT]) and "value" in effect_dict and isinstance(effect_dict["value"], str):
+
+    if "target" in attrs and isinstance(attrs["target"], str):
         try:
-            attrs["value"] = EffectType[effect_dict["value"].upper()]
+            attrs["target"] = TargetType[attrs["target"]]
         except KeyError:
-            print(f"[WARNING] EffectType '{effect_dict['value']}' not found for {attrs['process'].name} effect.")
-    condition = effect_dict.get("condition")
+            original = attrs["target"]
+            attrs["target"] = TargetType.SELF
+            attrs["raw_target"] = original
+
+    condition = attrs.get("condition")
     if condition:
         attrs["condition"] = condition
     return Effect(**attrs)
+
 
 def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
     """딕셔너리에서 카드 데이터를 읽어들입니다."""
@@ -229,6 +278,7 @@ def _load_card_data_from_dict(card_dict: Dict[str, Any]) -> CardData:
     )
     return card_data_obj
 
+
 def _is_safe_runtime_directive(val: str) -> bool:
     """런타임에 해석해야 하는 안전한 지시어인지 검사합니다."""
     directives = [
@@ -239,6 +289,7 @@ def _is_safe_runtime_directive(val: str) -> bool:
     ]
     val_lower = val.lower()
     return any(d in val_lower for d in directives) or "+" in val or "-" in val
+
 
 def _is_missing_token_card(name: str) -> bool:
     """데이터베이스에 누락되었으나 실재하는 토큰 카드명인지 검사합니다."""
@@ -258,6 +309,7 @@ def _is_missing_token_card(name: str) -> bool:
             return False
         return True
     return False
+
 
 def _create_dummy_card(name: str, global_card_db: Dict[str, CardData]) -> CardData:
     """누락된 토큰 카드에 대해 임시 더미 카드 데이터를 생성합니다."""
@@ -281,7 +333,8 @@ def _create_dummy_card(name: str, global_card_db: Dict[str, CardData]) -> CardDa
     global_card_db[dummy_id] = dummy
     return dummy
 
-def _resolve_single_value(val: str, effect: Effect, card_id: str, global_card_db: Dict[str, CardData]) -> Any:
+
+def _resolve_single_value(val: str, effect: Any, card_id: str, global_card_db: Dict[str, CardData]) -> Any:
     """단일 문자열 값에 대한 카드 참조를 파싱하고 해결합니다."""
     for connector in [" and give them ", " and give it "]:
         if connector in val:
@@ -303,42 +356,41 @@ def _resolve_single_value(val: str, effect: Effect, card_id: str, global_card_db
         return _create_dummy_card(val, global_card_db)
     if _is_safe_runtime_directive(val):
         return val
-    print(f"[WARNING] 카드 {card_id}의 프로세스 {effect.process.name}에서 카드 데이터 '{val}'을(를) 찾을 수 없습니다.")
+    print(f"[WARNING] 카드 {card_id}의 프로세스에서 카드 데이터 '{val}'을(를) 찾을 수 없습니다.")
     return val
 
-def _resolve_effect_references_recursive(effect: Effect, card_id: str, global_card_db: Dict[str, CardData]):
-    """개별 효과 및 내포된 후속 조치의 카드 참조를 재귀적으로 해결합니다."""
-    if not isinstance(effect, Effect):
-        return
-    if "process" in effect.attributes.keys() and effect.process in [ProcessType.ADD_CARD_TO_HAND, ProcessType.SUMMON, ProcessType.REPLACE_DECK]:
-        effect_value = getattr(effect, "value", None)
-        if isinstance(effect_value, str):
-            resolved_val = _resolve_single_value(effect_value, effect, card_id, global_card_db)
-            effect.value = resolved_val
-            effect.attributes["value"] = resolved_val
-        elif isinstance(effect_value, list):
+
+def _resolve_process_references(process: Process, card_id: str, global_card_db: Dict[str, CardData]):
+    """개별 프로세스의 카드 참조를 해결합니다."""
+    process_type = getattr(process, "process", None)
+    if process_type in [ProcessType.ADD_CARD_TO_HAND, ProcessType.SUMMON, ProcessType.REPLACE_DECK]:
+        process_value = getattr(process, "value", None)
+        if isinstance(process_value, str):
+            resolved_val = _resolve_single_value(process_value, process, card_id, global_card_db)
+            process.value = resolved_val
+            process.attributes["value"] = resolved_val
+        elif isinstance(process_value, list):
             resolved_list = []
-            for item in effect_value:
+            for item in process_value:
                 if isinstance(item, str):
-                    resolved_list.append(_resolve_single_value(item, effect, card_id, global_card_db))
+                    resolved_list.append(_resolve_single_value(item, process, card_id, global_card_db))
                 else:
                     resolved_list.append(item)
-            effect.value = resolved_list
-            effect.attributes["value"] = resolved_list
-    elif "value" in effect.attributes.keys():
-        process_type = getattr(effect, 'process', None)
-        process_name = process_type.name if process_type else 'None'
+            process.value = resolved_list
+            process.attributes["value"] = resolved_list
+    elif "value" in process.attributes.keys():
+        process_name = process_type.name if hasattr(process_type, "name") else str(process_type)
         if process_type == ProcessType.ADD_EFFECT:
-            if isinstance(effect.value, str):
+            if isinstance(process.value, str):
                 try:
-                    keyword_enum = EffectType[effect.value.upper()]
-                    effect.value = Effect(type=keyword_enum, value=None)
-                    effect.attributes["value"] = effect.value
+                    keyword_enum = EffectType[process.value.upper()]
+                    process.value = Effect(type=keyword_enum, value=None)
+                    process.attributes["value"] = process.value
                 except KeyError:
-                    print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name}에 예기치 않은 스트링 입력 {effect.value}.")
-            elif isinstance(effect.value, list):
+                    print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name}에 예기치 않은 스트링 입력 {process.value}.")
+            elif isinstance(process.value, list):
                 resolved_list = []
-                for v in effect.value:
+                for v in process.value:
                     if isinstance(v, str):
                         try:
                             keyword_enum = EffectType[v.upper()]
@@ -347,18 +399,18 @@ def _resolve_effect_references_recursive(effect: Effect, card_id: str, global_ca
                             print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name}에 예기치 않은 스트링 입력 {v}.")
                     else:
                         resolved_list.append(v)
-                effect.value = resolved_list
-                effect.attributes["value"] = resolved_list
-        elif isinstance(effect.value, str):
-            if effect.value in TargetType.__members__:
-                effect.value = TargetType[effect.value]
-                effect.attributes["value"] = effect.value
-            elif "random card in your opponent's deck" in effect.value or "random cards in your opponent's deck" in effect.value:
-                effect.value = TargetType.OPPONENT_DECK_RANDOM
-                effect.attributes["value"] = effect.value
-            elif "random followers in your deck" in effect.value:
-                effect.value = TargetType.OWN_DECK_RANDOM_FOLLOWER
-                effect.attributes["value"] = effect.value
+                process.value = resolved_list
+                process.attributes["value"] = resolved_list
+        elif isinstance(process.value, str):
+            if process.value in TargetType.__members__:
+                process.value = TargetType[process.value]
+                process.attributes["value"] = process.value
+            elif "random card in your opponent's deck" in process.value or "random cards in your opponent's deck" in process.value:
+                process.value = TargetType.OPPONENT_DECK_RANDOM
+                process.attributes["value"] = process.value
+            elif "random followers in your deck" in process.value:
+                process.value = TargetType.OWN_DECK_RANDOM_FOLLOWER
+                process.attributes["value"] = process.value
             else:
                 safe_string_processes = {
                     ProcessType.DEAL_DAMAGE,
@@ -383,7 +435,37 @@ def _resolve_effect_references_recursive(effect: Effect, card_id: str, global_ca
                     ProcessType.SUMMON_COPY,
                 }
                 if process_type not in safe_string_processes:
-                    print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name}에 예기치 않은 스트링 입력 {effect.value}.")
+                    print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name}에 예기치 않은 스트링 입력 {process.value}.")
+
+
+def _resolve_effect_references_recursive(effect: Effect, card_id: str, global_card_db: Dict[str, CardData]):
+    """개별 효과 및 내포된 후속 조치의 카드 참조를 재귀적으로 해결합니다."""
+    if not isinstance(effect, Effect):
+        return
+
+    for process in effect.processes:
+        _resolve_process_references(process, card_id, global_card_db)
+
+    choices = getattr(effect, "choices", None)
+    if choices:
+        for choice in choices:
+            _resolve_effect_references_recursive(choice, card_id, global_card_db)
+
+    if "process" in effect.attributes.keys() and effect.process in [ProcessType.ADD_CARD_TO_HAND, ProcessType.SUMMON, ProcessType.REPLACE_DECK]:
+        effect_value = getattr(effect, "value", None)
+        if isinstance(effect_value, str):
+            resolved_val = _resolve_single_value(effect_value, effect, card_id, global_card_db)
+            effect.value = resolved_val
+            effect.attributes["value"] = resolved_val
+        elif isinstance(effect_value, list):
+            resolved_list = []
+            for item in effect_value:
+                if isinstance(item, str):
+                    resolved_list.append(_resolve_single_value(item, effect, card_id, global_card_db))
+                else:
+                    resolved_list.append(item)
+            effect.value = resolved_list
+            effect.attributes["value"] = resolved_list
 
     post_action = getattr(effect, "post_action", None)
     if post_action:
