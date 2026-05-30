@@ -11,14 +11,18 @@
         "tribes": [],
         "effects": [
             {
+                "type": "ENHANCE",
                 "enhance_cost": 4,
-                "process": "STAT_BUFF",
-                "target": "SELF",
-                "value": [
-                    3,
-                    3
-                ],
-                "type": "ENHANCE"
+                "processes": [
+                    {
+                        "process": "STAT_BUFF",
+                        "target": "SELF",
+                        "value": [
+                            3,
+                            3
+                        ]
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Enhance (4): Give this follower +3/+3.",
@@ -38,19 +42,28 @@
         "tribes": [],
         "effects": [
             {
-                "type": "WARD"
+                "type": "WARD",
+                "processes": []
             },
             {
-                "process": "DRAW",
-                "value": 1,
-                "target": "OWN_LEADER",
-                "type": "LAST_WORDS"
+                "type": "LAST_WORDS",
+                "processes": [
+                    {
+                        "process": "DRAW",
+                        "target": "OWN_LEADER",
+                        "value": 1
+                    }
+                ]
             },
             {
-                "process": "DRAW",
-                "value": 1,
-                "target": "OWN_LEADER",
-                "type": "ON_EVOLVE"
+                "type": "ON_EVOLVE",
+                "processes": [
+                    {
+                        "process": "DRAW",
+                        "target": "OWN_LEADER",
+                        "value": 1
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Ward\nLast Words: Draw a card.\nEvolve: Draw a card.",
@@ -72,7 +85,8 @@
         "tribes": [],
         "effects": [
             {
-                "type": "WARD"
+                "type": "WARD",
+                "processes": []
             }
         ],
         "raw_effects_text": "Ward",
@@ -91,19 +105,26 @@
         "effects": [
             {
                 "type": "ENGAGE",
-                "process": "DESTROY",
-                "target": "SELF"
+                "processes": [
+                    {
+                        "process": "DESTROY",
+                        "target": "SELF"
+                    }
+                ]
             },
             {
                 "type": "ENGAGE",
-                "process": "SELECT",
-                "target": "OPPONENT_FOLLOWER_CHOICE",
-                "post_action": {
-                    "type": "SPELL",
-                    "process": "REMOVE_KEYWORD",
-                    "target": "SELF",
-                    "value": "Ward"
-                }
+                "processes": [
+                    {
+                        "process": "SELECT",
+                        "target": "OPPONENT_FOLLOWER_CHOICE",
+                        "post_action": {
+                            "process": "REMOVE_KEYWORD",
+                            "target": "SELF",
+                            "value": "Ward"
+                        }
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Engage: Destroy this card. Select an enemy follower on the field and remove Ward from it.",
@@ -123,16 +144,23 @@
         "tribes": [],
         "effects": [
             {
-                "process": "HEAL",
-                "target": "OWN_LEADER",
-                "value": 2,
-                "type": "ON_EVOLVE"
+                "type": "ON_EVOLVE",
+                "processes": [
+                    {
+                        "process": "HEAL",
+                        "target": "OWN_LEADER",
+                        "value": 2
+                    }
+                ]
             },
             {
-                "process": "HEAL",
-                "raw_target_text": "instead",
-                "value": 4,
-                "type": "ON_SUPER_EVOLVE"
+                "type": "ON_SUPER_EVOLVE",
+                "processes": [
+                    {
+                        "process": "HEAL",
+                        "value": 4
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Evolve: Restore 2 defense to your leader.\nSuper-Evolve: Restore 4 defense instead.",
@@ -168,32 +196,43 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "DRAW",
-                "value": 1,
-                "target": "OWN_LEADER",
-                "condition": "CARD_TYPE_FOLLOWER"
+                "processes": [
+                    {
+                        "process": "DRAW",
+                        "value": 1,
+                        "target": "OWN_LEADER",
+                        "condition": "CARD_TYPE_FOLLOWER"
+                    }
+                ]
             },
             {
                 "type": "ENGAGE",
-                "process": "DESTROY",
-                "target": "SELF"
+                "processes": [
+                    {
+                        "process": "DESTROY",
+                        "target": "SELF"
+                    }
+                ]
             },
             {
                 "type": "ENGAGE",
-                "process": "SELECT",
-                "target": "ALLY_FOLLOWER_CHOICE",
-                "post_action": {
-                    "type": "SPELL",
-                    "process": "ADD_EFFECT",
-                    "target": "SELF",
-                    "value": "Rush"
-                }
+                "processes": [
+                    {
+                        "process": "SELECT",
+                        "target": "ALLY_FOLLOWER_CHOICE",
+                        "post_action": {
+                            "process": "ADD_EFFECT",
+                            "target": "SELF",
+                            "value": "Rush"
+                        }
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Draw a follower.\nEngage: Destroy this card. Select an allied follower on the field and give it Rush.",
         "required_listeners": [
-            "CARD_PLAYED",
-            "CARD_ENGAGED"
+            "CARD_ENGAGED",
+            "CARD_PLAYED"
         ]
     },
     "10011110": {
@@ -209,12 +248,16 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "ADD_CARD_TO_HAND",
-                "value": [
-                    "Fairy",
-                    "Fairy"
-                ],
-                "target": "OWN_LEADER"
+                "processes": [
+                    {
+                        "process": "ADD_CARD_TO_HAND",
+                        "value": [
+                            "Fairy",
+                            "Fairy"
+                        ],
+                        "target": "OWN_LEADER"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Add 2 copies of Fairy to your hand.",
@@ -235,8 +278,12 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "INCREASE_COMBO",
-                "value": 1
+                "processes": [
+                    {
+                        "process": "INCREASE_COMBO",
+                        "value": 1
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Increase your Combo by 1.",
@@ -257,13 +304,21 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "EVOLVE"
+                "processes": [
+                    {
+                        "process": "EVOLVE"
+                    }
+                ]
             },
             {
-                "process": "HEAL",
-                "target": "OWN_LEADER",
-                "value": 2,
-                "type": "STRIKE"
+                "type": "STRIKE",
+                "processes": [
+                    {
+                        "process": "HEAL",
+                        "target": "OWN_LEADER",
+                        "value": 2
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Combo (3) - Evolve this follower.\nStrike: Restore 2 defense to your leader.",
@@ -285,27 +340,40 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "ADD_CARD_TO_HAND",
-                "target": "OWN_LEADER",
-                "value": "Fairy"
+                "processes": [
+                    {
+                        "process": "ADD_CARD_TO_HAND",
+                        "target": "OWN_LEADER",
+                        "value": "Fairy"
+                    }
+                ]
             },
             {
+                "type": "COUNTDOWN",
                 "value": 2,
-                "type": "COUNTDOWN"
+                "processes": [
+                    {
+                        "value": 2
+                    }
+                ]
             },
             {
+                "type": "ON_FOLLOWER_ENTER_FIELD",
                 "condition_text": "an allied Pixie follower",
-                "process": "DEAL_DAMAGE",
-                "target": "OPPONENT_FOLLOWER_RANDOM",
-                "value": 1,
-                "type": "ON_FOLLOWER_ENTER_FIELD"
+                "processes": [
+                    {
+                        "process": "DEAL_DAMAGE",
+                        "target": "OPPONENT_FOLLOWER_RANDOM",
+                        "value": 1
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Add a Fairy to your hand.\nCountdown (2)\nWhenever an allied Pixie follower enters the field, deal 1 damage to a random enemy follower.",
         "required_listeners": [
+            "FOLLOWER_ENTER_FIELD",
             "CARD_PLAYED",
-            "TURN_START",
-            "FOLLOWER_ENTER_FIELD"
+            "TURN_START"
         ]
     },
     "10012110": {
@@ -321,14 +389,17 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "SELECT",
-                "target": "OPPONENT_FOLLOWER_CHOICE",
-                "post_action": {
-                    "type": "FANFARE",
-                    "process": "DEAL_DAMAGE",
-                    "value": 3,
-                    "target": "SELF"
-                }
+                "processes": [
+                    {
+                        "process": "SELECT",
+                        "target": "OPPONENT_FOLLOWER_CHOICE",
+                        "post_action": {
+                            "process": "DEAL_DAMAGE",
+                            "value": 3,
+                            "target": "SELF"
+                        }
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Combo (3) - Select an enemy follower on the field and deal it 3 damage.",
@@ -348,12 +419,17 @@
         "tribes": [],
         "effects": [
             {
-                "type": "STORM"
+                "type": "STORM",
+                "processes": []
             },
             {
-                "process": "RETURN_TO_HAND",
-                "target": "OPPONENT_FOLLOWER_CHOICE",
-                "type": "ON_SUPER_EVOLVE"
+                "type": "ON_SUPER_EVOLVE",
+                "processes": [
+                    {
+                        "process": "RETURN_TO_HAND",
+                        "target": "OPPONENT_FOLLOWER_CHOICE"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Storm\nSuper-Evolve: Select an enemy follower on the field and return it to hand.",
@@ -374,18 +450,25 @@
         "effects": [
             {
                 "type": "SPELL",
-                "process": "SELECT",
-                "raw_target_text": "an allied card on the field",
-                "post_action": {
-                    "type": "SPELL",
-                    "raw_action_text": "return it to hand"
-                }
+                "processes": [
+                    {
+                        "process": "SELECT",
+                        "raw_target_text": "an allied card on the field",
+                        "post_action": {
+                            "raw_action_text": "return it to hand"
+                        }
+                    }
+                ]
             },
             {
-                "process": "DEAL_DAMAGE",
-                "target": "OPPONENT_FOLLOWER_RANDOM",
-                "value": 2,
-                "type": "SPELL"
+                "type": "SPELL",
+                "processes": [
+                    {
+                        "process": "DEAL_DAMAGE",
+                        "target": "OPPONENT_FOLLOWER_RANDOM",
+                        "value": 2
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Select an allied card on the field and return it to hand. Deal 2 damage to a random enemy follower.",
@@ -405,7 +488,8 @@
         "tribes": [],
         "effects": [
             {
-                "type": "STORM"
+                "type": "STORM",
+                "processes": []
             }
         ],
         "raw_effects_text": "Storm",
@@ -423,13 +507,18 @@
         "tribes": [],
         "effects": [
             {
-                "type": "RUSH"
+                "type": "RUSH",
+                "processes": []
             },
             {
-                "process": "DRAW",
-                "value": 1,
-                "target": "OWN_LEADER",
-                "type": "LAST_WORDS"
+                "type": "LAST_WORDS",
+                "processes": [
+                    {
+                        "process": "DRAW",
+                        "target": "OWN_LEADER",
+                        "value": 1
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Rush\nLast Words: Draw a card.",
@@ -449,7 +538,8 @@
         "tribes": [],
         "effects": [
             {
-                "type": "STORM"
+                "type": "STORM",
+                "processes": []
             }
         ],
         "raw_effects_text": "Storm",
@@ -468,21 +558,28 @@
         "effects": [
             {
                 "type": "SPELL",
-                "process": "SELECT",
-                "target": "OWN_HAND_CHOICE",
-                "post_action": {
-                    "type": "SPELL",
-                    "raw_action_text": "return it to deck"
-                }
+                "processes": [
+                    {
+                        "process": "SELECT",
+                        "target": "OWN_HAND_CHOICE",
+                        "post_action": {
+                            "raw_action_text": "return it to deck"
+                        }
+                    }
+                ]
             },
             {
-                "process": "DRAW",
-                "value": [
-                    "Swordcraft followers",
-                    "Swordcraft followers"
-                ],
-                "target": "OWN_LEADER",
-                "type": "SPELL"
+                "type": "SPELL",
+                "processes": [
+                    {
+                        "process": "DRAW",
+                        "value": [
+                            "Swordcraft followers",
+                            "Swordcraft followers"
+                        ],
+                        "target": "OWN_LEADER"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Select a card in your hand and return it to deck. Draw 2 Swordcraft followers.",
@@ -502,10 +599,14 @@
         "tribes": [],
         "effects": [
             {
-                "process": "SUMMON",
-                "target": "OWN_LEADER",
-                "value": "Knight",
-                "type": "LAST_WORDS"
+                "type": "LAST_WORDS",
+                "processes": [
+                    {
+                        "process": "SUMMON",
+                        "target": "OWN_LEADER",
+                        "value": "Knight"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Last Words: Summon a Knight.",
@@ -525,10 +626,14 @@
         "tribes": [],
         "effects": [
             {
-                "process": "ADD_EFFECT",
-                "target": "SELF",
-                "value": "Storm",
-                "type": "ON_SUPER_EVOLVE"
+                "type": "ON_SUPER_EVOLVE",
+                "processes": [
+                    {
+                        "process": "ADD_EFFECT",
+                        "target": "SELF",
+                        "value": "Storm"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Super-Evolve: Draw all copies of Rusty, Luxcard Trickster and give them Storm.",
@@ -548,18 +653,27 @@
         "tribes": [],
         "effects": [
             {
+                "type": "COUNTDOWN",
                 "value": 4,
-                "type": "COUNTDOWN"
+                "processes": [
+                    {
+                        "value": 4
+                    }
+                ]
             },
             {
+                "type": "ON_FOLLOWER_ENTER_FIELD",
                 "condition_text": "an allied follower",
-                "process": "STAT_BUFF",
-                "target": "SELF",
-                "value": [
-                    1,
-                    1
-                ],
-                "type": "ON_FOLLOWER_ENTER_FIELD"
+                "processes": [
+                    {
+                        "process": "STAT_BUFF",
+                        "target": "SELF",
+                        "value": [
+                            1,
+                            1
+                        ]
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Countdown (4)\nWhenever an allied follower enters the field, give it +1/+1.",
@@ -581,13 +695,25 @@
         "effects": [
             {
                 "type": "FANFARE",
+                "processes": [
+                    {
+                        "process": "CHOOSE"
+                    }
+                ],
                 "process": "CHOOSE",
                 "choices": [
                     {
                         "process": "SPELLBOOST_HAND",
                         "value": 2,
                         "target": "OWN_LEADER",
-                        "type": "SPELL"
+                        "type": "SPELL",
+                        "processes": [
+                            {
+                                "process": "SPELLBOOST_HAND",
+                                "target": "OWN_LEADER",
+                                "value": 2
+                            }
+                        ]
                     },
                     {
                         "process": "STAT_BUFF",
@@ -596,7 +722,17 @@
                             2,
                             2
                         ],
-                        "type": "SPELL"
+                        "type": "SPELL",
+                        "processes": [
+                            {
+                                "process": "STAT_BUFF",
+                                "target": "SELF",
+                                "value": [
+                                    2,
+                                    2
+                                ]
+                            }
+                        ]
                     }
                 ]
             }
@@ -621,22 +757,32 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "DRAW",
-                "value": 1,
-                "target": "OWN_LEADER"
+                "processes": [
+                    {
+                        "process": "DRAW",
+                        "value": 1,
+                        "target": "OWN_LEADER"
+                    }
+                ]
             },
             {
-                "type": "EARTH_SIGIL"
+                "type": "EARTH_SIGIL",
+                "processes": []
             },
             {
                 "type": "ENGAGE",
-                "process": "GAIN_EARTH_SIGIL"
+                "cost": 1,
+                "processes": [
+                    {
+                        "process": "GAIN_EARTH_SIGIL"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Draw a card.\nEarth Sigil\nEngage (1): Gain an earth sigil.",
         "required_listeners": [
-            "CARD_PLAYED",
-            "CARD_ENGAGED"
+            "CARD_ENGAGED",
+            "CARD_PLAYED"
         ]
     },
     "10031310": {
@@ -651,10 +797,14 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DRAW",
-                "value": 1,
-                "target": "OWN_LEADER",
-                "type": "SPELL"
+                "type": "SPELL",
+                "processes": [
+                    {
+                        "process": "DRAW",
+                        "value": 1,
+                        "target": "OWN_LEADER"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Draw a card.",
@@ -674,10 +824,14 @@
         "tribes": [],
         "effects": [
             {
-                "process": "SUMMON",
-                "target": "OWN_LEADER",
-                "value": "Clay Golem",
-                "type": "SPELL"
+                "type": "SPELL",
+                "processes": [
+                    {
+                        "process": "SUMMON",
+                        "target": "OWN_LEADER",
+                        "value": "Clay Golem"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Summon a Clay Golem.",
@@ -698,24 +852,32 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "SUMMON",
-                "target": "OWN_LEADER",
-                "value": "Guardian Golem"
+                "processes": [
+                    {
+                        "process": "SUMMON",
+                        "target": "OWN_LEADER",
+                        "value": "Guardian Golem"
+                    }
+                ]
             },
             {
-                "process": "STAT_BUFF",
-                "target": "SELF",
-                "value": [
-                    3,
-                    3
-                ],
-                "type": "ON_SUPER_EVOLVE"
+                "type": "ON_SUPER_EVOLVE",
+                "processes": [
+                    {
+                        "process": "STAT_BUFF",
+                        "target": "SELF",
+                        "value": [
+                            3,
+                            3
+                        ]
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Earth Rite (1) - Summon a Guardian Golem.\nSuper-Evolve: Select an allied Golem follower on the field, evolve it, and give it +3/+3.",
         "required_listeners": [
-            "CARD_PLAYED",
-            "FOLLOWER_SUPER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED"
         ]
     },
     "10032120": {
@@ -730,10 +892,14 @@
         "tribes": [],
         "effects": [
             {
-                "process": "REDUCE_COST",
-                "target": "SELF",
-                "value": 1,
-                "type": "SPELLBOOST"
+                "type": "SPELLBOOST",
+                "processes": [
+                    {
+                        "process": "REDUCE_COST",
+                        "target": "SELF",
+                        "value": 1
+                    }
+                ]
             }
         ],
         "raw_effects_text": "On Spellboost: Reduce the cost of this card by 1.",
@@ -751,16 +917,25 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DEAL_DAMAGE",
-                "target": "ALL_FOLLOWERS",
-                "value": 2,
-                "type": "SPELL"
+                "type": "SPELL",
+                "processes": [
+                    {
+                        "process": "DEAL_DAMAGE",
+                        "target": "ALL_FOLLOWERS",
+                        "value": 2
+                    }
+                ]
             },
             {
+                "type": "EARTH_RITE",
                 "value": 1,
-                "process": "DRAW",
-                "target": "OWN_LEADER",
-                "type": "EARTH_RITE"
+                "processes": [
+                    {
+                        "process": "DRAW",
+                        "target": "OWN_LEADER",
+                        "value": 1
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Deal 2 damage to all followers. Earth Rite (1) - Draw a card.",
@@ -781,14 +956,17 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "SELECT",
-                "target": "OPPONENT_FOLLOWER_CHOICE",
-                "post_action": {
-                    "type": "FANFARE",
-                    "process": "DEAL_DAMAGE",
-                    "value": 1,
-                    "target": "SELF"
-                }
+                "processes": [
+                    {
+                        "process": "SELECT",
+                        "target": "OPPONENT_FOLLOWER_CHOICE",
+                        "post_action": {
+                            "process": "DEAL_DAMAGE",
+                            "value": 1,
+                            "target": "SELF"
+                        }
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Select an enemy follower on the field and deal it 1 damage.",
@@ -808,7 +986,8 @@
         "tribes": [],
         "effects": [
             {
-                "type": "WARD"
+                "type": "WARD",
+                "processes": []
             }
         ],
         "raw_effects_text": "Ward",
@@ -827,9 +1006,13 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "DEAL_DAMAGE",
-                "target": "OPPONENT_LEADER",
-                "value": 6
+                "processes": [
+                    {
+                        "process": "DEAL_DAMAGE",
+                        "target": "OPPONENT_LEADER",
+                        "value": 6
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Deal 6 damage to the enemy leader.",
@@ -850,18 +1033,29 @@
         "effects": [
             {
                 "type": "SPELL",
-                "process": "SELECT",
-                "target": "OPPONENT_FOLLOWER_CHOICE",
-                "post_action": {
-                    "type": "SPELL",
-                    "process": "DEAL_DAMAGE",
-                    "value": 2,
-                    "target": "SELF"
-                }
+                "processes": [
+                    {
+                        "process": "SELECT",
+                        "target": "OPPONENT_FOLLOWER_CHOICE",
+                        "post_action": {
+                            "process": "DEAL_DAMAGE",
+                            "value": 2,
+                            "target": "SELF"
+                        }
+                    }
+                ]
             },
             {
-                "process": "CONDITIONAL_EFFECT",
-                "type": "SPELL"
+                "type": "SPELL",
+                "processes": [
+                    {
+                        "raw_action_text": "If you're in Overflow"
+                    },
+                    {
+                        "process": "DEAL_DAMAGE",
+                        "value": 4
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Select an enemy follower on the field and deal it 2 damage. If you're in Overflow, deal 4 damage instead.",
@@ -881,16 +1075,24 @@
         "tribes": [],
         "effects": [
             {
-                "process": "DEAL_DAMAGE",
-                "target": "OPPONENT_FOLLOWER_CHOICE",
-                "value": 4,
-                "type": "ON_EVOLVE"
+                "type": "ON_EVOLVE",
+                "processes": [
+                    {
+                        "process": "DEAL_DAMAGE",
+                        "target": "OPPONENT_FOLLOWER_CHOICE",
+                        "value": 4
+                    }
+                ]
             },
             {
-                "process": "DEAL_DAMAGE",
-                "target": "ALL_OPPONENT_FOLLOWERS",
-                "value": "X",
-                "type": "ON_SUPER_EVOLVE"
+                "type": "ON_SUPER_EVOLVE",
+                "processes": [
+                    {
+                        "process": "DEAL_DAMAGE",
+                        "target": "ALL_OPPONENT_FOLLOWERS",
+                        "value": "X"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Evolve: Select an enemy follower on the field and deal it 4 damage.\nSuper-Evolve: Deal damage to all enemy followers instead.",
@@ -911,11 +1113,15 @@
         "tribes": [],
         "effects": [
             {
+                "type": "ENHANCE",
                 "enhance_cost": 7,
-                "process": "SUMMON",
-                "target": "OWN_LEADER",
-                "value": "Vastwing Dragon",
-                "type": "ENHANCE"
+                "processes": [
+                    {
+                        "process": "SUMMON",
+                        "target": "OWN_LEADER",
+                        "value": "Vastwing Dragon"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Enhance (7): Summon a Vastwing Dragon.",
@@ -935,15 +1141,29 @@
         "tribes": [],
         "effects": [
             {
-                "process": "GAIN_MAX_PP",
-                "value": 1,
-                "type": "SPELL"
+                "type": "SPELL",
+                "processes": [
+                    {
+                        "process": "GAIN_MAX_PP",
+                        "value": 1
+                    }
+                ]
             },
             {
-                "process": "DRAW",
-                "value": 1,
-                "target": "OWN_LEADER",
-                "type": "SPELL"
+                "type": "SPELL",
+                "processes": [
+                    {
+                        "raw_action_text": "Then"
+                    },
+                    {
+                        "raw_action_text": "if you have 10 max play points"
+                    },
+                    {
+                        "process": "DRAW",
+                        "value": 1,
+                        "target": "OWN_LEADER"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Gain 1 max play point. Then, if you have 10 max play points, draw a card.",
@@ -963,10 +1183,12 @@
         "tribes": [],
         "effects": [
             {
-                "type": "STORM"
+                "type": "STORM",
+                "processes": []
             },
             {
-                "type": "BANE"
+                "type": "BANE",
+                "processes": []
             }
         ],
         "raw_effects_text": "Storm\nBane",
@@ -985,9 +1207,13 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "DEAL_DAMAGE",
-                "target": "OWN_LEADER",
-                "value": 1
+                "processes": [
+                    {
+                        "process": "DEAL_DAMAGE",
+                        "target": "OWN_LEADER",
+                        "value": 1
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Deal 1 damage to your leader.",
@@ -1008,9 +1234,13 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "ADD_EFFECT",
-                "target": "SELF",
-                "value": "Storm"
+                "processes": [
+                    {
+                        "process": "ADD_EFFECT",
+                        "target": "SELF",
+                        "value": "Storm"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Necromancy (4) - Give this follower Storm.",
@@ -1031,21 +1261,40 @@
         "effects": [
             {
                 "type": "MODE",
-                "process": "CHOOSE",
+                "processes": [
+                    {
+                        "process": "CHOOSE"
+                    }
+                ],
                 "choices": [
                     {
                         "process": "DRAW",
                         "value": 1,
                         "target": "OWN_LEADER",
                         "condition": "CARD_TYPE_FOLLOWER",
-                        "type": "SPELL"
+                        "type": "SPELL",
+                        "processes": [
+                            {
+                                "process": "DRAW",
+                                "target": "OWN_LEADER",
+                                "value": 1,
+                                "condition": "CARD_TYPE_FOLLOWER"
+                            }
+                        ]
                     },
                     {
                         "process": "REANIMATE",
                         "value": 2,
-                        "type": "SPELL"
+                        "type": "SPELL",
+                        "processes": [
+                            {
+                                "process": "REANIMATE",
+                                "value": 2
+                            }
+                        ]
                     }
-                ]
+                ],
+                "process": "CHOOSE"
             }
         ],
         "raw_effects_text": "Select a Mode to activate.\n1. Draw a follower.\n2. Reanimate (2).",
@@ -1063,10 +1312,14 @@
         "tribes": [],
         "effects": [
             {
-                "process": "ADD_CARD_TO_HAND",
-                "target": "OWN_LEADER",
-                "value": "Bat",
-                "type": "LAST_WORDS"
+                "type": "LAST_WORDS",
+                "processes": [
+                    {
+                        "process": "ADD_CARD_TO_HAND",
+                        "target": "OWN_LEADER",
+                        "value": "Bat"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Last Words: Add a Bat to your hand.",
@@ -1086,19 +1339,27 @@
         "tribes": [],
         "effects": [
             {
-                "process": "SUMMON",
-                "value": [
-                    "Ghost",
-                    "Ghost"
-                ],
-                "target": "OWN_LEADER",
-                "type": "ON_EVOLVE"
+                "type": "ON_EVOLVE",
+                "processes": [
+                    {
+                        "process": "SUMMON",
+                        "target": "OWN_LEADER",
+                        "value": [
+                            "Ghost",
+                            "Ghost"
+                        ]
+                    }
+                ]
             },
             {
-                "process": "ADD_EFFECT",
-                "target": "SELF",
-                "value": "Drain",
-                "type": "ON_SUPER_EVOLVE"
+                "type": "ON_SUPER_EVOLVE",
+                "processes": [
+                    {
+                        "process": "ADD_EFFECT",
+                        "target": "SELF",
+                        "value": "Drain"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Evolve: Summon 2 copies of Ghost.\nSuper-Evolve: Give them Drain.",
@@ -1120,18 +1381,25 @@
         "effects": [
             {
                 "type": "SPELL",
-                "process": "SELECT",
-                "target": "ALLY_FOLLOWER_CHOICE",
-                "post_action": {
-                    "type": "SPELL",
-                    "raw_action_text": "destroy it"
-                }
+                "processes": [
+                    {
+                        "process": "SELECT",
+                        "target": "ALLY_FOLLOWER_CHOICE",
+                        "post_action": {
+                            "raw_action_text": "destroy it"
+                        }
+                    }
+                ]
             },
             {
-                "process": "DRAW",
-                "value": 2,
-                "target": "OWN_LEADER",
-                "type": "SPELL"
+                "type": "SPELL",
+                "processes": [
+                    {
+                        "process": "DRAW",
+                        "value": 2,
+                        "target": "OWN_LEADER"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Select an allied follower on the field and destroy it. Draw 2 cards.",
@@ -1152,12 +1420,17 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "HEAL",
-                "target": "OWN_LEADER",
-                "value": 5
+                "processes": [
+                    {
+                        "process": "HEAL",
+                        "target": "OWN_LEADER",
+                        "value": 5
+                    }
+                ]
             },
             {
-                "type": "WARD"
+                "type": "WARD",
+                "processes": []
             }
         ],
         "raw_effects_text": "Fanfare: Restore 5 defense to your leader.\nWard",
@@ -1177,7 +1450,8 @@
         "tribes": [],
         "effects": [
             {
-                "type": "WARD"
+                "type": "WARD",
+                "processes": []
             }
         ],
         "raw_effects_text": "Ward",
@@ -1196,28 +1470,35 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "SELECT",
-                "target": "ANOTHER_ALLY_FOLLOWER_CHOICE",
-                "post_action": {
-                    "type": "FANFARE",
-                    "process": "STAT_BUFF",
-                    "target": "SELF",
-                    "value": [
-                        1,
-                        1
-                    ]
-                }
+                "processes": [
+                    {
+                        "process": "SELECT",
+                        "target": "ANOTHER_ALLY_FOLLOWER_CHOICE",
+                        "post_action": {
+                            "process": "STAT_BUFF",
+                            "target": "SELF",
+                            "value": [
+                                1,
+                                1
+                            ]
+                        }
+                    }
+                ]
             },
             {
-                "process": "TRIGGER_EFFECT",
-                "value": "FANFARE",
-                "type": "ON_EVOLVE"
+                "type": "ON_EVOLVE",
+                "processes": [
+                    {
+                        "process": "TRIGGER_EFFECT",
+                        "value": "FANFARE"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Select another allied follower on the field and give it +1/+1.\nEvolve: Replicate the effects of this card's Fanfare ability.",
         "required_listeners": [
-            "CARD_PLAYED",
             "FOLLOWER_SUPER_EVOLVED",
+            "CARD_PLAYED",
             "FOLLOWER_EVOLVED"
         ]
     },
@@ -1233,19 +1514,33 @@
         "tribes": [],
         "effects": [
             {
+                "type": "COUNTDOWN",
                 "value": 2,
-                "type": "COUNTDOWN"
+                "processes": [
+                    {
+                        "value": 2
+                    }
+                ]
             },
             {
-                "process": "SUMMON",
-                "target": "OWN_LEADER",
-                "value": "Regal Falcon",
-                "type": "LAST_WORDS"
+                "type": "LAST_WORDS",
+                "processes": [
+                    {
+                        "process": "SUMMON",
+                        "target": "OWN_LEADER",
+                        "value": "Regal Falcon"
+                    }
+                ]
             },
             {
                 "type": "ENGAGE",
-                "process": "ADVANCE_COUNTDOWN",
-                "value": 2
+                "cost": 2,
+                "processes": [
+                    {
+                        "process": "ADVANCE_COUNTDOWN",
+                        "value": 2
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Countdown (2)\nLast Words: Summon a Regal Falcon.\nEngage (2): Advance this amulet's count by 2.",
@@ -1267,15 +1562,23 @@
         "tribes": [],
         "effects": [
             {
-                "process": "BANISH",
-                "target": "SELF",
-                "type": "ON_EVOLVE"
+                "type": "ON_EVOLVE",
+                "processes": [
+                    {
+                        "process": "BANISH",
+                        "target": "SELF"
+                    }
+                ]
             },
             {
-                "process": "BANISH",
-                "value": 3,
-                "target": "ALL_OPPONENT_FOLLOWERS",
-                "type": "ON_SUPER_EVOLVE"
+                "type": "ON_SUPER_EVOLVE",
+                "processes": [
+                    {
+                        "process": "BANISH",
+                        "target": "ALL_OPPONENT_FOLLOWERS",
+                        "value": 3
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Evolve: Select an enemy follower on the field with 3 defense or less and banish it.\nSuper-Evolve: Banish all enemy followers with 3 defense or less instead.",
@@ -1296,13 +1599,21 @@
         "tribes": [],
         "effects": [
             {
-                "type": "WARD"
+                "type": "WARD",
+                "processes": []
             },
             {
-                "process": "ADD_EFFECT",
-                "target": "SELF",
-                "value": "Storm",
-                "type": "SPELL"
+                "type": "SPELL",
+                "processes": [
+                    {
+                        "raw_action_text": "Whenever you Engage an amulet"
+                    },
+                    {
+                        "process": "ADD_EFFECT",
+                        "target": "SELF",
+                        "value": "Storm"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Ward\nWhenever you Engage an amulet, give this follower Storm.",
@@ -1322,19 +1633,33 @@
         "tribes": [],
         "effects": [
             {
+                "type": "COUNTDOWN",
                 "value": 4,
-                "type": "COUNTDOWN"
+                "processes": [
+                    {
+                        "value": 4
+                    }
+                ]
             },
             {
-                "process": "SUMMON",
-                "target": "OWN_LEADER",
-                "value": "Holy Falcon",
-                "type": "LAST_WORDS"
+                "type": "LAST_WORDS",
+                "processes": [
+                    {
+                        "process": "SUMMON",
+                        "target": "OWN_LEADER",
+                        "value": "Holy Falcon"
+                    }
+                ]
             },
             {
                 "type": "ENGAGE",
-                "process": "ADVANCE_COUNTDOWN",
-                "value": 1
+                "cost": 1,
+                "processes": [
+                    {
+                        "process": "ADVANCE_COUNTDOWN",
+                        "value": 1
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Countdown (4)\nLast Words: Summon a Holy Falcon.\nEngage (1): Advance this amulet's count by 1.",
@@ -1357,12 +1682,17 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "ADD_CARD_TO_HAND",
-                "target": "OWN_LEADER",
-                "value": "Gear of Ambition"
+                "processes": [
+                    {
+                        "process": "ADD_CARD_TO_HAND",
+                        "target": "OWN_LEADER",
+                        "value": "Gear of Ambition"
+                    }
+                ]
             },
             {
-                "type": "RUSH"
+                "type": "RUSH",
+                "processes": []
             }
         ],
         "raw_effects_text": "Fanfare: Add a Gear of Ambition to your hand.\nRush",
@@ -1383,9 +1713,13 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "ADD_CARD_TO_HAND",
-                "target": "OWN_LEADER",
-                "value": "Enhanced Puppet"
+                "processes": [
+                    {
+                        "process": "ADD_CARD_TO_HAND",
+                        "target": "OWN_LEADER",
+                        "value": "Enhanced Puppet"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Add an Enhanced Puppet to your hand.",
@@ -1405,10 +1739,12 @@
         "tribes": [],
         "effects": [
             {
-                "type": "BANE"
+                "type": "BANE",
+                "processes": []
             },
             {
-                "type": "WARD"
+                "type": "WARD",
+                "processes": []
             }
         ],
         "raw_effects_text": "Bane\nWard",
@@ -1427,21 +1763,26 @@
         "effects": [
             {
                 "type": "SPELL",
-                "process": "SELECT",
-                "target": "OPPONENT_FOLLOWER_CHOICE",
-                "post_action": {
-                    "type": "SPELL",
-                    "raw_action_text": "destroy it"
-                }
+                "processes": [
+                    {
+                        "process": "SELECT",
+                        "target": "OPPONENT_FOLLOWER_CHOICE",
+                        "post_action": {
+                            "raw_action_text": "destroy it"
+                        }
+                    }
+                ]
             },
             {
-                "process": "ADD_CARD_TO_HAND",
-                "target": "OWN_LEADER",
-                "value": [
-                    "Gear of Ambition",
-                    "Gear of Remembrance"
-                ],
-                "type": "SPELL"
+                "type": "SPELL",
+                "processes": [
+                    {
+                        "raw_action_text": "Add a Gear of Ambition"
+                    },
+                    {
+                        "raw_action_text": "Gear of Remembrance to your hand"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Select an enemy follower on the field and destroy it. Add a Gear of Ambition and Gear of Remembrance to your hand.",
@@ -1462,9 +1803,13 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "ADD_CARD_TO_HAND",
-                "target": "OWN_LEADER",
-                "value": "Gear of Remembrance"
+                "processes": [
+                    {
+                        "process": "ADD_CARD_TO_HAND",
+                        "target": "OWN_LEADER",
+                        "value": "Gear of Remembrance"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Add a Gear of Remembrance to your hand.",
@@ -1484,19 +1829,28 @@
         "tribes": [],
         "effects": [
             {
-                "type": "WARD"
+                "type": "WARD",
+                "processes": []
             },
             {
-                "process": "SUMMON",
-                "target": "OWN_LEADER",
-                "value": "Mecha Cavalier",
-                "type": "ON_EVOLVE"
+                "type": "ON_EVOLVE",
+                "processes": [
+                    {
+                        "process": "SUMMON",
+                        "target": "OWN_LEADER",
+                        "value": "Mecha Cavalier"
+                    }
+                ]
             },
             {
-                "process": "SUMMON",
-                "target": "OWN_LEADER",
-                "value": "2 instead",
-                "type": "ON_SUPER_EVOLVE"
+                "type": "ON_SUPER_EVOLVE",
+                "processes": [
+                    {
+                        "process": "SUMMON",
+                        "target": "OWN_LEADER",
+                        "value": "2 instead"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Ward\nEvolve: Summon a Mecha Cavalier.\nSuper-Evolve: Summon 2 instead.",
@@ -1518,19 +1872,32 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "ADD_CARD_TO_HAND",
-                "target": "OWN_LEADER",
-                "value": "Puppet"
+                "processes": [
+                    {
+                        "process": "ADD_CARD_TO_HAND",
+                        "target": "OWN_LEADER",
+                        "value": "Puppet"
+                    }
+                ]
             },
             {
+                "type": "COUNTDOWN",
                 "value": 2,
-                "type": "COUNTDOWN"
+                "processes": [
+                    {
+                        "value": 2
+                    }
+                ]
             },
             {
-                "process": "ADD_CARD_TO_HAND",
-                "target": "OWN_LEADER",
-                "value": "Puppet",
-                "type": "ON_MY_TURN_END"
+                "type": "ON_MY_TURN_END",
+                "processes": [
+                    {
+                        "process": "ADD_CARD_TO_HAND",
+                        "target": "OWN_LEADER",
+                        "value": "Puppet"
+                    }
+                ]
             }
         ],
         "raw_effects_text": "Fanfare: Add a Puppet to your hand.\nCountdown (2)\nAt the end of your turn, add a Puppet to your hand.",
