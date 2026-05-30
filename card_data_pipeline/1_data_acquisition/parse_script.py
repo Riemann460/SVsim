@@ -470,6 +470,7 @@ ACTION_PATTERNS = [
     {'regex': r"Select an enemy follower on the field and give it -0\/-(\d+)", 'process': ProcessType.STAT_BUFF, 'target': TargetType.OPPONENT_FOLLOWER_CHOICE, 'groups': ['value'], 'special_handling': 'neg_def_buff'},
 
     # 소환 효과를 처리하는 패턴입니다.
+    {'regex': r"Summon an exact copy of (?:it|them)", 'process': ProcessType.SUMMON_COPY, 'target': TargetType.OWN_LEADER, 'groups': []},
     {'regex': r"Summon (\d+) copies of (.*)", 'process': ProcessType.SUMMON, 'groups': ['value', 'card_name'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Summon a (.*)", 'process': ProcessType.SUMMON, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},
     {'regex': r"Summon (.*)", 'process': ProcessType.SUMMON, 'groups': ['card_names'], 'target': TargetType.OWN_LEADER},

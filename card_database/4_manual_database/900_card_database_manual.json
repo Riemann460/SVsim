@@ -221,8 +221,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Last Words</color></b>: Deal 1 damage to the enemy leader. Summon a <b><i><color=Keyword>White Psalm, New Revelation</color></i></b>.",
         "required_listeners": [
-            "TURN_START",
-            "DESTROYED_ON_FIELD"
+            "DESTROYED_ON_FIELD",
+            "TURN_START"
         ]
     },
     "90014310": {
@@ -471,8 +471,8 @@
         ],
         "raw_effects_text": "When this card is discarded, deal 1 damage to the enemy leader and restore 1 defense to your leader.\n<hr>Deal 1 damage to the enemy leader. Restore 1 defense to your leader.",
         "required_listeners": [
-            "CARD_DISCARDED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "CARD_DISCARDED"
         ]
     },
     "90034330": {
@@ -933,8 +933,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Storm</color></b>\nWhen this card leaves the field, banish it.\nAt the end of your turn, banish this card.",
         "required_listeners": [
-            "LEAVE_FIELD",
-            "TURN_END"
+            "TURN_END",
+            "LEAVE_FIELD"
         ]
     },
     "90021310": {
@@ -1841,8 +1841,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Aura</color></b>\nAt the end of your turn, if there are at least 3 allied amulets on the field, deal 3 damage to all enemies.",
         "required_listeners": [
-            "TURN_START",
-            "TURN_END"
+            "TURN_END",
+            "TURN_START"
         ]
     },
     "90051140": {
@@ -2210,8 +2210,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Last Words</color></b>: Restore 1 defense to your leader. Summon a <b><i><color=Keyword>Black Psalm, New Revelation</color></i></b>.",
         "required_listeners": [
-            "TURN_START",
-            "DESTROYED_ON_FIELD"
+            "DESTROYED_ON_FIELD",
+            "TURN_START"
         ]
     },
     "90044310": {

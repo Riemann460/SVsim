@@ -151,6 +151,7 @@ class ProcessType(Enum):
     GAIN_SHADOW = "묘지 수 증가"
     TRANSFORM = "변신"
     REANIMATE = "사령 재생"
+    SUMMON_COPY = "복사본 소환"
     INCREASE_COMBO = "콤보 증가"
     ADVANCE_COUNTDOWN = "카운트다운 진행"
     MULTI_ATTACK = "다중 공격"

@@ -107,6 +107,7 @@ class EffectProcessor:
             ProcessType.MULTI_ATTACK: self._process_multi_attack,
             ProcessType.SELECT: self._process_select,
             ProcessType.INCREASE_SKYBOUND_ART_GAUGE: self._process_increase_skybound_art_gauge,
+            ProcessType.SUMMON_COPY: self._process_summon_copy,
         }
 
     def _get_owner_id(self, caster_card: Any) -> str:
@@ -712,6 +713,48 @@ class EffectProcessor:
                     handler = self.process_handlers.get(post_action.process)
                     if handler:
                         handler(post_action, card, game_state_manager)
+
+    def _process_summon_copy(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
+        """처리 - 복사본 소환"""
+        caster_id = getattr(effect_data, "caster_id", "")
+        caster_card = game_state_manager.get_entity_by_id(caster_id)
+
+        owner_id = ""
+        original_card_data = None
+
+        if isinstance(target, Player):
+            owner_id = target.player_id
+            original_card_data = effect_data.value
+        elif isinstance(target, Card):
+            owner_id = target.owner_id
+            original_card_data = target.card_data
+        else:
+            owner_id = self._get_owner_id(caster_card)
+            if isinstance(caster_card, Card):
+                original_card_data = caster_card.card_data
+
+        if not original_card_data or not isinstance(original_card_data, card_data.CardData):
+            if hasattr(effect_data, "value") and isinstance(effect_data.value, card_data.CardData):
+                original_card_data = effect_data.value
+            else:
+                print("[WARNING] summon_copy - 원본 카드를 찾을 수 없습니다.")
+                return
+
+        if not owner_id:
+            owner_id = self._get_owner_id(caster_card) or "player1"
+
+        card = game_state_manager.create_card_instance(original_card_data, owner_id)
+        if len(game_state_manager.get_cards_in_zone(owner_id, Zone.FIELD)) < 5:
+            game_state_manager.add_card(card, Zone.FIELD, owner_id)
+
+        print(f"[LOG] 처리 내용: 복사본 소환, 타겟: {owner_id}, 소환 카드: {card.get_display_name()}")
+
+        # 후속 조치 효과가 정의되어 있다면 실행합니다.
+        post_action = getattr(effect_data, "post_action", None)
+        if post_action:
+            handler = self.process_handlers.get(post_action.process)
+            if handler:
+                handler(post_action, card, game_state_manager)
 
     def _process_deal_damage(self, effect_data: Effect, target: Any, game_state_manager: 'GameStateManager'):
         """처리 - 피해 입히기"""

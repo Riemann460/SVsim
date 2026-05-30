@@ -380,6 +380,7 @@ def _resolve_effect_references_recursive(effect: Effect, card_id: str, global_ca
                     ProcessType.SET_COST,
                     ProcessType.SET_ATTACK,
                     ProcessType.SET_DEFENSE,
+                    ProcessType.SUMMON_COPY,
                 }
                 if process_type not in safe_string_processes:
                     print(f"[WARNING] 카드 {card_id}의 프로세스 {process_name}에 예기치 않은 스트링 입력 {effect.value}.")
