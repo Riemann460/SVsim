@@ -74,11 +74,10 @@ def convert_json_to_class_script(json_file_path: str, output_json_path: str) -> 
                 for effect_obj in parsed_effects_list:
                     parsed_effects.append(effect_obj.to_dict())
 
-            # Spell 타입이면 효과에 명시적으로 Spell 타입을 부여합니다.
             if card_type_enum == CardType.SPELL.name:
                 for eff in parsed_effects:
-                    if eff.get("type") not in [EffectType.ON_DISCARD.name]:
-                        eff.update(type=EffectType.SPELL.name)
+                    if eff.get("type") is None:
+                        eff.update(type=CardType.SPELL.name)
 
             required_listeners = get_required_listeners(parsed_effects)
 

@@ -92,7 +92,7 @@
                 "process": "REDUCE_COST",
                 "target": "SELF",
                 "value": 1,
-                "type": "SPELL"
+                "type": "ON_MY_TURN_END"
             },
             {
                 "process": "DEAL_DAMAGE",
@@ -107,7 +107,8 @@
         ],
         "raw_effects_text": "Activates in hand. At the end of your turn, reduce the cost of this card by 1.\n<hr>Deal 6 damage to the enemy leader. If there's an allied <b><i><color=Keyword>Izudia, Annihilation Manifest</color></i></b> on the field, deal 20 damage instead.",
         "required_listeners": [
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "TURN_END"
         ]
     },
     "90034320": {
@@ -215,8 +216,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Last Words</color></b>: Deal 1 damage to the enemy leader. Summon a <b><i><color=Keyword>White Psalm, New Revelation</color></i></b>.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "TURN_START"
+            "TURN_START",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "90014310": {
@@ -260,6 +261,7 @@
             },
             {
                 "process": "SPELLBOOST_HAND",
+                "value": 3,
                 "target": "OWN_LEADER",
                 "type": "LAST_WORDS"
             }
@@ -422,7 +424,7 @@
                 "process": "DEAL_DAMAGE",
                 "target": "OWN_LEADER",
                 "value": 1,
-                "type": "SPELL"
+                "type": "ON_DISCARD"
             },
             {
                 "process": "DEAL_DAMAGE",
@@ -461,17 +463,21 @@
                 "type": "SPELL"
             },
             {
+                "process": "HEAL",
                 "target": "OWN_LEADER",
-                "type": "SPELL",
-                "process": "ADD_EFFECT"
+                "value": "Y",
+                "type": "SPELL"
             },
             {
+                "process": "DEAL_DAMAGE",
                 "target": "OPPONENT_LEADER",
-                "type": "SPELL",
-                "process": "ADD_EFFECT"
+                "value": "Z",
+                "type": "SPELL"
             },
             {
-                "raw_effect_text": "X, Y, and Z are determined randomly and add up to your faith's value.",
+                "process": "DEFINE_VARIABLE",
+                "value": "random_split_faith",
+                "target": "VARIABLE",
                 "type": "SPELL"
             }
         ],
@@ -492,8 +498,13 @@
         "tribes": [],
         "effects": [
             {
-                "process": "SUPER_EVOLVE",
-                "target": "SELF",
+                "process": "SELECT",
+                "raw_target_text": "an unevolved allied follower",
+                "type": "SPELL"
+            },
+            {
+                "process": "EVOLVE",
+                "target": "SUMMONED_FOLLOWERS",
                 "type": "SPELL"
             }
         ],
@@ -546,7 +557,7 @@
                 "enhance_cost": 1,
                 "process": "DEAL_DAMAGE",
                 "value": 3,
-                "type": "SPELL"
+                "type": "ENHANCE"
             }
         ],
         "raw_effects_text": "Select an enemy follower on the field and deal it 1 damage.\n<b><color=Keyword>Enhance</color> (1)</b>: Deal 3 damage instead.",
@@ -741,9 +752,7 @@
                 "type": "SPELL"
             },
             {
-                "target": "SELF",
-                "type": "SPELL",
-                "process": "ADD_EFFECT"
+                "raw_effect_text": "When you Fuse to this card, transform it based on the total cost of the cards fused."
             },
             {
                 "value": 1,
@@ -794,7 +803,7 @@
                 "type": "SPELL"
             },
             {
-                "type": "DISABLE"
+                "type": "SPELL"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fuse</color></b>: Artifact amulets\nWhen you <b><color=Keyword>Fuse</color></b> to this card, transform it into a <b><i><color=Keyword>Striker Artifact</color></i></b>.\n<hr>Can't be played.",
@@ -827,7 +836,7 @@
                 "type": "SPELL"
             },
             {
-                "type": "DISABLE"
+                "type": "SPELL"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fuse</color></b>: Artifact amulets\nWhen you <b><color=Keyword>Fuse</color></b> to this card, transform it into a <b><i><color=Keyword>Fortifier Artifact</color></i></b>.\n<hr>Can't be played.",
@@ -864,8 +873,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Storm</color></b>\nWhen this card leaves the field, banish it.\nAt the end of your turn, banish this card.",
         "required_listeners": [
-            "LEAVE_FIELD",
-            "TURN_END"
+            "TURN_END",
+            "LEAVE_FIELD"
         ]
     },
     "90021310": {
@@ -978,7 +987,7 @@
         "tribes": [],
         "effects": [
             {
-                "type": "SPELL",
+                "type": "MODE",
                 "process": "CHOOSE",
                 "choices": []
             },
@@ -1161,15 +1170,11 @@
                 "type": "WARD"
             },
             {
-                "target": "SELF",
-                "type": "SPELL",
-                "process": "ADD_EFFECT"
+                "raw_effect_text": "Your opponent can't select anything other than this card for abilities."
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Ward</color></b>\nYour opponent can't select anything other than this card for abilities.",
-        "required_listeners": [
-            "CARD_PLAYED"
-        ]
+        "required_listeners": []
     },
     "90033310": {
         "card_id": "90033310",
@@ -1377,13 +1382,19 @@
         ],
         "effects": [
             {
+                "process": "STAT_BUFF",
                 "target": "SELF",
-                "type": "SPELL",
-                "process": "ADD_EFFECT"
+                "value": [
+                    "+X",
+                    "+Y"
+                ],
+                "type": "ON_FOLLOWER_ENTER_FIELD"
             },
             {
-                "raw_effect_text": "X/Y is the total base attack/defense of allied Shikigami followers destroyed this turn.",
-                "type": "SPELL"
+                "process": "DEFINE_VARIABLE",
+                "value": "destroyed_shikigami_stats",
+                "target": "VARIABLE",
+                "type": "ON_FOLLOWER_ENTER_FIELD"
             },
             {
                 "type": "WARD"
@@ -1394,7 +1405,7 @@
         ],
         "raw_effects_text": "When this follower enters the field, give it +X/+Y. X/Y is the total base attack/defense of allied Shikigami followers destroyed this turn.\n<hr><b><color=Keyword>Ward</color></b>\n<b><color=Keyword>Aura</color></b>",
         "required_listeners": [
-            "CARD_PLAYED"
+            "FOLLOWER_ENTER_FIELD"
         ]
     },
     "90023110": {
@@ -1850,7 +1861,7 @@
                 "type": "WARD"
             },
             {
-                "process": "SUPER_EVOLVE",
+                "process": "EVOLVE",
                 "type": "ON_MY_TURN_END"
             }
         ],
@@ -1894,9 +1905,7 @@
                 "type": "SPELL"
             },
             {
-                "target": "SELF",
-                "type": "SPELL",
-                "process": "ADD_EFFECT"
+                "raw_effect_text": "When you Fuse to this card, transform it based on the total cost of the cards fused."
             },
             {
                 "value": 1,
@@ -1993,9 +2002,8 @@
         "tribes": [],
         "effects": [
             {
-                "target": "OPPONENT_FOLLOWER_RANDOM",
-                "type": "SPELL",
-                "process": "ADD_EFFECT"
+                "raw_effect_text": "Banish a random enemy follower from the field.",
+                "type": "SPELL"
             },
             {
                 "process": "ADVANCE_CREST",
@@ -2046,7 +2054,7 @@
             {
                 "process": "DEAL_DAMAGE",
                 "target": "OPPONENT_FOLLOWER_CHOICE",
-                "value": "X",
+                "value": "VARIABLE",
                 "type": "SPELL"
             },
             {
@@ -2093,8 +2101,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (1)</b>\n<b><color=Keyword>Last Words</color></b>: Restore 1 defense to your leader. Summon a <b><i><color=Keyword>Black Psalm, New Revelation</color></i></b>.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "TURN_START"
+            "TURN_START",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "90044310": {
@@ -2109,7 +2117,7 @@
         "tribes": [],
         "effects": [
             {
-                "type": "SPELL",
+                "type": "MODE",
                 "process": "CHOOSE",
                 "choices": []
             },

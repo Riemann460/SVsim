@@ -104,6 +104,9 @@ def parse_effect_text(description: str, card_type_enum):
                     i += 1
 
                 paragraph_effects.append(trigger_effect)
+                inherited_type = None
+                inherited_enhance_cost = None
+                inherited_cost = None
             else:
                 result = _parse_single_effect(line)
                 if isinstance(result, list):
@@ -142,11 +145,12 @@ def parse_effect_text(description: str, card_type_enum):
 
     if card_type_enum == "SPELL":
         for effect in parsed_effects:
-            if effect.get('type') not in [EffectType.ON_DISCARD]:
+            if effect.get('type') is None:
                 effect.update(type=EffectType.SPELL)
             if effect.get('choices'):
                 for choice in effect.choices:
-                    choice.update(type=EffectType.SPELL)
+                    if choice.get('type') is None:
+                        choice.update(type=EffectType.SPELL)
 
     return parsed_effects
 
@@ -184,7 +188,7 @@ EFFECT_PATTERNS = [
     {'regex': r"Super Skybound Art\s*-\s*(.*)", 'type': EffectType.SUPER_SKYBOUND_ART, 'groups': ['action_text']},
     {'regex': r"Skybound Art: (.*)", 'type': EffectType.SKYBOUND_ART, 'groups': ['action_text']},
     {'regex': r"Select a Mode to activate", 'type': EffectType.MODE, 'groups': []},
-    {'regex': r"Select (\d+)", 'type': EffectType.MODE, 'process': ProcessType.CHOOSE, 'groups': ['value']},
+    {'regex': r"Select (\d+)$", 'type': EffectType.MODE, 'process': ProcessType.CHOOSE, 'groups': ['value']},
     {'regex': r".*Activates in hand.*", 'type': EffectType.SPELL, 'groups': []},
     {'regex': r"Activates in deck", 'type': EffectType.SPELL, 'groups': []},
     {'regex': r"Fuse: (.*)", 'type': EffectType.SPELL, 'process': ProcessType.FUSE, 'groups': ['value']},
@@ -415,6 +419,7 @@ ACTION_PATTERNS = [
     {'regex': r"remove all abilities from (.*)", 'process': ProcessType.REMOVE_KEYWORD, 'groups': ['target_text']},
     {'regex': r"(?:and\s+)?deal it (\d+|X) damage", 'process': ProcessType.DEAL_DAMAGE, 'target': TargetType.SELF, 'groups': ['value']},
     
+    {'regex': r"Select (\d+) (?:cards|followers|spells|amulets) in your hand and return them to deck", 'process': ProcessType.RETURN_TO_DECK, 'target': TargetType.OWN_HAND_CHOICE, 'groups': ['value']},
     {'regex': r"Select a card in your hand and return it to deck", 'process': ProcessType.RETURN_TO_DECK, 'target': TargetType.OWN_HAND_CHOICE, 'groups': []},
     {'regex': r"Return a random card from your hand to deck", 'process': ProcessType.RETURN_TO_DECK, 'target': TargetType.OWN_HAND_RANDOM, 'value': 1, 'groups': []},
     {'regex': r"Select (\d+) (?:cards|followers|spells|amulets) in your hand and discard them", 'process': ProcessType.DISCARD, 'target': TargetType.OWN_HAND_CHOICE, 'groups': ['value']},

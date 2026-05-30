@@ -852,6 +852,33 @@ class TestScenarioBuilderCore(unittest.TestCase):
         self.assertNotIn(discard_card2.card_id, hand_ids)
         self.assertNotIn(discard_card3.card_id, hand_ids)
 
+    def test_caesura_al_fine_rally_condition_and_damage_crash(self):
+        """종악장 스펠 카드 플레이 시 콤보 조건 미달 상태에서 변수 효과로 인한 형변환 오류가 발생하지 않는지 검증합니다."""
+        builder = GameScenarioBuilder("player1", "player2")
+        builder.set_active_player("player2")
+        builder.set_pp("player2", 3, 3)
+        builder.set_rally("player2", 5)  # Rally 10 미만 조건
+
+        # 위해 대상인 적 추종자를 필드에 배치합니다.
+        target_follower = builder.add_to_field("player1", "Caravan Mammoth") # 체력이 높은 추종자
+
+        # 종악장 스펠 카드를 플레이어 2 손패에 추가합니다.
+        caesura = builder.add_to_hand("player2", "10723310")
+
+        game = builder.build()
+
+        # 위해 대상인 적 추종자를 선택하도록 모사합니다.
+        game.gui.get_user_choice.return_value = target_follower.card_id
+
+        # 종악장 스펠 카드를 플레이합니다.
+        played = game.play_card("player2", caesura.card_id)
+        self.assertTrue(played)
+
+        # 위해 결과를 검증합니다.
+        # Rally 10 미만이므로 6데미지만 입어야 하고, 전체 X데미지 효과는 발동되지 않아야 합니다.
+        self.assertEqual(target_follower.max_defense - target_follower.current_defense, 6)
+
+
 
 
 

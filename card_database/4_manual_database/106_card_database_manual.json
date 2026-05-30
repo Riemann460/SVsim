@@ -43,7 +43,7 @@
                 "process": "ADD_CARD_TO_HAND",
                 "target": "OWN_LEADER",
                 "value": "Advent of the Eld Blades",
-                "type": "SPELL"
+                "type": "ON_DISCARD"
             },
             {
                 "process": "STAT_BUFF",
@@ -176,7 +176,7 @@
                     2,
                     2
                 ],
-                "type": "SPELL"
+                "type": "ENHANCE"
             }
         ],
         "raw_effects_text": "Summon 3 copies of <b><i><color=Keyword>Fearless Soldier</color></i></b>.\n<b><color=Keyword>Enhance</color> (7)</b>: Give them +2/+2.",
@@ -242,8 +242,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Enhance</color> (6)</b>: Summon 2 copies of <b><i><color=Keyword>Adventurous Grimoire</color></i></b>.\n<hr><b><color=Keyword>Rush</color></b>\n<b><color=Keyword>Last Words</color></b>: Spellboost your hand.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10652310": {
@@ -322,7 +322,9 @@
                 "type": "AURA"
             },
             {
-                "type": "DISABLE"
+                "process": "ADD_EFFECT",
+                "value": "abilities",
+                "type": "SPELL"
             },
             {
                 "process": "DESTROY",
@@ -337,8 +339,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Aura</color></b>\nCan't be destroyed by abilities.\n<hr><b><color=Keyword>Clash</color></b>: Destroy the opposing follower.\n<hr><sev><b><color=Keyword>Super-Evolve</color></b>: Give this follower \"Can attack 3 times per turn.\"</sev>",
         "required_listeners": [
-            "COMBAT_INITIATED",
             "CARD_PLAYED",
+            "COMBAT_INITIATED",
             "FOLLOWER_SUPER_EVOLVED"
         ]
     },
@@ -360,22 +362,28 @@
                 "value": 3,
                 "choices": [
                     {
-                        "raw_action_text": "Storm"
+                        "raw_action_text": "Storm",
+                        "type": "SPELL"
                     },
                     {
-                        "raw_action_text": "Bane"
+                        "raw_action_text": "Bane",
+                        "type": "SPELL"
                     },
                     {
-                        "raw_action_text": "Intimidate"
+                        "raw_action_text": "Intimidate",
+                        "type": "SPELL"
                     },
                     {
-                        "raw_action_text": "Drain"
+                        "raw_action_text": "Drain",
+                        "type": "SPELL"
                     },
                     {
-                        "raw_action_text": "Aura"
+                        "raw_action_text": "Aura",
+                        "type": "SPELL"
                     },
                     {
-                        "raw_action_text": "Barrier"
+                        "raw_action_text": "Barrier",
+                        "type": "SPELL"
                     }
                 ]
             }
@@ -397,19 +405,31 @@
         "tribes": [],
         "effects": [
             {
+                "type": "ON_DISCARD",
                 "process": "ADD_CARD_TO_HAND",
                 "target": "OWN_LEADER",
-                "value": [
-                    "Beheading Eld Blades to your hand",
-                    "set its cost to 5 If this card's cost is 5",
-                    "add a Beheading Eld Blades"
-                ],
-                "type": "SPELL"
+                "condition": "COST_IS_7",
+                "post_action": {
+                    "process": "SET_COST",
+                    "value": 5
+                },
+                "value": "Beheading Eld Blades"
+            },
+            {
+                "type": "ON_DISCARD",
+                "process": "ADD_CARD_TO_HAND",
+                "target": "OWN_LEADER",
+                "condition": "COST_IS_5",
+                "post_action": {
+                    "process": "SET_COST",
+                    "value": 3
+                },
+                "value": "Beheading Eld Blades"
             },
             {
                 "process": "DEAL_DAMAGE",
                 "target": "ALL_OPPONENT_FOLLOWERS",
-                "value": "X",
+                "value": "VARIABLE",
                 "type": "SPELL"
             },
             {
@@ -435,7 +455,7 @@
         "tribes": [],
         "effects": [
             {
-                "type": "SPELL",
+                "type": "MODE",
                 "process": "CHOOSE",
                 "choices": []
             },
@@ -459,7 +479,7 @@
             {
                 "enhance_cost": 5,
                 "process": "TRIGGER_EFFECT",
-                "type": "SPELL"
+                "type": "ENHANCE"
             }
         ],
         "raw_effects_text": "Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Summon a <b><i><color=Keyword>Crystalspawn</color></i></b> and give it +1/+0 and <b><color=Keyword>Storm</color></b>.</ridx>\n<ridx=1>2. Summon 2 copies of <b><i><color=Keyword>Crystalspawn</color></i></b> and give them +1/+0.</ridx>\n<b><color=Keyword>Enhance</color> (5)</b>: Activate all of them instead.",
@@ -480,7 +500,7 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "SUPER_EVOLVE"
+                "process": "EVOLVE"
             },
             {
                 "process": "ADD_CARD_TO_HAND",
@@ -491,9 +511,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Necromancy</color> (4)</b> - Evolve this follower.\n<hr><ev>When this follower evolves, add a <b><i><color=Keyword>Depths of the Eld Sight</color></i></b> to your hand.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10671120": {
@@ -560,10 +580,10 @@
         ],
         "raw_effects_text": "Activates in hand. Whenever an allied <b><i><color=Keyword>Crystalspawn</color></i></b> enters the field, reduce the cost of this card by 1.\n<hr><b><color=Keyword>Fanfare</color></b>: Summon 2 copies of <b><i><color=Keyword>Crystalspawn</color></i></b> and give them <b><color=Keyword>Storm</color></b>.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Add a <b><i><color=Keyword>Depths of the Eld Crystals</color></i></b> to your hand.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
             "FOLLOWER_ENTER_FIELD",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10674110": {
@@ -588,14 +608,14 @@
             },
             {
                 "condition_text": "another allied follower with a base cost of 5 or more",
-                "process": "SUPER_EVOLVE",
-                "target": "SELF",
+                "process": "EVOLVE",
+                "target": "SUMMONED_FOLLOWERS",
                 "type": "ON_FOLLOWER_ENTER_FIELD"
             },
             {
                 "process": "DEAL_DAMAGE",
                 "target": "OPPONENT_LEADER",
-                "value": "X",
+                "value": "VARIABLE",
                 "type": "ON_SUPER_EVOLVE"
             },
             {
@@ -727,7 +747,7 @@
         "tribes": [],
         "effects": [
             {
-                "type": "SPELL",
+                "type": "MODE",
                 "process": "CHOOSE",
                 "choices": []
             },
@@ -766,24 +786,26 @@
                 "target": "ANOTHER_ALLY_FOLLOWER_CHOICE"
             },
             {
-                "process": "SUPER_EVOLVE",
+                "process": "EVOLVE",
                 "type": "FANFARE"
             },
             {
                 "process": "SUMMON",
                 "target": "OWN_LEADER",
-                "value": [
-                    "Bat",
-                    "evolve it"
-                ],
+                "value": "Bat",
+                "type": "EVOLVED"
+            },
+            {
+                "process": "EVOLVE",
+                "target": "SUMMONED_FOLLOWERS",
                 "type": "EVOLVED"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select another allied follower on the field. If you selected one, destroy it and evolve this follower.\n<hr><ev>When this follower evolves, summon a <b><i><color=Keyword>Bat</color></i></b> and evolve it.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10652120": {
@@ -813,9 +835,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Enhance</color> (7)</b>: Give this follower <b><color=Keyword>Storm</color></b>.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Select an enemy follower on the field and deal it 4 damage.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10601120": {
@@ -857,7 +879,7 @@
             {
                 "process": "TRANSFORM",
                 "target": "SELF",
-                "value": "an exact copy of a random card in your opponent's deck",
+                "value": "OPPONENT_DECK_RANDOM",
                 "type": "ENGAGE"
             }
         ],
@@ -992,8 +1014,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Enhance</color> (6)</b>: Summon 2 copies of <b><i><color=Keyword>Fruitfish</color></i></b>.\n<hr><b><color=Keyword>Last Words</color></b>: Restore 1 defense to your leader.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10651120": {
@@ -1049,7 +1071,8 @@
                 "process": "ADD_CARD_TO_HAND",
                 "target": "OWN_LEADER",
                 "value": "Fearless Soldier",
-                "type": "ENHANCE"
+                "type": "ENHANCE",
+                "enhance_cost": 6
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field and destroy it.\n<b><color=Keyword>Enhance</color> (6)</b>: Recover 3 play points. Add a <b><i><color=Keyword>Fearless Soldier</color></i></b> to your hand.",
@@ -1142,9 +1165,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select a card in your hand and discard it. Deal 6 damage to a random enemy follower.\n<hr><b><color=Keyword>Ward</color></b>\n<b><color=Keyword>Barrier</color></b>\n<hr><ev><b><color=Keyword>Evolve</color></b>: Replicate the effects of this card's <b><color=Keyword>Fanfare</color></b> ability.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10664110": {
@@ -1241,9 +1264,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Enhance</color> (4)</b>: Give this follower +2/+2.\n<hr><b><color=Keyword>Ward</color></b>\n<hr><ev><b><color=Keyword>Evolve</color></b>: Select an enemy follower on the field and deal it 3 damage.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10673110": {
@@ -1314,9 +1337,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select 3 other cards on the field and destroy them.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Reduce your faith's value by 10 to add a <b><i><color=Keyword>Depths of the Eld Tome</color></i></b> to your hand.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10622310": {
@@ -1338,7 +1361,7 @@
             {
                 "enhance_cost": 3,
                 "raw_action_text": "Delay the count of your Crest: Majestic Conquest by 2",
-                "type": "SPELL"
+                "type": "ENHANCE"
             }
         ],
         "raw_effects_text": "Gain <b><i>Crest: Majestic Conquest</i></b>.\n<b><color=Keyword>Enhance</color> (3)</b>: Delay the count of your <b><i>Crest: Majestic Conquest</i></b> by 2.",
@@ -1388,7 +1411,7 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "SUPER_EVOLVE"
+                "process": "EVOLVE"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Combo</color> (3)</b> - Evolve this follower.",
@@ -1422,9 +1445,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Add a <b><i><color=Keyword>Springbloom Fairy</color></i></b> to your hand.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Summon a <b><i><color=Keyword>Springbloom Fairy</color></i></b>.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10601110": {
@@ -1566,7 +1589,7 @@
         "tribes": [],
         "effects": [
             {
-                "type": "SPELL",
+                "type": "MODE",
                 "process": "CHOOSE",
                 "choices": []
             },
@@ -1605,9 +1628,10 @@
                 "choices": []
             },
             {
+                "process": "DESTROY",
+                "value": 1,
                 "target": "OPPONENT_FOLLOWER_RANDOM",
-                "type": "SPELL",
-                "process": "ADD_EFFECT"
+                "type": "SPELL"
             },
             {
                 "process": "DEAL_DAMAGE",
@@ -1667,9 +1691,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Holy Falcon</color></i></b>.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Replicate the effects of this card's <b><color=Keyword>Fanfare</color></b> ability.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10661110": {
@@ -1687,7 +1711,7 @@
                 "process": "HEAL",
                 "target": "OWN_LEADER",
                 "value": 2,
-                "type": "SPELL"
+                "type": "ON_FOLLOWER_ENTER_FIELD"
             },
             {
                 "type": "BANE"
@@ -1698,7 +1722,7 @@
         ],
         "raw_effects_text": "When this follower enters the field, restore 2 defense to your leader.\n<hr><b><color=Keyword>Bane</color></b>\n<b><color=Keyword>Ward</color></b>",
         "required_listeners": [
-            "CARD_PLAYED"
+            "FOLLOWER_ENTER_FIELD"
         ]
     },
     "10632310": {
@@ -1757,8 +1781,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select a card in your hand and discard it.\n<hr><b><color=Keyword>Last Words</color></b>: Draw 2 cards.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10651110": {
@@ -1802,7 +1826,7 @@
         "tribes": [],
         "effects": [
             {
-                "type": "SPELL",
+                "type": "MODE",
                 "process": "CHOOSE",
                 "choices": []
             },
@@ -1821,7 +1845,7 @@
             {
                 "enhance_cost": 3,
                 "process": "TRIGGER_EFFECT",
-                "type": "SPELL"
+                "type": "ENHANCE"
             }
         ],
         "raw_effects_text": "Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Draw a card.</ridx>\n<ridx=1>2. Deal 3 damage to a random enemy follower.</ridx>\n<b><color=Keyword>Enhance</color> (3)</b>: Activate all of them instead.",
@@ -1938,8 +1962,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (4)</b>\n<b><color=Keyword>Last Words</color></b>: Draw 2 cards. Deal 2 damage to all enemy followers. Restore 2 defense to your leader.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "TURN_START"
+            "TURN_START",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10671110": {
@@ -2027,6 +2051,7 @@
             {
                 "process": "STAT_BUFF",
                 "target": "ALL_ALLY_FOLLOWERS",
+                "target_count_var": "Crystalspawn",
                 "value": [
                     1,
                     0
@@ -2036,9 +2061,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon 2 copies of <b><i><color=Keyword>Crystalspawn</color></i></b>.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Give all allied copies of <b><i><color=Keyword>Crystalspawn</color></i></b> on the field +1/+0.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10642120": {
@@ -2053,7 +2078,7 @@
         "tribes": [],
         "effects": [
             {
-                "process": "SUPER_EVOLVE",
+                "process": "EVOLVE",
                 "type": "ON_MY_TURN_END"
             },
             {
@@ -2065,9 +2090,9 @@
         ],
         "raw_effects_text": "At the end of your turn, evolve this follower.\n<hr><ev>When this follower evolves, deal 3 damage to all enemies.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
             "FOLLOWER_EVOLVED",
-            "TURN_END"
+            "TURN_END",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10642310": {
@@ -2136,8 +2161,8 @@
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select another card on the field and destroy it. If you selected an allied amulet, recover 2 play points.\n<hr><b><color=Keyword>Countdown</color> (2)</b>\n<b><color=Keyword>Last Words</color></b>: Summon a copy of a random allied amulet destroyed this match with <b><color=Keyword>Last Words</color></b> and a base cost of 2 or less.",
         "required_listeners": [
             "TURN_START",
-            "DESTROYED_ON_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10672110": {
@@ -2155,11 +2180,12 @@
                 "type": "FANFARE",
                 "process": "SUMMON",
                 "target": "OWN_LEADER",
-                "value": [
-                    "Substandard Puppet",
-                    "evolve it",
-                    "this follower"
-                ]
+                "value": "Substandard Puppet"
+            },
+            {
+                "process": "EVOLVE",
+                "target": "SUMMONED_FOLLOWERS",
+                "type": "FANFARE"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Substandard Puppet</color></i></b> and evolve it and this follower.",
@@ -2211,11 +2237,12 @@
                 "process": "REDUCE_COST",
                 "target": "SELF",
                 "value": 1,
-                "type": "SPELL"
+                "type": "ON_FOLLOWER_ENTER_FIELD"
             },
             {
-                "process": "SUPER_EVOLVE",
+                "process": "EVOLVE",
                 "target": "ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED",
+                "target_count": 5,
                 "type": "SPELL"
             },
             {
@@ -2227,6 +2254,7 @@
         ],
         "raw_effects_text": "Activates in hand. Whenever an allied follower with a base cost of 5 or more enters the field, reduce the cost of this card by 1 until the end of the turn.\n<hr>Evolve a random unevolved allied follower on the field with a base cost of 5 or more. Deal 6 damage to a random enemy follower.",
         "required_listeners": [
+            "FOLLOWER_ENTER_FIELD",
             "CARD_PLAYED"
         ]
     },
@@ -2252,9 +2280,10 @@
                 "type": "LAST_WORDS"
             },
             {
+                "process": "DESTROY",
+                "value": 1,
                 "target": "OPPONENT_FOLLOWER_RANDOM",
-                "type": "LAST_WORDS",
-                "process": "ADD_EFFECT"
+                "type": "LAST_WORDS"
             },
             {
                 "cost": 1,
@@ -2265,9 +2294,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Countdown</color> (3)</b>\n<b><color=Keyword>Last Words</color></b>: Draw a card. Destroy a random enemy follower.\n<hr><b><color=Keyword>Engage</color> (1)</b>: Advance this amulet's count by 1.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
             "CARD_ENGAGED",
-            "TURN_START"
+            "TURN_START",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10662110": {
@@ -2309,7 +2338,7 @@
                     "Vorlalai",
                     "Eld Blades"
                 ],
-                "type": "SPELL"
+                "type": "ON_DISCARD"
             },
             {
                 "type": "BANE"
@@ -2329,9 +2358,8 @@
         ],
         "raw_effects_text": "When this card is discarded, summon a <b><i><color=Keyword>Vorlalai, Eld Blades</color></i></b>.\n<hr><b><color=Keyword>Bane</color></b>\n<hr><ev><b><color=Keyword>Evolve</color></b>: Add a <b><i><color=Keyword>Depths of the Eld Blades</color></i></b> to your hand.</ev>\n<sev><b><color=Keyword>Super-Evolve</color></b>: Add 3 copies instead.</sev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
-            "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_EVOLVED",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10663110": {
@@ -2365,9 +2393,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Summon a <b><i><color=Keyword>Worshipful Crusader</color></i></b>.\n<hr><b><color=Keyword>Bane</color></b>\n<b><color=Keyword>Aura</color></b>\n<hr><ev><b><color=Keyword>Evolve</color></b>: Select an enemy follower on the field and destroy it.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10652110": {
@@ -2425,9 +2453,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Add a <b><i><color=Keyword>Depths of the Eld Sword</color></i></b> to your hand.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Reduce your faith's value by 5 to give it \"Whenever you play an <b><color=Keyword>Enhance</color><color=Keyword>d</color></b> card, give all allied followers on the field +1/+1.\"</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10674120": {

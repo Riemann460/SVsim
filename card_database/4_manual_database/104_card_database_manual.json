@@ -70,13 +70,13 @@
         "tribes": [],
         "effects": [
             {
-                "type": "SPELL",
+                "type": "MODE",
                 "process": "CHOOSE",
                 "choices": []
             },
             {
                 "process": "TRIGGER_EFFECT",
-                "type": "SPELL"
+                "type": "SUPER_SKYBOUND_ART"
             },
             {
                 "process": "DRAW",
@@ -218,13 +218,15 @@
                 "process": "TRANSFORM",
                 "target": "SELF",
                 "value": "an Awed and Inspired",
-                "type": "ENGAGE"
+                "type": "ENGAGE",
+                "cost": 2
             },
             {
                 "process": "DRAW",
                 "value": 1,
                 "target": "OWN_LEADER",
-                "type": "ENGAGE"
+                "type": "ENGAGE",
+                "cost": 2
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Engage</color> (2)</b>: Destroy this card. Select an allied follower on the field and transform it into an <b><i><color=Keyword>Awed and Inspired</color></i></b>. Draw a card.",
@@ -287,16 +289,16 @@
             },
             {
                 "type": "FANFARE",
-                "raw_action_text": "remove all abilities from them"
+                "process": "REMOVE_KEYWORD",
+                "target": "SELF"
             },
             {
                 "type": "FANFARE",
                 "raw_action_text": "and deal them 9 damage"
             },
             {
-                "target": "OPPONENT_LEADER",
-                "type": "FANFARE",
-                "process": "ADD_EFFECT"
+                "raw_effect_text": "Give the enemy leader \"Takes 1 more damage.\"",
+                "type": "FANFARE"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select 2 enemy followers on the field, remove all abilities from them, and deal them 9 damage. Give the enemy leader \"Takes 1 more damage.\"",
@@ -364,7 +366,7 @@
                 "type": "FANFARE"
             },
             {
-                "process": "SUPER_EVOLVE",
+                "process": "EVOLVE",
                 "type": "FANFARE"
             },
             {
@@ -393,7 +395,7 @@
                 "type": "FANFARE",
                 "process": "DEAL_DAMAGE",
                 "target": "ALL_OPPONENT_FOLLOWERS",
-                "value": "X"
+                "value": "VARIABLE"
             },
             {
                 "value": "the selected follower's attack",
@@ -409,8 +411,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an Artifact follower in your hand and deal X damage to all enemy followers. X is the selected follower's attack.\n<hr><b><color=Keyword>Last Words</color></b>: Add a <b><i><color=Keyword>Fortifier Artifact</color></i></b> to your hand.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10473310": {
@@ -433,7 +435,7 @@
             {
                 "process": "DEAL_DAMAGE",
                 "value": 6,
-                "type": "SPELL"
+                "type": "SUPER_SKYBOUND_ART"
             }
         ],
         "raw_effects_text": "Deal 3 damage to all enemies. <b><color=Keyword>Super Skybound Art</color></b> - Deal 6 damage instead.",
@@ -460,9 +462,9 @@
                 "type": "ENHANCE"
             },
             {
-                "target": "SELF",
+                "raw_effect_text": "Return this card to hand.",
                 "type": "ENHANCE",
-                "process": "ADD_EFFECT"
+                "enhance_cost": 8
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Enhance</color> (8)</b>: Select a follower in your hand and summon it. Return this card to hand.",
@@ -522,7 +524,7 @@
             {
                 "process": "DESTROY_CREST",
                 "value": "Corruption",
-                "type": "SPELL"
+                "type": "SUPER_SKYBOUND_ART"
             }
         ],
         "raw_effects_text": "Give all followers on the field -2/-2. Give yourself and your opponent <b><i>Crest: Corruption</i></b>. <b><color=Keyword>Super Skybound Art</color></b> - Destroy your <b><i>Crest: Corruption</i></b>.",
@@ -565,7 +567,7 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "SUPER_EVOLVE"
+                "process": "EVOLVE"
             },
             {
                 "process": "DEAL_DAMAGE",
@@ -582,9 +584,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Skybound Art</color></b> - Evolve this follower. <b><color=Keyword>Super Skybound Art</color></b> - Deal 3 damage to the enemy leader.\n<hr><ev>When this follower evolves, do this 7 times: \"Deal 1 damage to a random enemy follower.\"</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10463210": {
@@ -604,14 +606,15 @@
                 "type": "ENGAGE"
             },
             {
-                "type": "CHOOSE",
+                "type": "MODE",
                 "process": "CHOOSE",
                 "choices": []
             },
             {
+                "process": "DESTROY",
+                "value": 1,
                 "target": "OPPONENT_FOLLOWER_RANDOM",
-                "type": "SPELL",
-                "process": "ADD_EFFECT"
+                "type": "SPELL"
             },
             {
                 "process": "DRAW",
@@ -622,8 +625,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Engage</color></b>: Destroy this card. Select a <b><color=Keyword>Mode</color></b> to activate.\n<ridx=0>1. Destroy a random enemy follower.</ridx>\n<ridx=1>2. Draw 2 cards.</ridx>",
         "required_listeners": [
-            "CARD_PLAYED",
-            "CARD_ENGAGED"
+            "CARD_ENGAGED",
+            "CARD_PLAYED"
         ]
     },
     "10433110": {
@@ -644,11 +647,14 @@
             },
             {
                 "type": "FANFARE",
-                "raw_action_text": "remove all abilities from it"
+                "process": "REMOVE_KEYWORD",
+                "target": "SELF"
             },
             {
                 "type": "FANFARE",
-                "raw_action_text": "and deal it 3 damage"
+                "process": "DEAL_DAMAGE",
+                "value": 3,
+                "target": "SELF"
             },
             {
                 "process": "GAIN_CREST",
@@ -675,8 +681,13 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "SUPER_EVOLVE",
-                "target": "SELF"
+                "process": "SELECT",
+                "raw_target_text": "another unevolved allied follower"
+            },
+            {
+                "process": "EVOLVE",
+                "target": "SUMMONED_FOLLOWERS",
+                "type": "FANFARE"
             },
             {
                 "process": "DEAL_DAMAGE",
@@ -687,8 +698,8 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Skybound Art</color></b> - Select another unevolved allied follower on the field and evolve it and this follower.\n<hr><b><color=Keyword>Clash</color></b>: Deal 3 damage to the opposing follower.",
         "required_listeners": [
-            "COMBAT_INITIATED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "COMBAT_INITIATED"
         ]
     },
     "10414110": {
@@ -780,9 +791,9 @@
                 "value": 1
             },
             {
-                "type": "FANFARE",
-                "process": "SUPER_EVOLVE",
-                "target": "SELF"
+                "process": "EVOLVE",
+                "target": "SUMMONED_FOLLOWERS",
+                "type": "FANFARE"
             },
             {
                 "process": "STAT_BUFF",
@@ -839,14 +850,13 @@
                 "type": "DISABLE"
             },
             {
-                "process": "SUPER_EVOLVE",
+                "process": "EVOLVE",
                 "target": "ANOTHER_ALLY_FOLLOWER_RANDOM_UNEVOLVED_NO_ATTACK",
                 "type": "ON_MY_TURN_END"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Ward</color></b>\nCan't attack followers or leaders.\nAt the end of your turn, if you've unlocked super-evolution, evolve a random unevolved allied follower on the field that didn't attack this turn.",
         "required_listeners": [
-            "CARD_PLAYED",
             "TURN_END"
         ]
     },
@@ -867,7 +877,7 @@
                 "choices": []
             },
             {
-                "process": "SUPER_EVOLVE",
+                "process": "EVOLVE",
                 "type": "SPELL"
             },
             {
@@ -910,8 +920,8 @@
                 "choices": []
             },
             {
-                "process": "SUPER_EVOLVE",
-                "type": "FANFARE"
+                "process": "EVOLVE",
+                "type": "SPELL"
             },
             {
                 "process": "DEAL_DAMAGE",
@@ -1008,7 +1018,7 @@
             },
             {
                 "type": "FANFARE",
-                "process": "SUPER_EVOLVE"
+                "process": "EVOLVE"
             },
             {
                 "process": "DEAL_DAMAGE",
@@ -1019,9 +1029,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: If you have 10 max play points, evolve this follower.\n<hr><ev>When this follower evolves, deal 3 damage to all enemy followers.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10441110": {
@@ -1060,6 +1070,7 @@
                 "type": "FANFARE",
                 "process": "DEAL_DAMAGE",
                 "target": "OPPONENT_FOLLOWER_RANDOM",
+                "target_count": 2,
                 "value": 5
             },
             {
@@ -1088,7 +1099,7 @@
         "tribes": [],
         "effects": [
             {
-                "type": "SPELL",
+                "type": "MODE",
                 "process": "CHOOSE",
                 "choices": []
             },
@@ -1100,6 +1111,7 @@
             {
                 "process": "STAT_BUFF",
                 "target": "ALL_ALLY_FOLLOWERS",
+                "target_count_var": "Swordcraft",
                 "value": [
                     1,
                     1
@@ -1149,8 +1161,8 @@
         ],
         "raw_effects_text": "Can attack 2 times per turn.\n<b><color=Keyword>Strike</color></b>: Restore 3 defense to all allies.",
         "required_listeners": [
-            "ATTACK_DECLARED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "ATTACK_DECLARED"
         ]
     },
     "10461120": {
@@ -1171,14 +1183,16 @@
                 "type": "ON_MY_TURN_END"
             },
             {
-                "type": "DISABLE"
+                "process": "ADD_EFFECT",
+                "value": "DISABLE",
+                "type": "ON_EVOLVE"
             }
         ],
         "raw_effects_text": "At the end of your turn, if this follower is evolved, deal 2 damage to all followers.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Give this follower \"Can't attack followers or leaders\" until the end of the turn.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
             "FOLLOWER_EVOLVED",
-            "TURN_END"
+            "TURN_END",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10474110": {
@@ -1245,7 +1259,8 @@
                 "process": "RECOVER_PP",
                 "value": 7,
                 "target": "OWN_LEADER",
-                "type": "ENHANCE"
+                "type": "ENHANCE",
+                "enhance_cost": 8
             },
             {
                 "type": "BARRIER"
@@ -1268,7 +1283,7 @@
         "tribes": [],
         "effects": [
             {
-                "process": "SUPER_EVOLVE",
+                "process": "EVOLVE",
                 "type": "ON_MY_TURN_END"
             },
             {
@@ -1280,9 +1295,9 @@
         ],
         "raw_effects_text": "At the end of your turn, evolve this follower.\n<hr><ev>When this follower evolves, deal 1 damage to all enemy followers.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
             "FOLLOWER_EVOLVED",
-            "TURN_END"
+            "TURN_END",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10441120": {
@@ -1300,9 +1315,8 @@
                 "type": "SPELL"
             },
             {
-                "target": "SELF",
-                "type": "SPELL",
-                "process": "ADD_EFFECT"
+                "raw_effect_text": "Whenever a 3-base-cost allied follower super-evolves, set the cost of this card to 0 until the end of the turn.",
+                "type": "SPELL"
             },
             {
                 "process": "STAT_BUFF",
@@ -1332,7 +1346,10 @@
         "tribes": [],
         "effects": [
             {
-                "type": "DISABLE"
+                "process": "DEAL_DAMAGE",
+                "value": 3,
+                "target": "SELF",
+                "type": "SPELL"
             }
         ],
         "raw_effects_text": "Select an enemy follower on the field, deal it 3 damage, and give it \"Can't attack followers or leaders\" until the end of your opponent's turn.",
@@ -1353,7 +1370,7 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "SUPER_EVOLVE"
+                "process": "EVOLVE"
             },
             {
                 "condition_text": "a 2-base-cost allied follower",
@@ -1392,8 +1409,8 @@
             },
             {
                 "value": 2,
-                "process": "SUPER_EVOLVE",
-                "target": "SELF",
+                "process": "EVOLVE",
+                "target": "SUMMONED_FOLLOWERS",
                 "type": "EARTH_RITE"
             }
         ],
@@ -1475,7 +1492,7 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "SUPER_EVOLVE",
+                "process": "EVOLVE",
                 "target": "ALLY_FOLLOWER_CHOICE_UNEVOLVED"
             },
             {
@@ -1636,11 +1653,11 @@
             },
             {
                 "process": "CONDITIONAL_EFFECT",
-                "type": "SPELL"
+                "type": "ON_MY_TURN_START"
             },
             {
                 "process": "GAIN_CREST",
-                "value": "Sandalphon, Primarch Successor and return this card to hand",
+                "value": "SELF",
                 "type": "SPELL"
             },
             {
@@ -1652,6 +1669,7 @@
         ],
         "raw_effects_text": "Activates in deck. At the start of your turn, if allied followers have evolved at least 6 times this match, <b><color=Keyword>Invoke</color></b> this card.\n<hr>When this card is <b><color=Keyword>Invoke</color><color=Keyword>d</color></b>, gain <b><i>Crest: Sandalphon, Primarch Successor</i></b> and return this card to hand.\n<b><color=Keyword>Fanfare</color></b>: <b><color=Keyword>Super Skybound Art</color></b> - Do this 5 times: \"Deal 2 damage to a random enemy.\"",
         "required_listeners": [
+            "TURN_START",
             "CARD_PLAYED"
         ]
     },
@@ -1687,9 +1705,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Enhance</color> (6)</b>: Give this follower +0/+10.\n<hr><b><color=Keyword>Ward</color></b>\n<hr><ev><b><color=Keyword>Evolve</color></b>: Select a damaged enemy follower on the field and destroy it.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10452120": {
@@ -1709,7 +1727,7 @@
             },
             {
                 "type": "FANFARE",
-                "process": "SUPER_EVOLVE"
+                "process": "EVOLVE"
             },
             {
                 "type": "AURA"
@@ -1733,12 +1751,12 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "SUPER_EVOLVE",
+                "process": "EVOLVE",
                 "target": "ALLY_FOLLOWER_CHOICE_UNEVOLVED"
             },
             {
-                "process": "SUPER_EVOLVE",
-                "raw_target_text": "them instead",
+                "process": "EVOLVE",
+                "target": "SUMMONED_FOLLOWERS",
                 "type": "SUPER_SKYBOUND_ART"
             }
         ],
@@ -1803,8 +1821,13 @@
                 "type": "ENGAGE"
             },
             {
-                "process": "SUPER_EVOLVE",
-                "target": "SELF",
+                "process": "SELECT",
+                "raw_target_text": "an unevolved allied follower",
+                "type": "ENGAGE"
+            },
+            {
+                "process": "EVOLVE",
+                "target": "SUMMONED_FOLLOWERS",
                 "type": "ENGAGE"
             }
         ],
@@ -1864,7 +1887,7 @@
             {
                 "value": "Starry Sky",
                 "process": "GAIN_CREST",
-                "type": "SPELL"
+                "type": "COMBO"
             }
         ],
         "raw_effects_text": "Deal 2 damage to a random enemy follower. <b><color=Keyword>Combo</color> (5)</b> - Gain <b><i>Crest: Starry Sky</i></b>.",
@@ -1908,6 +1931,7 @@
         "effects": [
             {
                 "process": "SPELLBOOST_HAND",
+                "value": "VARIABLE",
                 "target": "OWN_LEADER",
                 "type": "ON_MY_TURN_END"
             },
@@ -1917,15 +1941,17 @@
                 "type": "SPELL"
             },
             {
-                "type": "DISABLE"
+                "process": "ADD_EFFECT",
+                "value": "DISABLE",
+                "type": "ON_EVOLVE"
             }
         ],
         "raw_effects_text": "At the end of your turn, spellboost your hand X times. X is this follower's attack.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Give this follower \"Can't attack followers or leaders.\"</ev>",
         "required_listeners": [
             "FOLLOWER_EVOLVED",
-            "FOLLOWER_SUPER_EVOLVED",
             "CARD_PLAYED",
-            "TURN_END"
+            "TURN_END",
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10463110": {
@@ -1954,9 +1980,9 @@
         ],
         "raw_effects_text": "Whenever you <b><color=Keyword>Engage</color></b> an amulet, restore 1 defense to your leader.\n<hr><ev><b><color=Keyword>Evolve</color></b>: Select an enemy follower on the field and deal it 3 damage.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10461110": {
@@ -1999,8 +2025,8 @@
             {
                 "type": "FANFARE",
                 "process": "INCREASE_SKYBOUND_ART_GAUGE",
-                "target": "OWN_LEADER",
-                "value": 1
+                "value": 1,
+                "target": "OWN_LEADER"
             },
             {
                 "type": "RUSH"
@@ -2023,7 +2049,7 @@
         "tribes": [],
         "effects": [
             {
-                "type": "SPELL",
+                "type": "MODE",
                 "process": "CHOOSE",
                 "choices": []
             },
@@ -2137,7 +2163,7 @@
                 "value": 2
             },
             {
-                "process": "SUPER_EVOLVE",
+                "process": "EVOLVE",
                 "type": "SUPER_SKYBOUND_ART"
             },
             {
@@ -2171,7 +2197,7 @@
             },
             {
                 "type": "FANFARE",
-                "process": "SUPER_EVOLVE"
+                "process": "EVOLVE"
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: If you've unlocked super-evolution, evolve this follower.",
@@ -2218,7 +2244,7 @@
             {
                 "process": "DEAL_DAMAGE",
                 "target": "ALL_OPPONENT_FOLLOWERS",
-                "value": "X",
+                "value": "VARIABLE",
                 "is_split": true,
                 "type": "SPELL"
             },
@@ -2262,9 +2288,9 @@
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Select an enemy follower on the field and deal it 8 damage.\n<hr><b><color=Keyword>Intimidate</color></b>\n<hr><ev><b><color=Keyword>Evolve</color></b>: Replicate the effects of this card's <b><color=Keyword>Fanfare</color></b> ability.</ev>",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10414120": {
@@ -2385,7 +2411,8 @@
             {
                 "process": "ADD_EFFECT",
                 "value": 0,
-                "type": "ENHANCE"
+                "type": "ENHANCE",
+                "enhance_cost": 10
             }
         ],
         "raw_effects_text": "<b><color=Keyword>Fanfare</color></b>: Gain 1 max play point.\n<b><color=Keyword>Enhance</color> (10)</b>: Give this follower <b><color=Keyword>Storm</color></b>. Set your leader's max defense to 1. Give your leader \"Can't take more than 0 damage at a time\" until the end of your opponent's turn.",

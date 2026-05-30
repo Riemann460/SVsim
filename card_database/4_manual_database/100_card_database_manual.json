@@ -55,8 +55,8 @@
         ],
         "raw_effects_text": "Ward\nLast Words: Draw a card.\nEvolve: Draw a card.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
             "FOLLOWER_EVOLVED",
+            "DESTROYED_ON_FIELD",
             "FOLLOWER_SUPER_EVOLVED"
         ]
     },
@@ -247,7 +247,7 @@
         "effects": [
             {
                 "type": "FANFARE",
-                "process": "SUPER_EVOLVE"
+                "process": "EVOLVE"
             },
             {
                 "process": "HEAL",
@@ -258,8 +258,8 @@
         ],
         "raw_effects_text": "Fanfare: Combo (3) - Evolve this follower.\nStrike: Restore 2 defense to your leader.",
         "required_listeners": [
-            "ATTACK_DECLARED",
-            "CARD_PLAYED"
+            "CARD_PLAYED",
+            "ATTACK_DECLARED"
         ]
     },
     "10011210": {
@@ -293,8 +293,8 @@
         ],
         "raw_effects_text": "Fanfare: Add a Fairy to your hand.\nCountdown (2)\nWhenever an allied Pixie follower enters the field, deal 1 damage to a random enemy follower.",
         "required_listeners": [
-            "TURN_START",
             "FOLLOWER_ENTER_FIELD",
+            "TURN_START",
             "CARD_PLAYED"
         ]
     },
@@ -562,7 +562,9 @@
                 "choices": [
                     {
                         "process": "SPELLBOOST_HAND",
-                        "target": "OWN_LEADER"
+                        "value": 2,
+                        "target": "OWN_LEADER",
+                        "type": "SPELL"
                     },
                     {
                         "process": "STAT_BUFF",
@@ -570,7 +572,8 @@
                         "value": [
                             2,
                             2
-                        ]
+                        ],
+                        "type": "SPELL"
                     }
                 ]
             }
@@ -735,7 +738,7 @@
                 "value": 1,
                 "process": "DRAW",
                 "target": "OWN_LEADER",
-                "type": "SPELL"
+                "type": "EARTH_RITE"
             }
         ],
         "raw_effects_text": "Deal 2 damage to all followers. Earth Rite (1) - Draw a card.",
@@ -995,7 +998,7 @@
         "tribes": [],
         "effects": [
             {
-                "type": "SPELL",
+                "type": "MODE",
                 "process": "CHOOSE",
                 "choices": [
                     {
@@ -1014,9 +1017,7 @@
             }
         ],
         "raw_effects_text": "Select a Mode to activate.\n1. Draw a follower.\n2. Reanimate (2).",
-        "required_listeners": [
-            "CARD_PLAYED"
-        ]
+        "required_listeners": []
     },
     "10052110": {
         "card_id": "10052110",
@@ -1174,9 +1175,9 @@
         ],
         "raw_effects_text": "Fanfare: Select another allied follower on the field and give it +1/+1.\nEvolve: Replicate the effects of this card's Fanfare ability.",
         "required_listeners": [
-            "FOLLOWER_SUPER_EVOLVED",
+            "FOLLOWER_EVOLVED",
             "CARD_PLAYED",
-            "FOLLOWER_EVOLVED"
+            "FOLLOWER_SUPER_EVOLVED"
         ]
     },
     "10061210": {
@@ -1209,9 +1210,9 @@
         ],
         "raw_effects_text": "Countdown (2)\nLast Words: Summon a Regal Falcon.\nEngage (2): Advance this amulet's count by 2.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
             "CARD_ENGAGED",
-            "TURN_START"
+            "TURN_START",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10062110": {
@@ -1299,9 +1300,9 @@
         ],
         "raw_effects_text": "Countdown (4)\nLast Words: Summon a Holy Falcon.\nEngage (1): Advance this amulet's count by 1.",
         "required_listeners": [
-            "DESTROYED_ON_FIELD",
             "CARD_ENGAGED",
-            "TURN_START"
+            "TURN_START",
+            "DESTROYED_ON_FIELD"
         ]
     },
     "10071110": {

@@ -633,16 +633,21 @@ class EffectProcessor:
         """처리 - 피해 입히기"""
         value = effect_data.value
 
+        try:
+            val = int(value)
+        except (ValueError, TypeError):
+            val = 0
+
         if target.has_keyword(EffectType.BARRIER):
             print(f"[LOG] {target.get_display_name()} 배리어로 데미지 0 받음.")
-            value = 0
+            val = 0
             target.effects = [effect for effect in target.effects if effect.type != EffectType.BARRIER]
 
         elif hasattr(target, "is_super_evolved") and target.is_super_evolved and game_state_manager.current_turn_player_id == target.owner_id:
             print(f"[LOG] {target.get_display_name()} 초진화 효과로 데미지 0 받음.")
-            value = 0
+            val = 0
 
-        if target.take_damage(value):
+        if target.take_damage(val):
             if target.get_type() == CardType.LEADER:
                 # 게임 종료 처리를 수행합니다.
                 pass
